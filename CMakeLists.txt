@@ -26,10 +26,6 @@ set( SERVER_DIR "${FOC_ROOT_DIR}/Server" )
 set( GIT_DIR       "${FOC_ROOT_DIR}/.git" )
 set( GIT_HOOKS_DIR "${GIT_DIR}/hooks" )
 
-# server directories
-set( EXTENSIONS_DIR "${SERVER_DIR}/extensions" )
-set( SCRIPTS_DIR    "${SERVER_DIR}/scripts" )
-
 ##
 ## FOClassic
 ##
@@ -69,3 +65,12 @@ set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 set_property( GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake" )
 
 set_property( TARGET ${FOCLASSIC_ALL_TARGETS} PROPERTY FOLDER Engine )
+
+add_custom_target( Content
+	SOURCES
+		${CMAKE_CURRENT_LIST_FILE}
+		${CONTENT_FILES}
+)
+
+source_group( "CMake"  REGULAR_EXPRESSION "[Cc][Mm][Aa][Kk][Ee]" )
+source_group( TREE "${SERVER_DIR}" FILES ${CONTENT_FILES} )
