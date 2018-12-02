@@ -1,0 +1,3 @@
+# FOServer::UserLogin()
+# FOServer::UserRegister()
+{1024}{}{|4291317840 Version of the client is incorrect, please update.}

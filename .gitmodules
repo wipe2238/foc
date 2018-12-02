@@ -1,0 +1,4 @@
+[submodule "FOClassic"]
+	url = https://github.com/rotators/foclassic.git
+	branch = dev
+	path = Upstream/FOClassic

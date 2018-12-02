@@ -1,0 +1,16 @@
+#
+# Local map
+#
+
+# Name, (pid + 1) * 10 + 0
+# Music, (pid + 1) * 10 + 5
+# Ambient, (pid + 1) * 10 + 6
+# NoLogOut, (pid + 1) * 10 + 7
+
+# Map 0, Global, base 10
+{10}{}{Global map}
+{15}{}{20car}
+{15}{}{03wrldmp}
+{15}{}{23world}	#wm1.ogg			
+{15}{}{23world} #wm2.ogg
+{16}{}{blank:100}

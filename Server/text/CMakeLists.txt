@@ -1,0 +1,5 @@
+file( GLOB_RECURSE TEXT_FILES LIST_DIRECTORIES false CONFIGURE_DEPENDS "*/*.MSG" )
+add_custom_target( Text SOURCES ${CMAKE_CURRENT_LIST_FILE} ${TEXT_FILES} )
+
+source_group( "CMake"  REGULAR_EXPRESSION "[Cc][Mm][Aa][Kk][Ee]" )
+source_group( TREE "${CMAKE_CURRENT_LIST_DIR}" FILES ${TEXT_FILES} )
