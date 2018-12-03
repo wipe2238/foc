@@ -16,7 +16,7 @@ void UserInterface::HideScreen(int screen, int p0, int p1, int p2)
 
 void UserInterface::GetActiveScreens(ScriptArray& result)
 {
-	result.Grow(Screens.size());
+	result.Resize(Screens.size());
 
 	set<int>::iterator it = Screens.begin();
 	for (int s = 0, sLen = Screens.size(); s < sLen; s++, ++it )
@@ -36,10 +36,10 @@ void UserInterface::RenderInterface(uint layer)
 	{
 		int val = *it;
 
-		char code[MAX_FOTEXT];
+		char code[50];
 		sprintf(code, "DrawHardcodedScreen(%d);", val);
 		//ASEngine->WriteMessage("", 0, 0, asMSGTYPE_INFORMATION, code );
-		ExecuteString(ASEngine, code, 0, 0);
+		ExecuteString( ASEngine, code );
 
 	}
 }

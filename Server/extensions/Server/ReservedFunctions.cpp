@@ -1,9 +1,16 @@
 #include <extension.h>
 
+#include "WorldMap.h"
+
 #define Scenery MapObject
 
 EXPORT void init()
 {
+	// WorldMap
+	WorldMap = new WM( GAME_OPTION(GlobalMapWidth), GAME_OPTION(GlobalMapHeight), GAME_OPTION(GlobalMapZoneLength) );
+
+	WorldMap->Debug = true;
+	WorldMap->BaseSpeed = 10.0f;
 }
 
 EXPORT bool start()
@@ -13,11 +20,11 @@ EXPORT bool start()
 
 EXPORT void get_start_time( uint16&, uint16&, uint16&, uint16&, uint16&, uint16& )
 {
-
 }
 
 EXPORT void finish()
 {
+	delete WorldMap;
 }
 
 EXPORT uint loop()
@@ -25,14 +32,14 @@ EXPORT uint loop()
 	return 10;
 }
 
-EXPORT void global_process(int, Critter&, Item*, float&, float&, float&, float&, float&, uint&, bool&)
+EXPORT void global_process( int processType, Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {
-
+	WorldMap->Process(processType, cr, car, curX, curY, toX, toY, speed, encounterDescriptor, waitForAnswer);
 }
 
-EXPORT void global_invite(Critter&, Item*, uint, int, uint&, uint16&, uint16&, uint8&)
+EXPORT void global_invite( Critter& leader, Item* car, uint encounterDescriptor, int combatMode, uint& mapId, uint16& hexX, uint16& hexY, uint8& dir )
 {
-
+	WorldMap->ProcessInvite(leader, car, encounterDescriptor, combatMode, mapId, hexX, hexY, dir);
 }
 
 EXPORT void critter_attack(Critter&, Critter&, ProtoItem&, uint8, ProtoItem*)
@@ -71,7 +78,7 @@ EXPORT void critter_finish( Critter&,bool )
 {
 }
 
-EXPORT void critter_idle( Critter& ) 
+EXPORT void critter_idle( Critter& )
 {
 }
 

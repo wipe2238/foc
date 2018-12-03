@@ -7,6 +7,11 @@
 
 using namespace std;
 
+int ExecuteString(asIScriptEngine *engine, const char *code)
+{
+	return ExecuteString( engine, code, 0, asTYPEID_VOID, nullptr, nullptr );
+}
+
 int ExecuteString( asIScriptEngine *engine, const char *code, asIScriptModule *mod, asIScriptContext *ctx )
 {
 	return ExecuteString(engine, code, 0, asTYPEID_VOID, mod, ctx);
@@ -80,6 +85,7 @@ int ExecuteString(asIScriptEngine *engine, const char *code, void *ref, int refT
 
 	// Clean up
 	func->Release();
+	if (!ctx) execCtx->Release();
 //	if( !ctx ) engine->ReturnContext(execCtx);
 
 	return r;

@@ -1,6 +1,7 @@
 add_subdirectory( Utils )
 
 set( EXTENSION_PREFIX "FOC." )
+set( EXTENSION_DIR    "${SERVER_DIR}/scripts" )
 
 set( CLIENT_MAPPER_SERVER_SOURCES
 	${CMAKE_CURRENT_LIST_FILE}
@@ -40,6 +41,8 @@ target_sources( ${EXTENSION_PREFIX}Server
 		${MAPPER_SERVER_SOURCES}
 
 		Server/ReservedFunctions.cpp
+		Server/WorldMap.cpp
+		Server/WorldMap.h
 )
 
 get_property( targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS )
@@ -62,8 +65,15 @@ foreach( target IN LISTS targets )
 	set_property( TARGET ${target} APPEND_STRING PROPERTY COMPILE_OPTIONS " /MP" )
 	
 	set_property( TARGET ${target} PROPERTY FOLDER "Extensions" )
-	set_property( TARGET ${target} PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG "${SCRIPTS_DIR}" )
-	set_property( TARGET ${target} PROPERTY RUNTIME_OUTPUT_DIRECTORY_RELEASE "${SCRIPTS_DIR}" )
+	foreach( property IN ITEMS LIBRARY_OUTPUT_DIRECTORY LIBRARY_OUTPUT_DIRECTORY_RELEASE RUNTIME_OUTPUT_DIRECTORY RUNTIME_OUTPUT_DIRECTORY_RELEASE )
+		set_property( TARGET ${target} PROPERTY ${property} "${EXTENSION_DIR}" )
+	endforeach()
+
+	if( MSVC )
+		set_property( TARGET ${target} PROPERTY PDB_OUTPUT_DIRECTORY         "${EXTENSION_DIR}" )
+		set_property( TARGET ${target} PROPERTY PDB_OUTPUT_DIRECTORY_RELEASE "${EXTENSION_DIR}" )
+	endif()
+
 endforeach()
 
 source_group( " "         REGULAR_EXPRESSION "\.([Cc]|[Cc][Pp][Pp]|[Hh])$" )
