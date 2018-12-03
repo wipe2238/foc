@@ -46,6 +46,8 @@ public:
 	void SetFog(Critter& cr, uint16 zx, uint16 zy, uint8 fog);
 	void UpdateFog(Critter&cr, const uint16& zoneX, const uint16& zoneY);
 	void UpdateFog(const CrVec& crVec, const uint16& zoneX, const uint16& zoneY);
+	void UpdateLocations(Critter& cr, const uint16& zoneX, const uint16& zoneY);
+	void UpdateLocations(const CrVec& crVec, const uint16& zoneX, const uint16& zoneY);
 };
 
 extern WM* WorldMap;

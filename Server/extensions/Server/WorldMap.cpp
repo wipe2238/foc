@@ -188,6 +188,8 @@ void WM::MoveGroup(Critter& cr, Item* car, float& curX, float& curY, float& toX,
 
 	int curXi = (int)curX, curYi = (int)curY;
 
+	if (Debug)
+		Log("WM::MoveGroup critter<%u> move<%d,%d -> %d,%d>\n", cr.Id, oldXi, oldYi, curXi, curYi);
 	//
 
 	if (oldXi != curXi || oldYi != curYi)
@@ -275,6 +277,7 @@ void WM::MoveGroupZone(Critter& cr, const uint16& fromZoneX, const uint16& fromZ
 		Log("WM::MoveGroupZone : critter<%u> zone<%u:%u> -> zone<%u:%u>\n", cr.Id, fromZoneX, fromZoneY, toZoneX, toZoneY);
 
 	UpdateFog(cr.GroupMove->Group, toZoneX, toZoneY);
+	UpdateLocations(cr.GroupMove->Group, toZoneX, toZoneY);
 }
 
 //
@@ -345,5 +348,39 @@ void WM::UpdateFog(const CrVec& crVec, const uint16& zoneX, const uint16& zoneY)
 			continue;
 
 		UpdateFog(*cr, zoneX, zoneY);
+	}
+}
+
+void WM::UpdateLocations(Critter& cr, const uint16& zoneX, const uint16& zoneY)
+{
+	char code[MAX_FOTEXT];
+	sprintf(code,
+		"Critter@ cr = GetCritter(%u);                        "
+		"array<uint> locIds1;                                 "
+		"GetZoneLocationIds(%u, %u, 1, locIds1);              "
+		"for (uint l = 0, len=locIds1.length(); l<len; l++)   "
+		"{                                                    "
+		"	uint locId = locIds1[l];                          "
+		"	if (!cr.IsKnownLoc(true, locId))                  "
+		"	{                                                 "
+		"		Location@ loc = GetLocation(locId);           "
+		"		if (@loc != null) cr.SetKnownLoc(true, locId);"
+		"	}                                                 "
+		"}                                                    ",
+		cr.Id, zoneX, zoneY);
+
+	ExecuteString(ASEngine, code);
+}
+
+void WM::UpdateLocations(const CrVec& crVec, const uint16& zoneX, const uint16& zoneY)
+{
+	for (auto it = crVec.begin(); it != crVec.end(); ++it)
+	{
+		Critter* cr = *it;
+
+		if (!cr)
+			continue;
+
+		UpdateLocations(*cr, zoneX, zoneY);
 	}
 }

@@ -1,0 +1,140 @@
+#include "strtoint_h.fos"
+
+#define TAB_CUSTOM0            (0)
+#define TAB_CUSTOM1            (1)
+#define TAB_CUSTOM2            (2)
+#define TAB_CUSTOM3            (3)
+#define TAB_CUSTOM4            (4)
+#define TAB_CUSTOM5            (5)
+#define TAB_CUSTOM6            (6)
+#define TAB_CUSTOM7            (7)
+#define TAB_CUSTOM8            (8)
+#define TAB_CUSTOM9            (9)
+#define TAB_ITEMS              (10)
+#define TAB_TILES              (11)
+#define TAB_CRITTERS           (12)
+#define TAB_FAST_ITEMS         (13)
+#define TAB_IGNORE_ITEMS       (14)
+#define TAB_INVENTORY          (15) // Only for TabSetName(...)
+#define TAB_MESAGE_BOX         (16) // Only for TabSetName(...)
+#define TAB_MAPS               (17) // Only for TabSetName(...)
+
+void start()
+{
+	InitializeTabs();
+}
+
+void InitializeTabs()
+{
+	TabDelete(TAB_ITEMS);
+	TabDelete(TAB_CRITTERS);
+	TabDelete(TAB_TILES);
+
+	TabSetName(TAB_MESAGE_BOX,      "Info");
+	TabSetName(TAB_MAPS,            "Maps");
+	TabSetName(TAB_INVENTORY,       "Inve");
+	TabSetName(TAB_IGNORE_ITEMS,    "Ignr");
+	TabSetName(TAB_CUSTOM0,         "");
+
+	TabSetName(TAB_CUSTOM1,         "Norm");
+	TabSetName(TAB_CUSTOM2,         "Vehi");
+	TabSetName(TAB_CUSTOM3,         "Cont");
+	TabSetName(TAB_CUSTOM4,         "Door");
+	TabSetName(TAB_CUSTOM5,         "Spec");
+
+	TabSetName(TAB_CUSTOM6,         "Grid");
+	TabSetName(TAB_CUSTOM7,         "Scen");
+	TabSetName(TAB_ITEMS,           "Wall");
+	TabSetName(TAB_TILES,           "Flor");
+	TabSetName(TAB_CUSTOM8,         "Roof");
+	TabSetName(TAB_FAST_ITEMS,      "Tech");
+
+	TabSetName(TAB_CUSTOM9,         "Humn");
+	TabSetName(TAB_CRITTERS,        "Othr");
+
+	LoadTabsConfig();
+}
+
+void LoadTabsConfig()
+{
+	file f;
+	if(f.open("tabs.cfg","r")<0)
+	{
+		Message("Couldn't find tabs.cfg, ignored.");
+		return;
+	}
+	string line;
+	int tab=-1;
+	string name="";
+	array<uint16> pids;
+	while(!f.isEndOfFile())
+	{
+		f.readLine(line);
+		int len=line.length();
+		while(len>0 && (line.rawGet(len-1)==10 || line.rawGet(len-1)==13)) len--;
+		if(len==0) continue;
+		line.rawResize(len);
+		if(line=="[SubTab]")
+		{
+			//if(tab>=0) TabSetItemPids(tab,name,pids);
+			tab=-1;
+			name="";
+			pids.resize(0);
+			continue;
+		}
+		array<string@>@ splitted=splitEx(line,"=");
+		if(splitted.length()<2) continue;
+		if(splitted[0]=="MainTab")
+		{
+			StrToInt(splitted[1],tab);
+			continue;
+		}
+		if(splitted[0]=="Name")
+		{
+			name=splitted[1];
+			continue;
+		}
+		if(splitted[0]=="Pids")
+		{
+			if(tab<0) continue;
+			array<string@>@ splitted2=split(splitted[1]," ");
+			for(uint i=0,j=splitted2.length();i<j;i++)
+			{
+				uint16 pid=0;
+				StrToInt(splitted2[i],pid);
+				if(pid!=0) pids.insertLast(pid);
+			}
+			TabSetItemPids(tab,name,pids);
+		}
+
+		if(splitted[0]=="Tiles")
+		{
+			string tiles = splitted[1];
+			array<string@>@ dirNames = splitEx(tiles, " ");
+			array<bool> includeSubdirs;
+			for (uint i = 0, j = dirNames.length(); i < j; i++)
+			{
+				dirNames[i] = "art\\tiles\\" + dirNames[i];
+				includeSubdirs.insertLast(false);
+			}
+			TabSetTileDirs(tab, dirNames, includeSubdirs);
+			continue;
+		}
+
+		if(splitted[0]=="Crits")
+		{
+			array<string@> textPids = splitEx(splitted[1], " ");
+			array<uint16> crPids;
+			for (uint i = 0, j = textPids.length(); i < j; i++)
+			{
+				uint16 crPid = 0;
+				StrToInt(textPids[i], crPid);
+				crPids.insertLast(crPid);
+			}
+			TabSetCritterPids(tab, name, crPids);
+		}
+
+	}
+	//if(tab>=0) TabSetItemPids(tab,name,pids);
+	f.close();
+}
