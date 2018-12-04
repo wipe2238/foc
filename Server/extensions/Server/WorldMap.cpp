@@ -5,12 +5,11 @@
 
 #include "WorldMap.h"
 
-WM* WorldMap = NULL;
+WM WorldMap;
 
-WM::WM( uint width, uint height, uint zone ) :
-	Width( width * zone ),
-	Height( height * zone ),
-	ZoneSize( zone ),
+WM::WM() :
+	Width( 0 ),
+	Height( 0 ),
 	BaseSpeed(1.0f),
 	Debug(false)
 {}
@@ -18,6 +17,13 @@ WM::WM( uint width, uint height, uint zone ) :
 WM::~WM()
 {
 	Critters.clear();
+}
+
+void WM::Init()
+{
+	Width = GAME_OPTION(GlobalMapWidth) * GAME_OPTION(GlobalMapZoneLength);
+	Height = GAME_OPTION(GlobalMapHeight) * GAME_OPTION(GlobalMapZoneLength);
+	ZoneSize = GAME_OPTION(GlobalMapZoneLength);
 }
 
 //
@@ -284,9 +290,11 @@ void WM::MoveGroupZone(Critter& cr, const uint16& fromZoneX, const uint16& fromZ
 
 int WM::GetFog(Critter& cr, uint16 zx, uint16 zy)
 {
-	int result = -1;
+	static const char* codeGetFog = "return GetCritter(%u).GetFog(%u,%u);";
 	char code[100];
-	sprintf(code, "return GetCritter(%u).GetFog(%u,%u);", cr.Id, zx, zy);
+	int result = -1;
+
+	sprintf(code, codeGetFog, cr.Id, zx, zy);
 	ExecuteString(ASEngine, code, &result, asTYPEID_INT32, nullptr, nullptr);
 
 	return result;
@@ -294,8 +302,10 @@ int WM::GetFog(Critter& cr, uint16 zx, uint16 zy)
 
 void WM::SetFog(Critter& cr, uint16 zx, uint16 zy, uint8 fog)
 {
+	static const char* codeSetFog = "GetCritter(%u).SetFog(%u,%u,%u)";
 	char code[100];
-	sprintf(code, "GetCritter(%u).SetFog(%u,%u,%u)", cr.Id, zx, zy, fog);
+
+	sprintf(code, codeSetFog, cr.Id, zx, zy, fog);
 	ExecuteString(ASEngine, code);
 }
 
@@ -353,21 +363,21 @@ void WM::UpdateFog(const CrVec& crVec, const uint16& zoneX, const uint16& zoneY)
 
 void WM::UpdateLocations(Critter& cr, const uint16& zoneX, const uint16& zoneY)
 {
-	char code[MAX_FOTEXT];
-	sprintf(code,
+	static const char* codeUpdateLocations =
 		"Critter@ cr = GetCritter(%u);                        "
 		"array<uint> locIds1;                                 "
 		"GetZoneLocationIds(%u, %u, 1, locIds1);              "
 		"for (uint l = 0, len=locIds1.length(); l<len; l++)   "
 		"{                                                    "
-		"	uint locId = locIds1[l];                          "
-		"	if (!cr.IsKnownLoc(true, locId))                  "
-		"	{                                                 "
-		"		Location@ loc = GetLocation(locId);           "
-		"		if (@loc != null) cr.SetKnownLoc(true, locId);"
-		"	}                                                 "
-		"}                                                    ",
-		cr.Id, zoneX, zoneY);
+		"   uint locId = locIds1[l];                          "
+		"   if (!cr.IsKnownLoc(true, locId))                  "
+		"   {                                                 "
+		"       Location@ loc = GetLocation(locId);           "
+		"       if (@loc != null) cr.SetKnownLoc(true, locId);"
+		"   }                                                 "
+		"}                                                    ";
+	char code[MAX_FOTEXT];
+	sprintf(code, codeUpdateLocations, cr.Id, zoneX, zoneY);
 
 	ExecuteString(ASEngine, code);
 }

@@ -34,6 +34,7 @@
 /Server/save/
 
 /Server/maps/*.fomapb
+/Server/scripts/CrashDump*.txt
 /Server/scripts/*.dll
 /Server/scripts/*.exe
 /Server/scripts/*.fosb

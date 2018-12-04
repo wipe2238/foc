@@ -1,5 +1,6 @@
 #include <extension.h>
 
+#include "Animations.h"
 #include "UserInterface.h"
 
 #define ItemCl Item
@@ -164,14 +165,20 @@ EXPORT bool player_data_check( ScriptString& name, ScriptArray/*int[]*/& data )
 
 EXPORT void critter_action(bool localCall, CritterCl& cr, int action, int actionExt, ItemCl* item)
 {
+	Log("critter_action(localCall=%s, cr=%u, action=%d, actionExt=%d, item=%u)\n",
+		localCall ? "true" : "false", cr.Id, action, actionExt, item ? item->Id : 0 );
+
+	Animations.ProcessAction(localCall, cr, action, actionExt, item);
 }
 
 EXPORT void animation2d_process(bool animateStay, CritterCl& cr, uint anim1, uint anim2, ItemCl* item)
 {
+	Log("animation2d_process\n");
 }
 
 EXPORT void animation3d_process(bool animateStay, CritterCl& cr, uint anim1, uint anim2, ItemCl* item)
 {
+	Log("animation3d_process\n");
 }
 
 EXPORT void items_collection(int collection, ScriptArray/*ItemCl@[]*/& items)
@@ -180,19 +187,21 @@ EXPORT void items_collection(int collection, ScriptArray/*ItemCl@[]*/& items)
 
 EXPORT ScriptString* critter_animation(int animType, uint crType, uint anim1, uint anim2, uint& pass, uint& flags, int& ox, int& oy)
 {
-	ScriptString& val = ScriptString::Create("");
+	Log("critter_animation\n");
 
-	return &val;
+	return nullptr;
 }
 
 EXPORT bool critter_animation_substitute(int animType, uint crTypeBase, uint anim1base, uint anim2base, uint& crType, uint& anim1, uint& anim2)
 {
+	Log("critter_animation_substitute\n");
+
 	return true;
 }
 
 EXPORT bool critter_animation_fallout(uint crType, uint& anim1, uint& anim2, uint& anim1ex, uint& anim2ex, uint& flags)
 {
-	return true;
+	return Animations.ProcessFallout(crType, anim1, anim2, anim1ex, anim2ex, flags);
 }
 
 EXPORT void filename_logfile(ScriptString& filename)

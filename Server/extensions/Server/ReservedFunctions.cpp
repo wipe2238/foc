@@ -7,10 +7,9 @@
 EXPORT void init()
 {
 	// WorldMap
-	WorldMap = new WM( GAME_OPTION(GlobalMapWidth), GAME_OPTION(GlobalMapHeight), GAME_OPTION(GlobalMapZoneLength) );
-
-	WorldMap->Debug = true;
-	WorldMap->BaseSpeed = 10.0f;
+	WorldMap.Init();
+	WorldMap.Debug = true;
+	WorldMap.BaseSpeed = 10.0f;
 }
 
 EXPORT bool start()
@@ -24,7 +23,6 @@ EXPORT void get_start_time( uint16&, uint16&, uint16&, uint16&, uint16&, uint16&
 
 EXPORT void finish()
 {
-	delete WorldMap;
 }
 
 EXPORT uint loop()
@@ -34,17 +32,16 @@ EXPORT uint loop()
 
 EXPORT void global_process( int processType, Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {
-	WorldMap->Process(processType, cr, car, curX, curY, toX, toY, speed, encounterDescriptor, waitForAnswer);
+	WorldMap.Process(processType, cr, car, curX, curY, toX, toY, speed, encounterDescriptor, waitForAnswer);
 }
 
 EXPORT void global_invite( Critter& leader, Item* car, uint encounterDescriptor, int combatMode, uint& mapId, uint16& hexX, uint16& hexY, uint8& dir )
 {
-	WorldMap->ProcessInvite(leader, car, encounterDescriptor, combatMode, mapId, hexX, hexY, dir);
+	WorldMap.ProcessInvite(leader, car, encounterDescriptor, combatMode, mapId, hexX, hexY, dir);
 }
 
 EXPORT void critter_attack(Critter&, Critter&, ProtoItem&, uint8, ProtoItem*)
 {
-
 }
 
 EXPORT void critter_attacked(Critter& attacker, Critter& victim)
@@ -58,12 +55,32 @@ EXPORT bool critter_stealing(Critter&, Critter&, Item&, uint)
 
 EXPORT bool critter_use_item(Critter&, Item&, Critter*,Item*,Scenery*,uint)
 {
+	Log("critter_use_item\n");
+
 	return true;
 }
 
-EXPORT bool critter_use_skill( Critter&,int,Critter*,Item*,Scenery* ) 
+EXPORT bool critter_use_skill( Critter& cr, int skill, Critter* targetCr, Item* targetItem, Scenery* targetScenery ) 
 {
-	return true;
+	Log("critter_use_skill( cr=%u, skill=%d, targetCr=%u, targetItem=%u, targetScenery=%u )\n",
+		cr.Id, skill, targetCr ? targetCr->Id : 0, targetItem ? targetItem->Id : 0, targetScenery ? targetScenery->UID : 0);
+
+	switch (skill)
+	{
+		case SKILL_PICK_ON_GROUND:
+		{
+			if (targetItem )
+			{
+				// Doors and containers
+				if (targetItem->IsDoor() || targetItem->IsContainer())
+				{
+					//if (Lockers.ProcessUseSkill(cr, skill, targetItem))
+					//	return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 EXPORT void critter_reload_weapon( Critter&,Item&,Item* )

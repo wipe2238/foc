@@ -20,6 +20,8 @@ target_sources( ${EXTENSION_PREFIX}Client
 		${CLIENT_MAPPER_SOURCES}
 		${CLIENT_SERVER_SOURCES}
 
+		Client/Animations.cpp
+		Client/Animations.h
 		Client/ReservedFunctions.cpp
 		Client/UserInterface.cpp
 		Client/UserInterface.h
