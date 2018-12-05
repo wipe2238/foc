@@ -16,6 +16,7 @@ public:
     //
     bool LockerOpen( Item& locker );
     bool LockerClose( Item& locker );
+    void ShowContainer( Critter& cr, Critter* crCont, Item* itemCont, uint8 transferType );
 };
 
 extern LockersManager Lockers;
