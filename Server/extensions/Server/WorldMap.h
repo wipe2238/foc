@@ -1,7 +1,7 @@
 #ifndef __WORLDMAP__
 #define __WORLDMAP__
 
-class WM
+class WorldmapManager
 {
 protected:
     uint      Width;
@@ -16,8 +16,8 @@ public:
     bool  Debug;
 
 public:
-    WM();
-    ~WM();
+    WorldmapManager();
+    ~WorldmapManager();
     void Init();
 //
     void Process( int processType, Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer );
@@ -51,6 +51,6 @@ public:
     void UpdateLocations( const CrVec& crVec, const uint16& zoneX, const uint16& zoneY );
 };
 
-extern WM WorldMap;
+extern WorldmapManager WorldMap;
 
 #endif // __WORLDMAP__ //

@@ -1,15 +1,34 @@
 #include <extension.h>
 
+#include <ExecuteString.h>
+
+#include "Lockers.h"
 #include "WorldMap.h"
 
 #define Scenery    MapObject
 
 EXPORT void init()
 {
+    // Lockers
+    Lockers.Debug = true;
+
     // WorldMap
     WorldMap.Init();
     WorldMap.Debug = true;
     WorldMap.BaseSpeed = 10.0f;
+
+    static const char* code =
+        "int8[]mask0={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0};"
+        "int8[]mask1={0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};"
+        "int8[]mask2={0,0,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0};"
+        "int8[]mask3={-1,-1,-1,-1,0,0,0,0,-1,-1,-1,-1,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0};"
+        "int8[]mask4={-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0};"
+        "SetItemDataMask(0,mask0);"
+        "SetItemDataMask(1,mask1);"
+        "SetItemDataMask(2,mask2);"
+        "SetItemDataMask(3,mask3);"
+        "SetItemDataMask(4,mask4);";
+    ExecuteString( ASEngine, code );
 }
 
 EXPORT bool start()
@@ -19,7 +38,7 @@ EXPORT bool start()
 
 EXPORT void get_start_time( uint16& multiplier, uint16& year, uint16& month, uint16& day, uint16& hour, uint16& minute )
 {
-    FirstTime = true;
+    FirstStart = true;
 }
 
 EXPORT void finish()
@@ -67,18 +86,18 @@ EXPORT bool critter_use_skill( Critter& cr, int skill, Critter* crTarget, Item* 
     {
         case SKILL_PICK_ON_GROUND:
         {
-            if( itemTarget )
+            if( itemTarget && (itemTarget->IsDoor() || itemTarget->IsContainer() ) )
             {
-                // Doors and containers
-                if( itemTarget->IsDoor() || itemTarget->IsContainer() )
-                {
-                    // if (Lockers.ProcessUseSkill(cr, skill, itemTarget))
-                    //	return true;
-                }
+                if( Lockers.ProcessUseSkill( cr, skill, itemTarget ) )
+                    return true;
             }
+            break;
         }
+        default:
+            break;
     }
-    return false;
+
+    return true;
 }
 
 EXPORT void critter_reload_weapon( Critter& cr, Item& weapon, Item* ammo )
@@ -167,7 +186,7 @@ EXPORT void turn_based_sequence( Map& map, ScriptArray /*Critter@[]*/& critters,
 EXPORT void world_save( uint currentIndex, ScriptArray /*uint[]*/& deleteIndexes )
 {}
 
-EXPORT bool player_connect( uint ip, ScriptString& message ) // not implemented
+EXPORT bool player_connect( uint ip, ScriptString& message )     // not implemented
 {
     return true;
 }

@@ -42,6 +42,8 @@ target_sources( ${EXTENSION_PREFIX}Server
 		${CLIENT_SERVER_SOURCES}
 		${MAPPER_SERVER_SOURCES}
 
+		Server/Lockers.cpp
+		Server/Lockers.h
 		Server/ReservedFunctions.cpp
 		Server/WorldMap.cpp
 		Server/WorldMap.h

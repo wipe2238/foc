@@ -5,21 +5,21 @@
 
 #include "WorldMap.h"
 
-WM WorldMap;
+WorldmapManager WorldMap;
 
-WM::WM() :
+WorldmapManager::WorldmapManager() :
     Width( 0 ),
     Height( 0 ),
     BaseSpeed( 1.0f ),
     Debug( false )
 {}
 
-WM::~WM()
+WorldmapManager::~WorldmapManager()
 {
     Critters.clear();
 }
 
-void WM::Init()
+void WorldmapManager::Init()
 {
     Width = GAME_OPTION( GlobalMapWidth ) * GAME_OPTION( GlobalMapZoneLength );
     Height = GAME_OPTION( GlobalMapHeight ) * GAME_OPTION( GlobalMapZoneLength );
@@ -28,7 +28,7 @@ void WM::Init()
 
 //
 
-void WM::Process( int processType, Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void WorldmapManager::Process( int processType, Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {
     assert( processType >= 0 && processType <= 7 );
 
@@ -45,7 +45,7 @@ void WM::Process( int processType, Critter& cr, Item* car, float& curX, float& c
     };
 
     if( Debug )
-        Log( "WM::Process critter<%u> type<%s>\n", cr.Id, processName[processType] );
+        Log( "WorldmapManager::Process critter<%u> type<%s>\n", cr.Id, processName[processType] );
 
     switch( processType )
     {
@@ -92,28 +92,28 @@ void WM::Process( int processType, Critter& cr, Item* car, float& curX, float& c
     }
 }
 
-void WM::ProcessInvite( Critter& crLeader, Item* car, uint encounterDescriptor, int combatMode, uint& mapId, uint16& hexX, uint16& hexY, uint8& dir )
+void WorldmapManager::ProcessInvite( Critter& crLeader, Item* car, uint encounterDescriptor, int combatMode, uint& mapId, uint16& hexX, uint16& hexY, uint8& dir )
 {
     if( Debug )
-        Log( "WM::ProcessInvite : critter<%u>\n", crLeader.Id );
+        Log( "WorldmapManager::ProcessInvite : critter<%u>\n", crLeader.Id );
 }
 
 //
 
-void WM::ProcessMove( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void WorldmapManager::ProcessMove( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {
     MoveGroup( cr, car, curX, curY, toX, toY, speed );
 }
 
-void WM::ProcessEnter( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void WorldmapManager::ProcessEnter( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {}
 
-void WM::ProcessStartFast( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void WorldmapManager::ProcessStartFast( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {
     int zoneX = (int)curX / ZoneSize;
     int zoneY = (int)curY / ZoneSize;
 
-    Log( "WM::ProcessStartFast critter<%u> zone<%d:%d>\n", cr.Id, zoneX, zoneY );
+    Log( "WorldmapManager::ProcessStartFast critter<%u> zone<%d:%d>\n", cr.Id, zoneX, zoneY );
 
     assert( zoneX >= 0 && zoneX <= MAX_UINT16 );
     assert( zoneY >= 0 && zoneY <= MAX_UINT16 );
@@ -121,27 +121,27 @@ void WM::ProcessStartFast( Critter& cr, Item* car, float& curX, float& curY, flo
     // UpdateFog(cr, zoneX, zoneY); << CRASH
 }
 
-void WM::ProcessStart( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void WorldmapManager::ProcessStart( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {}
 
-void WM::ProcessSetMove( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void WorldmapManager::ProcessSetMove( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {
     speed = BaseSpeed;
     MoveGroup( cr, car, curX, curY, toX, toY, speed );
 }
 
-void WM::ProcessStopped( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void WorldmapManager::ProcessStopped( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {}
 
-void WM::ProcessNpcIdle( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void WorldmapManager::ProcessNpcIdle( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {}
 
-void WM::ProcessKick( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void WorldmapManager::ProcessKick( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {}
 
 //
 
-void WM::MoveGroup( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed )
+void WorldmapManager::MoveGroup( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed )
 {
     const float oldDist = GetDistance( curX, curY, toX, toY );
     const uint  movementType = (car ? car->Proto->Car_MovementType : WORLDMAP_WALK_GROUND);
@@ -195,7 +195,7 @@ void WM::MoveGroup( Critter& cr, Item* car, float& curX, float& curY, float& toX
     int curXi = (int)curX, curYi = (int)curY;
 
     if( Debug )
-        Log( "WM::MoveGroup critter<%u> move<%d,%d -> %d,%d>\n", cr.Id, oldXi, oldYi, curXi, curYi );
+        Log( "WorldmapManager::MoveGroup critter<%u> move<%d,%d -> %d,%d>\n", cr.Id, oldXi, oldYi, curXi, curYi );
     //
 
     if( oldXi != curXi || oldYi != curYi )
@@ -277,10 +277,10 @@ void WM::MoveGroup( Critter& cr, Item* car, float& curX, float& curY, float& toX
     }
 }
 
-void WM::MoveGroupZone( Critter& cr, const uint16& fromZoneX, const uint16& fromZoneY, const uint16& toZoneX, const uint16& toZoneY )
+void WorldmapManager::MoveGroupZone( Critter& cr, const uint16& fromZoneX, const uint16& fromZoneY, const uint16& toZoneX, const uint16& toZoneY )
 {
     if( Debug )
-        Log( "WM::MoveGroupZone : critter<%u> zone<%u:%u> -> zone<%u:%u>\n", cr.Id, fromZoneX, fromZoneY, toZoneX, toZoneY );
+        Log( "WorldmapManager::MoveGroupZone : critter<%u> zone<%u:%u> -> zone<%u:%u>\n", cr.Id, fromZoneX, fromZoneY, toZoneX, toZoneY );
 
     UpdateFog( cr.GroupMove->Group, toZoneX, toZoneY );
     UpdateLocations( cr.GroupMove->Group, toZoneX, toZoneY );
@@ -288,7 +288,7 @@ void WM::MoveGroupZone( Critter& cr, const uint16& fromZoneX, const uint16& from
 
 //
 
-int WM::GetFog( Critter& cr, uint16 zx, uint16 zy )
+int WorldmapManager::GetFog( Critter& cr, uint16 zx, uint16 zy )
 {
     static const char* codeGetFog = "return GetCritter(%u).GetFog(%u,%u);";
     char               code[100];
@@ -300,7 +300,7 @@ int WM::GetFog( Critter& cr, uint16 zx, uint16 zy )
     return result;
 }
 
-void WM::SetFog( Critter& cr, uint16 zx, uint16 zy, uint8 fog )
+void WorldmapManager::SetFog( Critter& cr, uint16 zx, uint16 zy, uint8 fog )
 {
     static const char* codeSetFog = "GetCritter(%u).SetFog(%u,%u,%u)";
     char               code[100];
@@ -309,7 +309,7 @@ void WM::SetFog( Critter& cr, uint16 zx, uint16 zy, uint8 fog )
     ExecuteString( ASEngine, code );
 }
 
-void WM::UpdateFog( Critter& cr, const uint16& zoneX, const uint16& zoneY )
+void WorldmapManager::UpdateFog( Critter& cr, const uint16& zoneX, const uint16& zoneY )
 {
     if( cr.CritterIsNpc )
         return;
@@ -335,11 +335,11 @@ void WM::UpdateFog( Critter& cr, const uint16& zoneX, const uint16& zoneY )
                 uint8 oldFog = GetFog( cr, lookZoneX, lookZoneY );
                 uint8 newFog = ( (zoneX == lookZoneX && zoneY == lookZoneY) ? WORLDMAP_FOG_NONE : WORLDMAP_FOG_HALF );
                 if( oldFog < 0 || oldFog > 3 )
-                    Log( "WM::UpdateFog critter<%u> fog<ERROR>\n", cr.Id );
+                    Log( "WorldmapManager::UpdateFog critter<%u> fog<ERROR>\n", cr.Id );
                 else if( oldFog < newFog )
                 {
                     if( Debug )
-                        Log( "WM::UpdateFog critter<%u> fog<%s -> %s>\n", cr.Id, fogName[oldFog], fogName[newFog] );
+                        Log( "WorldmapManager::UpdateFog critter<%u> fog<%s -> %s>\n", cr.Id, fogName[oldFog], fogName[newFog] );
 
                     SetFog( cr, lookZoneX, lookZoneY, newFog );
                 }
@@ -348,7 +348,7 @@ void WM::UpdateFog( Critter& cr, const uint16& zoneX, const uint16& zoneY )
     }
 }
 
-void WM::UpdateFog( const CrVec& crVec, const uint16& zoneX, const uint16& zoneY )
+void WorldmapManager::UpdateFog( const CrVec& crVec, const uint16& zoneX, const uint16& zoneY )
 {
     for( auto it = crVec.begin(); it != crVec.end(); ++it )
     {
@@ -361,7 +361,7 @@ void WM::UpdateFog( const CrVec& crVec, const uint16& zoneX, const uint16& zoneY
     }
 }
 
-void WM::UpdateLocations( Critter& cr, const uint16& zoneX, const uint16& zoneY )
+void WorldmapManager::UpdateLocations( Critter& cr, const uint16& zoneX, const uint16& zoneY )
 {
     static const char* codeUpdateLocations =
         "Critter@ cr = GetCritter(%u);                        "
@@ -382,7 +382,7 @@ void WM::UpdateLocations( Critter& cr, const uint16& zoneX, const uint16& zoneY 
     ExecuteString( ASEngine, code );
 }
 
-void WM::UpdateLocations( const CrVec& crVec, const uint16& zoneX, const uint16& zoneY )
+void WorldmapManager::UpdateLocations( const CrVec& crVec, const uint16& zoneX, const uint16& zoneY )
 {
     for( auto it = crVec.begin(); it != crVec.end(); ++it )
     {
