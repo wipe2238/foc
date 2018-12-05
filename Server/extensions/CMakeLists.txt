@@ -22,9 +22,9 @@ target_sources( ${EXTENSION_PREFIX}Client
 
 		Client/Animations.cpp
 		Client/Animations.h
+		Client/Interface.cpp
+		Client/Interface.h
 		Client/ReservedFunctions.cpp
-		Client/UserInterface.cpp
-		Client/UserInterface.h
 )
 
 target_sources( ${EXTENSION_PREFIX}Mapper

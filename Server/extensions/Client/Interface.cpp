@@ -1,20 +1,20 @@
 #include <ExecuteString.h>
 
-#include "UserInterface.h"
+#include "Interface.h"
 
-UserInterface UI;
+InterfaceManager Interface;
 
-void UserInterface::ShowScreen( int screen, int p0, int p1, int p2 )
+void InterfaceManager::ShowScreen( int screen, int p0, int p1, int p2 )
 {
     Screens.insert( screen );
 }
 
-void UserInterface::HideScreen( int screen, int p0, int p1, int p2 )
+void InterfaceManager::HideScreen( int screen, int p0, int p1, int p2 )
 {
     Screens.erase( screen );
 }
 
-void UserInterface::GetActiveScreens( ScriptArray& screens )
+void InterfaceManager::GetActiveScreens( ScriptArray& screens )
 {
     screens.Resize( Screens.size() );
 
@@ -27,7 +27,7 @@ void UserInterface::GetActiveScreens( ScriptArray& screens )
     }
 }
 
-void UserInterface::RenderInterface( uint layer )
+void InterfaceManager::RenderInterface( uint layer )
 {
     if( layer != 3 )
         return;

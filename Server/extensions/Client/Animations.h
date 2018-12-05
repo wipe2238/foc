@@ -173,7 +173,7 @@
 #define ANIM2_FALLOUT_DEAD_FRONT2           (15)
 #define ANIM2_FALLOUT_DEAD_BACK2            (16)
 
-class Anim
+class AnimationsManager
 {
 public:
     void ProcessAction( bool localCall, CritterCl& cr, int action, int actionExt, ItemCl* item );
@@ -185,6 +185,6 @@ public:
     void Animate( CritterCl& cr, uint anim1, uint anim2, ItemCl* item );
 };
 
-extern Anim Animations;
+extern AnimationsManager Animations;
 
 #endif // __ANIMATIONS__ //

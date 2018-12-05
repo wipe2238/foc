@@ -3,7 +3,7 @@
 
 #include <extension.h>
 
-class UserInterface
+class InterfaceManager
 {
 private:
     set<int> Screens;
@@ -17,6 +17,6 @@ public:
     void RenderInterface( uint layer );                    // render_iface(...);
 };
 
-extern UserInterface UI;
+extern InterfaceManager Interface;
 
 #endif // __CLIENT_INTERFACE__ //

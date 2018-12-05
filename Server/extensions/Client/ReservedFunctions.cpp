@@ -1,7 +1,7 @@
 #include <extension.h>
 
 #include "Animations.h"
-#include "UserInterface.h"
+#include "Interface.h"
 
 #define ItemCl    Item
 
@@ -17,20 +17,20 @@ EXPORT uint loop()
 
 EXPORT void get_active_screens( ScriptArray /*int[]*/& screens )
 {
-    UI.GetActiveScreens( screens );
+    Interface.GetActiveScreens( screens );
 }
 
 EXPORT void screen_change( bool show, int screen, int p0, int p1, int p2 )
 {
     if( show )
-        UI.ShowScreen( screen, p0, p1, p2 );
+        Interface.ShowScreen( screen, p0, p1, p2 );
     else
-        UI.HideScreen( screen, p0, p1, p2 );
+        Interface.HideScreen( screen, p0, p1, p2 );
 }
 
 EXPORT void render_iface( uint layer )
 {
-    UI.RenderInterface( layer );
+    Interface.RenderInterface( layer );
 }
 
 EXPORT void render_map()

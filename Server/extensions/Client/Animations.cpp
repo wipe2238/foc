@@ -4,9 +4,9 @@
 
 #include "Animations.h"
 
-Anim Animations;
+AnimationsManager Animations;
 
-void Anim::ProcessAction( bool localCall, CritterCl& cr, int action, int actionExt, ItemCl* item )
+void AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int action, int actionExt, ItemCl* item )
 {
     if( FLAG( cr.Flags, CRITTER_FLAG_CHOSEN ) && !localCall )
     {
@@ -93,7 +93,7 @@ void Anim::ProcessAction( bool localCall, CritterCl& cr, int action, int actionE
     }
 }
 
-bool Anim::ProcessFallout( uint crType, uint& anim1, uint& anim2, uint& anim1ex, uint& anim2ex, uint& flags )
+bool AnimationsManager::ProcessFallout( uint crType, uint& anim1, uint& anim2, uint& anim1ex, uint& anim2ex, uint& flags )
 {
     Log( "ProcessFallout(crType=%u, anim1=%u, anim2=%u, anim1ex=%u, anim2ex=%u, flags=%u)\n",
          crType, anim1, anim2, anim1ex, anim2ex, flags );
@@ -414,7 +414,7 @@ bool Anim::ProcessFallout( uint crType, uint& anim1, uint& anim2, uint& anim1ex,
 
 //
 
-void Anim::ClearAnim( CritterCl& cr )
+void AnimationsManager::ClearAnim( CritterCl& cr )
 {
     static const char* codeClearAnim = "GetCritter(%u).ClearAnim();";
     char               code[50];
@@ -423,7 +423,7 @@ void Anim::ClearAnim( CritterCl& cr )
     ExecuteString( ASEngine, code );
 }
 
-bool Anim::IsAnimAvailable( CritterCl& cr, uint anim1, uint anim2 )
+bool AnimationsManager::IsAnimAvailable( CritterCl& cr, uint anim1, uint anim2 )
 {
     static const char* codeIsAnimAvailable = "return GetCritter(%u).IsAnimAviable(%u,%u);";
     char               code[50];
@@ -435,7 +435,7 @@ bool Anim::IsAnimAvailable( CritterCl& cr, uint anim1, uint anim2 )
     return result;
 }
 
-void Anim::Animate( CritterCl& cr, uint anim1, uint anim2 )
+void AnimationsManager::Animate( CritterCl& cr, uint anim1, uint anim2 )
 {
     static const char* codeAnimate = "GetCritter(%u).Animate(%u,%u);";
     char               code[50];
@@ -444,7 +444,7 @@ void Anim::Animate( CritterCl& cr, uint anim1, uint anim2 )
     ExecuteString( ASEngine, code );
 }
 
-void Anim::Animate( CritterCl& cr, uint anim1, uint anim2, ItemCl* item )
+void AnimationsManager::Animate( CritterCl& cr, uint anim1, uint anim2, ItemCl* item )
 {
     static const char* codeAnimate = "GetCritter(%u).Animate(%u,%u,%u);";
     char               code[50];
