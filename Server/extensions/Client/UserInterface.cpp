@@ -14,16 +14,16 @@ void UserInterface::HideScreen(int screen, int p0, int p1, int p2)
 	Screens.erase(screen);
 }
 
-void UserInterface::GetActiveScreens(ScriptArray& result)
+void UserInterface::GetActiveScreens(ScriptArray& screens)
 {
-	result.Resize(Screens.size());
+	screens.Resize(Screens.size());
 
 	set<int>::iterator it = Screens.begin();
 	for (int s = 0, sLen = Screens.size(); s < sLen; s++, ++it )
 	{
 		int val = *it;
 
-		*(int*)result.At(s) = val;
+		*(int*)screens.At(s) = val;
 	}
 }
 

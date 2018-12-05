@@ -5,5 +5,6 @@
 #include <FOClassic.h>
 
 extern bool IsCompiler;
+extern bool FirstTime;
 
 #endif // __EXTENSION__ //

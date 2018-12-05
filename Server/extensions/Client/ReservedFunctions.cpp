@@ -15,9 +15,9 @@ EXPORT uint loop()
 	return 10;
 }
 
-EXPORT void get_active_screens(ScriptArray/*int[]*/& result)
+EXPORT void get_active_screens( ScriptArray/*int[]*/& screens )
 {
-	UI.GetActiveScreens(result);
+	UI.GetActiveScreens(screens);
 }
 
 EXPORT void screen_change(bool show, int screen, int p0, int p1, int p2)
@@ -108,7 +108,7 @@ EXPORT bool out_message(ScriptString& message, int& sayType)
 	return true;
 }
 
-EXPORT int to_hit(CritterCl& chosen, CritterCl& target, ProtoItem& weapon, uint8 weaponMode)
+EXPORT int to_hit( CritterCl& chosen, CritterCl& crTarget, ProtoItem& weapon, uint8 weaponMode)
 {
 	return 95;
 }

@@ -1,6 +1,7 @@
 #include <extension.h>
 
 bool IsCompiler = false;
+bool FirstTime = false;
 
 FOCLASSIC_EXTENSION_ENTRY( compiler )
 {

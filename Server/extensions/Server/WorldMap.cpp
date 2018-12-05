@@ -92,10 +92,10 @@ void WM::Process(int processType, Critter& cr, Item* car, float& curX, float& cu
 	}
 }
 
-void WM::ProcessInvite(Critter& leader, Item* car, uint encounterDescriptor, int combatMode, uint& mapId, uint16& hexX, uint16& hexY, uint8& dir)
+void WM::ProcessInvite( Critter& crLeader, Item* car, uint encounterDescriptor, int combatMode, uint& mapId, uint16& hexX, uint16& hexY, uint8& dir)
 {
 	if (Debug)
-		Log("WM::ProcessInvite : critter<%u>\n", leader.Id);
+		Log("WM::ProcessInvite : critter<%u>\n", crLeader.Id);
 }
 
 //
