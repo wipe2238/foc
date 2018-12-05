@@ -2,12 +2,12 @@
 #ifndef __STRTOINT_H__
 #define __STRTOINT_H__
 
-import bool StrToInt(string@ s, uint64& inout val) from "strtoint";
-import bool StrToInt(string@ s, uint& inout val) from "strtoint";
-import bool StrToInt(string@ s, uint16& inout val) from "strtoint";
-import bool StrToInt(string@ s, uint8& inout val) from "strtoint";
-import bool StrToInt(string@ s, int64& inout val) from "strtoint";
-import bool StrToInt(string@ s, int16& inout val) from "strtoint";
-import bool StrToInt(string@ s, int8& inout val) from "strtoint";
+import bool StrToInt( string@ s, uint64& inout val ) from "strtoint";
+import bool StrToInt( string@ s, uint& inout val ) from "strtoint";
+import bool StrToInt( string@ s, uint16& inout val ) from "strtoint";
+import bool StrToInt( string@ s, uint8& inout val ) from "strtoint";
+import bool StrToInt( string@ s, int64& inout val ) from "strtoint";
+import bool StrToInt( string@ s, int16& inout val ) from "strtoint";
+import bool StrToInt( string@ s, int8& inout val ) from "strtoint";
 
 #endif

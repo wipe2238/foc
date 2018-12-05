@@ -1,17 +1,17 @@
 #pragma bindfunc "void CLIENT() -> FOC.Client.EXTENSION CLIENT"
 
-string generic_description(int descriptionType, int& offsetX, int& offsetY)
+string generic_description( int descriptionType, int& offsetX, int& offsetY )
 {
-	return "";
+    return "";
 }
 
 
-string item_description(ItemCl& item, int lookType)
+string item_description( ItemCl& item, int lookType )
 {
-	return "";
+    return "";
 }
 
-string critter_description(CritterCl& cr, int lookType)
+string critter_description( CritterCl& cr, int lookType )
 {
-	return "";
+    return "";
 }
