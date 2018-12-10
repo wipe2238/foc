@@ -2,16 +2,19 @@
 
 string generic_description( int descriptionType, int& offsetX, int& offsetY )
 {
-    return "";
+    Log( "generic_description:" + descriptionType );
+    return GetChosen().Name;
 }
 
 
 string item_description( ItemCl& item, int lookType )
 {
-    return "";
+    Log( "item_description:" + lookType );
+    return "ITEM:" + lookType;
 }
 
 string critter_description( CritterCl& cr, int lookType )
 {
-    return "";
+    Log( "critter_description:" + lookType );
+    return "CRITTER:" + lookType;
 }

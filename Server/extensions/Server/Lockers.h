@@ -12,7 +12,7 @@ public:
 
     bool ProcessUseSkill( Critter& cr, int skill,  Item* itemTarget );
     //
-    bool UseLocker( Critter& cr, Item& locker, int skill );
+    bool UseLocker( Critter& cr, Item& locker );
     //
     bool LockerOpen( Item& locker );
     bool LockerClose( Item& locker );

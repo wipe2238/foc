@@ -9,6 +9,8 @@
 
 EXPORT void init()
 {
+    Log( "***   Initializing %s   ***\n", GAME_OPTION_EXT( ConfigFile )->GetStr( SECTION_SERVER, "WindowName" ).c_str() );
+
     // Lockers
     Lockers.Debug = true;
 

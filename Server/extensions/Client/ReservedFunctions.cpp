@@ -7,6 +7,10 @@
 
 EXPORT bool start()
 {
+    Log( "Starting %s\n", GAME_OPTION_EXT( ConfigFile )->GetStr( SECTION_CLIENT, "WindowName" ).c_str() );
+
+    GAME_OPTION( MapDataPrefix ).assign( "art/geometry/fallout/" );
+
     return true;
 }
 
@@ -72,7 +76,9 @@ EXPORT void item_map_in( ItemCl& item )
 {}
 
 EXPORT void item_map_changed( ItemCl& itemNew, ItemCl& itemOld )
-{}
+{
+    Log( "item_map_changed\n" );
+}
 
 EXPORT void item_map_out( ItemCl& item )
 {}

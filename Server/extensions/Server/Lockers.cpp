@@ -28,7 +28,7 @@ bool LockersManager::ProcessUseSkill( Critter& cr, int skill, Item* itemTarget )
 
     if( skill == SKILL_PICK_ON_GROUND )
     {
-        return UseLocker( cr, *itemTarget, skill );
+        return UseLocker( cr, *itemTarget );
     }
 
     return true;
@@ -36,12 +36,12 @@ bool LockersManager::ProcessUseSkill( Critter& cr, int skill, Item* itemTarget )
 
 //
 
-bool LockersManager::UseLocker( Critter& cr, Item& locker, int skill )
+bool LockersManager::UseLocker( Critter& cr, Item& locker )
 {
-    assert( locker.IsDoor() || locker.IsContainer() );
-
     if( Debug )
-        Log( "LockersManager::UseLocker(cr=%u, skill=%d, locker=%u)\n", cr.Id, skill, locker.Id );
+        Log( "LockersManager::UseLocker(cr=%u, locker=%u)\n", cr.Id, locker.Id );
+
+    assert( locker.IsDoor() || locker.IsContainer() );
 
     if( locker.IsDoor() )
     {
@@ -91,10 +91,10 @@ bool LockersManager::UseLocker( Critter& cr, Item& locker, int skill )
         {
             if( Debug )
                 Log( "LockersManager::UseLocker item<%u> pid<%u> critter<%u> : view container\n", locker.Id, locker.Proto->ProtoId, cr.Id );
-            LockerOpen( locker );
             ShowContainer( cr, nullptr, &locker, transferType );
         }
     }
+
     return true;
 }
 
