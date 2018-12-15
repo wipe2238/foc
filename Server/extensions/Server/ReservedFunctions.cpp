@@ -35,16 +35,23 @@ EXPORT void init()
 
 EXPORT bool start()
 {
+    Log( "***   Starting %s   ***\n", GAME_OPTION_EXT( ConfigFile )->GetStr( SECTION_SERVER, "WindowName" ).c_str() );
+
     return true;
 }
 
 EXPORT void get_start_time( uint16& multiplier, uint16& year, uint16& month, uint16& day, uint16& hour, uint16& minute )
 {
+    Log( "***   First start of %s   ***\n", GAME_OPTION_EXT( ConfigFile )->GetStr( SECTION_SERVER, "WindowName" ).c_str() );
+
     FirstStart = true;
 }
 
 EXPORT void finish()
-{}
+{
+    Log( "***   Finishing %s   ***\n", GAME_OPTION_EXT( ConfigFile )->GetStr( SECTION_SERVER, "WindowName" ).c_str() );
+
+}
 
 EXPORT uint loop()
 {
