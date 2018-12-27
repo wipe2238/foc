@@ -11,9 +11,8 @@ protected:
     set<uint> Critters;
 
 public:
-
-    float BaseSpeed;     // 1.0f = 1px/s
     bool  Debug;
+    float BaseSpeed;         // 1.0f = 1px/s
 
 public:
     WorldmapManager();

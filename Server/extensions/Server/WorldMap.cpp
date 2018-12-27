@@ -10,8 +10,9 @@ WorldmapManager WorldMap;
 WorldmapManager::WorldmapManager() :
     Width( 0 ),
     Height( 0 ),
-    BaseSpeed( 1.0f ),
-    Debug( false )
+    ZoneSize( 0 ),
+    Debug( false ),
+    BaseSpeed( 1.0f )
 {}
 
 WorldmapManager::~WorldmapManager()

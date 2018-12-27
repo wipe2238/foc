@@ -10,9 +10,13 @@ EXPORT bool start()
     Log( "Starting %s\n", GAME_OPTION_EXT( ConfigFile )->GetStr( SECTION_CLIENT, "WindowName" ).c_str() );
 
     GAME_OPTION( MapDataPrefix ).assign( "art/geometry/fallout/" );
+    GAME_OPTION_EXT( WallAlpha ) = 200;
 
     return true;
 }
+
+EXPORT void finish()
+{}
 
 EXPORT uint loop()
 {

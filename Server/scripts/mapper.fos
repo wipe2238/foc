@@ -143,3 +143,6 @@ void LoadTabsConfig()
     // if(tab>=0) TabSetItemPids(tab,name,pids);
     f.close();
 }
+
+void finish()
+{}

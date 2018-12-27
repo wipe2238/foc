@@ -8,6 +8,8 @@
 #include <CommandLine.h>
 #include <Ini.h>
 
+typedef MapObject Scenery;
+
 extern bool IsCompiler;
 extern bool FirstStart;
 

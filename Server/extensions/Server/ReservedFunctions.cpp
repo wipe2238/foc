@@ -2,14 +2,16 @@
 
 #include <ExecuteString.h>
 
+#include "Dialogs.h"
 #include "Lockers.h"
 #include "WorldMap.h"
-
-#define Scenery    MapObject
 
 EXPORT void init()
 {
     Log( "***   Initializing %s   ***\n", GAME_OPTION_EXT( ConfigFile )->GetStr( SECTION_SERVER, "WindowName" ).c_str() );
+
+    // Dialogs
+    Dialogs.Debug = true;
 
     // Lockers
     Lockers.Debug = true;
@@ -210,7 +212,7 @@ EXPORT bool player_login( uint ip, ScriptString& name, uint id, uint& textMsg, u
     return true;
 }
 
-EXPORT bool player_getaccess( Critter& cr, int access, ScriptString& password )
+EXPORT bool player_getaccess( Critter& cr, int access, ScriptString& password ) // int -> uint8
 {
     return true;
 }
