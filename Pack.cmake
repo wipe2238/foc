@@ -16,7 +16,7 @@ file( GLOB_RECURSE ServerData       LIST_DIRECTORIES false RELATIVE ${dir} Serve
 file( GLOB_RECURSE ServerDialogs    LIST_DIRECTORIES false RELATIVE ${dir} Server/dialogs/*.fodlg ) 
 file( GLOB_RECURSE ServerMaps       LIST_DIRECTORIES false RELATIVE ${dir} Server/maps/*.fomap ) 
 file( GLOB_RECURSE ServerProto      LIST_DIRECTORIES false RELATIVE ${dir} Server/proto/*/*.fopro ) 
-file( GLOB_RECURSE ServerScripts    LIST_DIRECTORIES false RELATIVE ${dir} Server/scripts/*.exe Server/scripts/*.dll Server/scripts/*.so Server/scripts/*.pdb Server/scripts/*.fosb )
+file( GLOB_RECURSE ServerScripts    LIST_DIRECTORIES false RELATIVE ${dir} Server/scripts/*.exe Server/scripts/*.dll Server/scripts/*.so Server/scripts/*.pdb fos Server/scripts/*.fos Server/scripts/*.fosb )
 file( GLOB_RECURSE ServerText       LIST_DIRECTORIES false RELATIVE ${dir} Server/text/*/*.MSG )
 list( APPEND files
 	${ServerData}
