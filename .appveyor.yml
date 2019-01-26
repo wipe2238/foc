@@ -39,7 +39,7 @@ cache:
 
 install:
  - git submodule update --init --recursive
- - cmd: set PATH=SDK.Cache\cmake\bin;%PATH%
+ - cmd: set PATH=Cache\cmake\bin;%PATH%
  - cmake -DO=Build.cmake;Pack.cmake;Upstream/FOClassic/Build.cmake -DOWNLOAD_DIR=Cache -P Upstream/FOClassic/CMake/SelfUpdate/SelfUpdate.cmake
 
 build_script:
