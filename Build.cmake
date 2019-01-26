@@ -24,7 +24,7 @@ if( UNIX )
 elseif( WIN32 )
 	set( BUILD_FILE      "FOC.sln" )
 	set( BUILD_GENERATOR "Visual Studio 15 2017" )
-	set( BUILD_TOOL      -T v100 )
+	set( BUILD_TOOL      v100 )
 endif()
 
 CreateBuildDirectory( "${BUILD_DIR}" "${BUILD_GENERATOR}" "${BUILD_TOOL}" "${BUILD_FILE}" )
