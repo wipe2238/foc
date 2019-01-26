@@ -4,17 +4,15 @@
 
 InterfaceManager Interface;
 
-void InterfaceManager::ShowScreen( int screen, int p0, int p1, int p2 )
+void InterfaceManager::ProcessScreenChange( bool show, int screen, int p0, int p1, int p2 )
 {
-    Screens.insert( screen );
+    if( show )
+        Screens.insert( screen );
+    else
+        Screens.erase( screen );
 }
 
-void InterfaceManager::HideScreen( int screen, int p0, int p1, int p2 )
-{
-    Screens.erase( screen );
-}
-
-void InterfaceManager::GetActiveScreens( ScriptArray& screens )
+void InterfaceManager::ProcessGetActiveScreens( ScriptArray& screens )
 {
     screens.Resize( Screens.size() );
 
@@ -27,19 +25,24 @@ void InterfaceManager::GetActiveScreens( ScriptArray& screens )
     }
 }
 
-void InterfaceManager::RenderInterface( uint layer )
+void InterfaceManager::ProcessRenderInterface( uint layer )
 {
-    if( layer != 3 )
+    if( layer != 2 )
         return;
 
     for( auto it = Screens.begin(); it != Screens.end(); ++it )
     {
-        int  val = *it;
+        int val = *it;
 
-        char code[50];
-        sprintf( code, "DrawHardcodedScreen(%d);", val );
-        // ASEngine->WriteMessage("", 0, 0, asMSGTYPE_INFORMATION, code );
-        ExecuteString( ASEngine, code );
-
+        DrawHardcodedScreen( val );
     }
+}
+
+void InterfaceManager::DrawHardcodedScreen( int screen )
+{
+    static const char* codeDrawHardcodedScreen = "DrawHardcodedScreen(%d);";
+    char               code[50];
+
+    sprintf( code, codeDrawHardcodedScreen, screen );
+    ExecuteString( ASEngine, code );
 }

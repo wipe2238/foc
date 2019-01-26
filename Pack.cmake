@@ -16,7 +16,7 @@ file( GLOB_RECURSE ServerData       LIST_DIRECTORIES false RELATIVE ${dir} Serve
 file( GLOB_RECURSE ServerDialogs    LIST_DIRECTORIES false RELATIVE ${dir} Server/dialogs/*.fodlg ) 
 file( GLOB_RECURSE ServerMaps       LIST_DIRECTORIES false RELATIVE ${dir} Server/maps/*.fomap ) 
 file( GLOB_RECURSE ServerProto      LIST_DIRECTORIES false RELATIVE ${dir} Server/proto/*/*.fopro ) 
-file( GLOB_RECURSE ServerScripts    LIST_DIRECTORIES false RELATIVE ${dir} Server/scripts/*.exe Server/scripts/*.dll Server/scripts/*.so Server/scripts/*.pdb Server/scripts/*.fos )
+file( GLOB_RECURSE ServerScripts    LIST_DIRECTORIES false RELATIVE ${dir} Server/scripts/*.exe Server/scripts/*.dll Server/scripts/*.so Server/scripts/*.pdb Server/scripts/*.fosb )
 file( GLOB_RECURSE ServerText       LIST_DIRECTORIES false RELATIVE ${dir} Server/text/*/*.MSG )
 list( APPEND files
 	${ServerData}
@@ -29,10 +29,10 @@ list( APPEND files
 )
 
 foreach( file IN LISTS ClientData )
-	if( "${file}" MATCHES "^Client/data/(critter|master|falldemo)\.dat$" )
+	if( "${file}" MATCHES "^Client/data/.+\.dat$" )
 		list( REMOVE_ITEM files "${file}" )
 	endif()
-	if( "${file}" MATCHES "^Client/data/fallout.*\.zip$" )
+	if( "${file}" MATCHES "^Client/data/.+\.zip$" )
 		list( REMOVE_ITEM files "${file}" )
 	endif()
 	if( "${file}" MATCHES "^Client/data/cache/" )

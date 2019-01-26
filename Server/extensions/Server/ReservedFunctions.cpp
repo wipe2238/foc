@@ -1,26 +1,33 @@
 #include <extension.h>
 
+#include <functional>
+
 #include <ExecuteString.h>
 
 #include "Dialogs.h"
+#include "Ini.h"
 #include "Lockers.h"
 #include "WorldMap.h"
 
 EXPORT void init()
 {
-    Log( "***   Initializing %s   ***\n", GAME_OPTION_EXT( ConfigFile )->GetStr( SECTION_SERVER, "WindowName" ).c_str() );
+    Log( "***   Initializing   ***\n" );
 
     // Dialogs
+    Log( "Dialogs...\n" );
     Dialogs.Debug = true;
 
     // Lockers
+    Log( "Lockers...\n" );
     Lockers.Debug = true;
 
     // WorldMap
+    Log( "Worldmap...\n" );
     WorldMap.Init();
     WorldMap.Debug = true;
     WorldMap.BaseSpeed = 10.0f;
 
+    Log( "SetItemMask...\n" );
     static const char* code =
         "int8[]mask0={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0};"
         "int8[]mask1={0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};"
@@ -33,26 +40,27 @@ EXPORT void init()
         "SetItemDataMask(3,mask3);"
         "SetItemDataMask(4,mask4);";
     ExecuteString( ASEngine, code );
+
+    Log( "***   Initialized   ***\n" );
 }
 
 EXPORT bool start()
 {
-    Log( "***   Starting %s   ***\n", GAME_OPTION_EXT( ConfigFile )->GetStr( SECTION_SERVER, "WindowName" ).c_str() );
+    Log( "***   Starting   ***\n" );
 
     return true;
 }
 
 EXPORT void get_start_time( uint16& multiplier, uint16& year, uint16& month, uint16& day, uint16& hour, uint16& minute )
 {
-    Log( "***   First start of %s   ***\n", GAME_OPTION_EXT( ConfigFile )->GetStr( SECTION_SERVER, "WindowName" ).c_str() );
+    Log( "***   Starting for a first time   ***\n" );
 
     FirstStart = true;
 }
 
 EXPORT void finish()
 {
-    Log( "***   Finishing %s   ***\n", GAME_OPTION_EXT( ConfigFile )->GetStr( SECTION_SERVER, "WindowName" ).c_str() );
-
+    Log( "***   Finishing   ***\n" );
 }
 
 EXPORT uint loop()
@@ -102,8 +110,15 @@ EXPORT bool critter_use_skill( Critter& cr, int skill, Critter* crTarget, Item* 
                 if( Lockers.ProcessUseSkill( cr, skill, itemTarget ) )
                     return true;
             }
+            else if( itemTarget )
+                return false;
+
             break;
         }
+        case SKILL_PUT_CONT:
+        case SKILL_TAKE_CONT:
+        case SKILL_TAKE_ALL_CONT:
+            return false;
         default:
             break;
     }
@@ -131,11 +146,15 @@ EXPORT void critter_respawn( Critter& cr )
 
 EXPORT bool critter_check_move_item( Critter& cr, Item& item, uint8 toSlot, Item* itemSwap )
 {
+    Log( "critter_check_move_item item<%u> toSlot<%u>\n", item.Id, toSlot );
+
     return true;
 }
 
 EXPORT void critter_move_item( Critter& cr, Item& item, uint8 fromSlot )
-{}
+{
+    Log( "critter_move_item item<%u> toSlot<%u>\n", item.Id, fromSlot );
+}
 
 EXPORT void map_critter_in( Map& map, Critter& cr )
 {}

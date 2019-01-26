@@ -9,12 +9,14 @@ private:
     set<int> Screens;
 
 public:
-    // reserved functions
+    // reserved functions processing
+    void ProcessScreenChange( bool show, int screen, int p0, int p1, int p2 );
+    void ProcessGetActiveScreens( ScriptArray& screens );
+    void ProcessRenderInterface( uint layer );
 
-    void ShowScreen( int screen, int p0, int p1, int p2 ); // screen_change( true, ... );
-    void HideScreen( int screen, int p0, int p1, int p2 ); // screen_change( false, ... );
-    void GetActiveScreens( ScriptArray& screens );         // get_active_screens(...);
-    void RenderInterface( uint layer );                    // render_iface(...);
+public:
+    // script wrappers
+    void DrawHardcodedScreen( int screen );
 };
 
 extern InterfaceManager Interface;

@@ -12,16 +12,16 @@ void AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int action
     {
         switch( action )
         {
-            case ACTION_MOVE_ITEM:
-            case ACTION_MOVE_ITEM_SWAP:
-            case ACTION_USE_ITEM:
-            case ACTION_DROP_ITEM:
-            case ACTION_USE_WEAPON:
-            case ACTION_RELOAD_WEAPON:
-            case ACTION_USE_SKILL:
-            case ACTION_PICK_ITEM:
-            case ACTION_PICK_CRITTER:
-            case ACTION_OPERATE_CONTAINER:
+            case CRITTER_ACTION_MOVE_ITEM:
+            case CRITTER_ACTION_MOVE_ITEM_SWAP:
+            case CRITTER_ACTION_USE_ITEM:
+            case CRITTER_ACTION_DROP_ITEM:
+            case CRITTER_ACTION_USE_WEAPON:
+            case CRITTER_ACTION_RELOAD_WEAPON:
+            case CRITTER_ACTION_USE_SKILL:
+            case CRITTER_ACTION_PICK_ITEM:
+            case CRITTER_ACTION_PICK_CRITTER:
+            case CRITTER_ACTION_OPERATE_CONTAINER:
                 return;
             default:
                 break;
@@ -32,7 +32,7 @@ void AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int action
 
     switch( action )
     {
-        case ACTION_MOVE_ITEM:
+        case CRITTER_ACTION_MOVE_ITEM:
         {
             if( cr.Cond == CRITTER_CONDITION_LIFE )
             {
@@ -50,7 +50,7 @@ void AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int action
             }
             break;
         }
-        case ACTION_USE_ITEM:
+        case CRITTER_ACTION_USE_ITEM:
         {
             if( cr.Cond == CRITTER_CONDITION_LIFE && proto )
             {
@@ -64,7 +64,7 @@ void AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int action
             break;
         }
         // 5-7
-        case ACTION_USE_SKILL:
+        case CRITTER_ACTION_USE_SKILL:
         {
             if( cr.Cond == CRITTER_CONDITION_LIFE && actionExt != SK_SNEAK )
             {
@@ -73,7 +73,7 @@ void AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int action
             }
             break;
         }
-        case ACTION_PICK_ITEM:
+        case CRITTER_ACTION_PICK_ITEM:
         {
             if( cr.Cond == CRITTER_CONDITION_LIFE && proto )
             {
@@ -85,7 +85,7 @@ void AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int action
             }
             break;
         }
-        case ACTION_FIDGET:
+        case CRITTER_ACTION_FIDGET:
         {
             Animate( cr, 0, ANIM2_FIDGET );
             break;

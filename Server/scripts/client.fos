@@ -1,5 +1,6 @@
 #pragma bindfunc "void CLIENT() -> FOC.Client.EXTENSION CLIENT"
 
+
 string generic_description( int descriptionType, int& offsetX, int& offsetY )
 {
     Log( "generic_description:" + descriptionType );

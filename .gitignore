@@ -2,6 +2,8 @@
 /Cache/
 /*.zip
 
+CrashDump*.txt
+
 ##
 ## Client
 ##
@@ -9,7 +11,6 @@
 /Client/data/cache/
 
 /Client/ClientGL
-/Client/CrashDump*.txt
 /Client/*.exe
 /Client/*.pdb
 /Client/*.log
@@ -22,7 +23,6 @@
 ##
 
 /Mapper/MapperGL
-/Mapper/CrashDump*.txt
 /Mapper/*.exe
 /Mapper/*.log
 /Mapper/*.pdb
@@ -35,7 +35,6 @@
 /Server/save/
 
 /Server/maps/*.fomapb
-/Server/scripts/CrashDump*.txt
 /Server/scripts/*.dll
 /Server/scripts/*.exe
 /Server/scripts/*.fosb

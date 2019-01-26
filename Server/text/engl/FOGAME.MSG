@@ -1,3 +1,136 @@
+# On head messages
+{100}{}{|0xF8F993 %s}                     # Normal
+{102}{}{|0xFF0000 %s}                     # Shout
+{104}{}{|0xFF00FF **%s**}                 # Emote
+{106}{}{|0x00FFFF ...%s...}               # Whisp
+{108}{}{|0xFFFFFF %s}                     # Social
+
+# Message box
+{120}{}{%s: |0xF8F993 %s}                 # Normal
+{122}{}{%s: |0xFF0000 %s}                 # Shout
+{124}{}{%s: |0xFF00FF **%s**}             # Emote
+{126}{}{%s: |0x00FFFF ...%s...}           # Whisp
+{128}{}{%s: |0xFFFFFF %s}                 # Social
+{130}{}{Radio %u> |0xFFFFFE ss..%s..ss}   # Radio
+{132}{}{%s}                               # NetMsg
+
+# Menu
+{290}{}{Save game}    # Singleplayer
+{291}{}{Load game}    # Singleplayer
+{292}{}{Options}
+{293}{}{Exit}
+{294}{}{Resume}
+
+# Login
+{300}{}{New game}     # Singleplayer
+{301}{}{Load game}    # Singleplayer
+{302}{}{Play}         # Multiplayer
+{303}{}{Registration} # Multiplayer
+{304}{}{Options}
+{305}{}{Credits}
+{306}{}{Exit}
+
+# Dialog box
+{310}{}{Cancel}
+{311}{}{Ok}
+{312}{}{Follow}
+{313}{}{Open mode}
+{314}{}{Hide mode}
+{315}{}{Real-time}
+{316}{}{Turn-based}
+
+# Reg name
+{320}{}{Name}
+{321}{}{Password}
+
+# Perk
+{340}{}{Take}
+{341}{}{Back}
+
+# Global map
+{350}{}{You can not lead this group.}
+{351}{}{Coords: %d : %d\nZone: %d : %d}
+{352}{}{Coords: %d : %d\nZone: %d : %d\n%s\n%s}
+{353}{}{%s\n%s}
+
+# Aim
+{360}{}{Aim is blocked.}
+
+# Split
+{365}{}{Move items}
+{366}{}{All}
+
+# Timer
+{370}{}{Timer}
+
+# Say screen
+{375}{}{Done}
+{376}{}{Back}
+{377}{}{Say...}
+
+# Input box
+{380}{}{Write}
+{381}{}{Back}
+
+# Town view
+{385}{}{Back}
+{386}{}{Enter}
+{387}{}{Contours}
+
+# Save/Load
+{390}{}{Save}
+{391}{}{Load}
+{392}{}{Done}
+{393}{}{Back}
+{394}{}{New record}
+{395}{}{Type record name}
+
+{1001}{}{|4291317840 Incorrect login.}
+{1002}{}{|4291317840 Incorrect password.}
+{1003}{}{|4291317840 The account with such login already exists, choose another login.}
+{1004}{}{|4291317840 The player with this login is already in game.}
+{1005}{}{|4291317840 Incorrect SPECIAL data.}
+{1006}{}{|4291317840 Registration was successful.}
+{1007}{}{|4291317840 Connecting to server.}
+{1008}{}{|4291317840 Connection failure! In case of repetition contact the server administrator.}
+{1009}{}{|4291317840 Incorrect login or password.}
+{1010}{}{|4291317840 Connection established, authentication...}
+{1012}{}{|4291317840 Hexes for spawning are in use, try to enter the game a little bit later.}
+{1013}{}{|4291317840 Switching off on the player's instruction.}
+{1014}{}{|4291317840 Incorrect name. Probably too long or short.}
+{1015}{}{|4291317840 One of name declinations is incorrect. Probably too long or short.}
+{1016}{}{|4291317840 Incorrect sex.}
+{1017}{}{|4291317840 Incorrect age.}
+{1018}{}{|4291317840 It was not possible to connect to the server.}
+{1019}{}{|4291317840 Incorrect data entered.}
+{1020}{}{|4291317840 Searching starting location error, contact serever's administration.}
+{1021}{}{|4291317840 Searching starting map error, contact server's administration.}
+{1022}{}{|4291317840 Searching starting coordinates error, contact server's administration.}
+{1023}{}{|4291317840 Database error, contact server's administration.}
 # FOServer::UserLogin()
 # FOServer::UserRegister()
 {1024}{}{|4291317840 Version of the client is incorrect, please update.}
+{1025}{}{|4291317840 Data transmission error, try once again.}
+{1026}{}{|4291317840 The network message is incorrect.}
+{1027}{}{|4291317840 A server #1 internal error, please contact server's administration.}
+{1028}{}{|4291317840 Authentication successful, loading map.}
+{1029}{}{|4291317840 Choose 3 tag skills.}
+{1030}{}{|4291317840 Name must be in one language.}
+{1031}{}{|4291317840 Name must consist of letters by 70% at least.}
+{1032}{}{|4291317840 You can't use space as first or last symbol for your name.}
+{1033}{}{|4291317840 You can't use two spaces in a row for your name.}
+{1034}{}{|4291317840 Your account is banned.}
+{1035}{}{|4291317840 Invalid characters in name.}
+{1036}{}{|4291317840 Invalid characters in password.}
+{1037}{}{|4291317840 Loading user interface failure.}
+{1038}{}{|4291317840 Executing start script failure.}
+{1039}{}{|4291317840 Selected language not supported. Using default language.}
+{1040}{}{|4291317840 The game may not work properly at resolutions less than 800x600 or greater than 1280x1024.}
+{1041}{}{|4291317840 Knock-knock, anybody here?}
+{1042}{}{|4291317840 Discovered frequent registration from one IP address. Please try again later.}
+{1043}{}{|4291317840 Your IP is banned.}
+{1044}{}{|4291317840 Minimum time from one computer to one account is 10 minutes.}
+{1045}{}{|4291317840 Time left: @lex time@ minutes.}
+{1046}{}{|4291317840 You have been banned.}
+{1047}{}{|4291317840 Ban by: @lex banby@, Duration: @lex time@ hours, Comment: @lex reason@.}
+{1048}{}{|4291317840 Script error, please contact server administration.}

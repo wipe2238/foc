@@ -1,4 +1,5 @@
 #include <extension.h>
+#include <ExecuteString.h>
 
 #include "Animations.h"
 #include "Interface.h"
@@ -7,8 +8,6 @@
 
 EXPORT bool start()
 {
-    Log( "Starting %s\n", GAME_OPTION_EXT( ConfigFile )->GetStr( SECTION_CLIENT, "WindowName" ).c_str() );
-
     GAME_OPTION( MapDataPrefix ).assign( "art/geometry/fallout/" );
     GAME_OPTION_EXT( WallAlpha ) = 200;
 
@@ -25,20 +24,17 @@ EXPORT uint loop()
 
 EXPORT void get_active_screens( ScriptArray /*int[]*/& screens )
 {
-    Interface.GetActiveScreens( screens );
+    Interface.ProcessGetActiveScreens( screens );
 }
 
 EXPORT void screen_change( bool show, int screen, int p0, int p1, int p2 )
 {
-    if( show )
-        Interface.ShowScreen( screen, p0, p1, p2 );
-    else
-        Interface.HideScreen( screen, p0, p1, p2 );
+    Interface.ProcessScreenChange( show, screen, p0, p1, p2 );
 }
 
 EXPORT void render_iface( uint layer )
 {
-    Interface.RenderInterface( layer );
+    Interface.ProcessRenderInterface( layer );
 }
 
 EXPORT void render_map()
@@ -46,11 +42,25 @@ EXPORT void render_map()
 
 EXPORT bool mouse_down( int click )
 {
+    Log( "mouse[%u] down\n", click );
+
+    if( click == MOUSE_CLICK_WHEEL_UP || click == MOUSE_CLICK_WHEEL_DOWN )
+    {
+        float              zoom = GAME_OPTION( SpritesZoom ) + (click == MOUSE_CLICK_WHEEL_DOWN ? 0.1f : -0.1f);
+
+        static const char* codeSetZoom = "SetZoom(%.1f);";
+        char               code[20];
+
+        sprintf( code, codeSetZoom, zoom );
+        ExecuteString( ASEngine, code );
+    }
+
     return false;
 }
 
 EXPORT bool mouse_up( int click )
 {
+    Log( "mouse[%u] up\n", click );
     return false;
 }
 
@@ -59,11 +69,13 @@ EXPORT void mouse_move( int x, int y )
 
 EXPORT bool key_down( uint8 key, ScriptString& keyText )
 {
+    Log( "key[%u] down %s\n", key, keyText.c_str() );
     return false;
 }
 
 EXPORT bool key_up( uint8 key, ScriptString& keyText )
 {
+    Log( "key[%u] up %s\n", key, keyText.c_str() );
     return false;
 }
 
