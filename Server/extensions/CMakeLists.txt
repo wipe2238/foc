@@ -6,8 +6,13 @@ set( EXTENSION_DIR    "${SERVER_DIR}/scripts" )
 set( CLIENT_MAPPER_SERVER_SOURCES
 	${CMAKE_CURRENT_LIST_FILE}
 
+	${FOCLASSIC_HEADERS_DIR}/AngelScript/angelscript.h
+
 	extension.cpp
 	extension.h
+
+	AngelScript/Buffer.cpp
+	AngelScript/Buffer.h
 )
 
 FOClassicExtension( ${EXTENSION_PREFIX}Client CLIENT "${FOCLASSIC_HEADERS_DIR}" )
@@ -89,3 +94,4 @@ source_group( "Utils"     REGULAR_EXPRESSION "^${CMAKE_CURRENT_LIST_DIR}/Utils" 
 
 source_group( "Engine"      REGULAR_EXPRESSION "^${FOCLASSIC_HEADERS_DIR}" )
 source_group( "AngelScript" REGULAR_EXPRESSION "^${FOCLASSIC_HEADERS_DIR}/AngelScript" )
+source_group( "AngelScript" REGULAR_EXPRESSION "^${CMAKE_CURRENT_LIST_DIR}/AngelScript" )

@@ -1,0 +1,29 @@
+bool buffer_test()
+{
+    Buffer buffer;
+
+    buffer.Debug = true;
+
+    uint8 u8 = 0;
+    buffer << BUFFER_CAST( uint8, 238 );
+    buffer >> u8;
+    Log( "u8 = " + u8 );
+
+    int i32 = 0;
+    buffer << 1207;
+    buffer >> i32;
+
+    Log( "i32 = " + i32 );
+
+    if( u8 != 238 || i32 != 1207 )
+        return false;
+
+    /*
+       array<uint8> au8;
+       array<int32> ai32;
+       array<float> af;
+       buffer << au8 << ai32 << af;
+       buffer >> au8 >> ai32 >> af;
+     */
+    return true;
+}

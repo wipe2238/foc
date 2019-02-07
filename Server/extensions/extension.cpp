@@ -1,11 +1,15 @@
 #include <extension.h>
 
+#include "AngelScript/Buffer.h"
+
 bool IsCompiler = false;
 bool FirstStart = false;
 
 FOCLASSIC_EXTENSION_ENTRY( compiler )
 {
     IsCompiler = compiler;
+
+    RegisterBuffer( ASEngine );
 }
 
 #if !defined (FOCLASSIC_BLEEDING_EDGE)

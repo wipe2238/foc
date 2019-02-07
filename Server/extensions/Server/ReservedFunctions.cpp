@@ -2,6 +2,7 @@
 
 #include <functional>
 
+#include <AngelScript/Buffer.h>
 #include <ExecuteString.h>
 
 #include "Dialogs.h"

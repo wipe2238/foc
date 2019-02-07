@@ -28,21 +28,20 @@ int ExecuteString( asIScriptEngine* engine, const char* code, void* ref, int ref
     funcCode = engine->GetTypeDeclaration( refTypeId, true ) + funcCode;
 
     // GetModule will free unused types, so to be on the safe side we'll hold on to a reference to the type
-//	asITypeInfo *type = 0;
-//	if( refTypeId & asTYPEID_MASK_OBJECT )
-//	{
-//		type = engine->GetTypeInfoById(refTypeId);
-//		if( type )
-//			type->AddRef();
-//	}
-
+    asIObjectType* type = 0;
+    if( refTypeId & asTYPEID_MASK_OBJECT )
+    {
+        type = engine->GetObjectTypeById( refTypeId );
+        if( type )
+            type->AddRef();
+    }
 
     // If no module was provided, get a dummy from the engine
-    asIScriptModule* execMod = mod ? mod : engine->GetModule( "/intenal/ExecuteString", asGM_ALWAYS_CREATE );
+    asIScriptModule* execMod = mod ? mod : engine->GetModule( "ExecuteString", asGM_ALWAYS_CREATE );
 
     // Now it's ok to release the type
-//	if( type )
-//		type->Release();
+    if( type )
+        type->Release();
 
     // Compile the function that can be executed
     asIScriptFunction* func = 0;
@@ -51,35 +50,39 @@ int ExecuteString( asIScriptEngine* engine, const char* code, void* ref, int ref
         return r;
 
     // If no context was provided, request a new one from the engine
-//	asIScriptContext *execCtx = ctx ? ctx : engine->RequestContext();
     asIScriptContext* execCtx = ctx ? ctx : engine->CreateContext();
     r = execCtx->Prepare( func );
-    if( r >= 0 )
+    if( r < 0 )
     {
-        // Execute the function
-        r = execCtx->Execute();
+        func->Release();
+        if( !ctx )
+            execCtx->Release();
+        return r;
+    }
 
-        // Unless the provided type was void retrieve it's value
-        if( ref != 0 && refTypeId != asTYPEID_VOID )
+    // Execute the function
+    r = execCtx->Execute();
+
+    // Unless the provided type was void retrieve it's value
+    if( ref != 0 && refTypeId != asTYPEID_VOID )
+    {
+        if( refTypeId & asTYPEID_OBJHANDLE )
         {
-            if( refTypeId & asTYPEID_OBJHANDLE )
-            {
-                // Expect the pointer to be null to start with
-                assert( *reinterpret_cast<void**>(ref) == 0 );
-                *reinterpret_cast<void**>(ref) = *reinterpret_cast<void**>(execCtx->GetAddressOfReturnValue() );
-//				engine->AddRefScriptObject(*reinterpret_cast<void**>(ref), engine->GetTypeInfoById(refTypeId));
-            }
-            else if( refTypeId & asTYPEID_MASK_OBJECT )
-            {
-                // Expect the pointer to point to a valid object
-                assert( *reinterpret_cast<void**>(ref) != 0 );
-//				engine->AssignScriptObject(ref, execCtx->GetAddressOfReturnValue(), engine->GetTypeInfoById(refTypeId));
-            }
-            else
-            {
-                // Copy the primitive value
-                memcpy( ref, execCtx->GetAddressOfReturnValue(), engine->GetSizeOfPrimitiveType( refTypeId ) );
-            }
+            // Expect the pointer to be null to start with
+            assert( *reinterpret_cast<void**>(ref) == 0 );
+            *reinterpret_cast<void**>(ref) = *reinterpret_cast<void**>(execCtx->GetAddressOfReturnValue() );
+            engine->AddRefScriptObject( *reinterpret_cast<void**>(ref), engine->GetObjectTypeById( refTypeId ) );
+        }
+        else if( refTypeId & asTYPEID_MASK_OBJECT )
+        {
+            // Expect the pointer to point to a valid object
+            assert( *reinterpret_cast<void**>(ref) != 0 );
+            engine->AssignScriptObject( ref, execCtx->GetAddressOfReturnValue(), engine->GetObjectTypeById( refTypeId ) );
+        }
+        else
+        {
+            // Copy the primitive value
+            memcpy( ref, execCtx->GetAddressOfReturnValue(), engine->GetSizeOfPrimitiveType( refTypeId ) );
         }
     }
 
@@ -87,7 +90,6 @@ int ExecuteString( asIScriptEngine* engine, const char* code, void* ref, int ref
     func->Release();
     if( !ctx )
         execCtx->Release();
-//	if( !ctx ) engine->ReturnContext(execCtx);
 
     return r;
 }
