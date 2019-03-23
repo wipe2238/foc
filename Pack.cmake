@@ -20,7 +20,7 @@ file( GLOB_RECURSE ServerScripts    LIST_DIRECTORIES false RELATIVE ${dir} Serve
 file( GLOB_RECURSE ServerText       LIST_DIRECTORIES false RELATIVE ${dir} Server/text/*/*.MSG )
 list( APPEND files
 	${ServerData}
-	${ServerDialogs} Server/dialogs/dialogs.lst
+	${ServerDialogs} Server/dialogs/dialogs.cfg
 	${ServerMaps}    Server/maps/GenerateWorld.cfg Server/maps/Locations.cfg
 	${ServerProto}   Server/proto/critters/critters.lst Server/proto/items/items.lst
 	${ServerScripts} Server/scripts/scripts.cfg

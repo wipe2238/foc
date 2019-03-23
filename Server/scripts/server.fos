@@ -5,7 +5,7 @@ bool buffer_test()
     buffer.Debug = true;
 
     uint8 u8 = 0;
-    buffer << BUFFER_CAST( uint8, 238 );
+    buffer << uint8( 238 );
     buffer >> u8;
     Log( "u8 = " + u8 );
 

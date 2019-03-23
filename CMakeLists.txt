@@ -38,7 +38,6 @@ list( APPEND FOCLASSIC_COPY_MAPPER_DIR     "${MAPPER_DIR}" )
 list( APPEND FOCLASSIC_COPY_SERVER_DIR     "${SERVER_DIR}" )
 list( APPEND FOCLASSIC_COPY_ASCOMPILER_DIR "${SERVER_DIR}/scripts" )
 
-
 execute_process(
 	COMMAND ${GIT_EXECUTABLE} config -f .gitmodules --get submodule.FOClassic.path
 	WORKING_DIRECTORY ${FOC_ROOT_DIR}

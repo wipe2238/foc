@@ -12,7 +12,9 @@
 
 EXPORT void init()
 {
-    Log( "***   Initializing   ***\n" );
+    Log( "<<<   Initializing   >>>\n" );
+
+    GAME_OPTION( TimeoutTransfer ) = 0;
 
     // Dialogs
     Log( "Dialogs...\n" );
@@ -27,7 +29,6 @@ EXPORT void init()
     WorldMap.Init();
     WorldMap.Debug = true;
     WorldMap.BaseSpeed = 10.0f;
-
     Log( "SetItemMask...\n" );
     static const char* code =
         "int8[]mask0={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0};"
@@ -40,28 +41,29 @@ EXPORT void init()
         "SetItemDataMask(2,mask2);"
         "SetItemDataMask(3,mask3);"
         "SetItemDataMask(4,mask4);";
+
     ExecuteString( ASEngine, code );
 
-    Log( "***   Initialized   ***\n" );
+    Log( "<<<   Initialized   >>>\n" );
 }
 
 EXPORT bool start()
 {
-    Log( "***   Starting   ***\n" );
+    Log( "<<<   Starting   >>>\n" );
 
     return true;
 }
 
 EXPORT void get_start_time( uint16& multiplier, uint16& year, uint16& month, uint16& day, uint16& hour, uint16& minute )
 {
-    Log( "***   Starting for a first time   ***\n" );
+    Log( "<<<   Starting for a first time   >>>\n" );
 
     FirstStart = true;
 }
 
 EXPORT void finish()
 {
-    Log( "***   Finishing   ***\n" );
+    Log( "<<<   Finishing   >>>\n" );
 }
 
 EXPORT uint loop()
