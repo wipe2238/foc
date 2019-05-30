@@ -1,14 +1,19 @@
-#include <extension.h>
+#include <CritterCl.h>
+#include <Log.h>
 
-#include <ExecuteString.h>
+#include "FOC.h"
 
 #include "Animations.h"
 
-AnimationsManager Animations;
+using namespace std;
 
-void AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int action, int actionExt, ItemCl* item )
+
+FOC::AnimationsManager::AnimationsManager()
+{}
+
+void FOC::AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int action, int actionExt, ItemCl* item )
 {
-    if( FLAG( cr.Flags, CRITTER_FLAG_CHOSEN ) && !localCall )
+    if( cr.IsChosen() && !localCall )
     {
         switch( action )
         {
@@ -39,14 +44,14 @@ void AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int action
                 uint8 fromSlot = actionExt;
                 uint8 toSlot = item->AccCritter.Slot;
 
-                ClearAnim( cr );
+                cr.ClearAnim();
 
                 if( toSlot == SLOT_HAND1 )
-                    Animate( cr, 0, ANIM2_SHOW_WEAPON, item );
+                    cr.Animate( 0, ANIM2_SHOW_WEAPON, item );
                 else if( fromSlot == SLOT_HAND1 )
-                    Animate( cr, 0, ANIM2_HIDE_WEAPON, item );
+                    cr.Animate( 0, ANIM2_HIDE_WEAPON, item );
                 else
-                    Animate( cr, 0, ANIM2_SWITCH_ITEMS );
+                    cr.Animate( 0, ANIM2_SWITCH_ITEMS, nullptr );
             }
             break;
         }
@@ -54,12 +59,13 @@ void AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int action
         {
             if( cr.Cond == CRITTER_CONDITION_LIFE && proto )
             {
-                ClearAnim( cr );
+                cr.ClearAnim();
 
-                if( proto->Type == ITEM_TYPE_WEAPON && FLAG( proto->Flags, ITEM_FLAG_CAN_USE_ON_SMTH ) && IsAnimAvailable( cr, proto->Weapon_Anim1, proto->Weapon_Anim2[0] ) )
-                    Animate( cr, proto->Weapon_Anim1, proto->Weapon_Anim2[0], item );
+                // proto->UserData[53] = proto->Weapon_Anim2[0]
+                if( proto->Type == ITEM_TYPE_WEAPON && FLAG( proto->Flags, ITEM_FLAG_CAN_USE_ON_SMTH ) && cr.IsAnimAviable( proto->Weapon_Anim1, proto->UserData[53] ) )
+                    cr.Animate( proto->Weapon_Anim1, proto->UserData[53], item ); // proto->Weapon_Anim2[0]
                 else
-                    Animate( cr, 0, ANIM2_USE, item );
+                    cr.Animate( 0, ANIM2_USE, item );
             }
             break;
         }
@@ -68,8 +74,8 @@ void AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int action
         {
             if( cr.Cond == CRITTER_CONDITION_LIFE && actionExt != SK_SNEAK )
             {
-                ClearAnim( cr );
-                Animate( cr, 0, ANIM2_USE );
+                cr.ClearAnim();
+                cr.Animate( 0, ANIM2_USE, nullptr );
             }
             break;
         }
@@ -80,23 +86,23 @@ void AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int action
                 bool isGround = (proto->Type >= ITEM_TYPE_ARMOR && proto->Type <= ITEM_TYPE_KEY && !item->IsCar() );
                 if( proto->Type == ITEM_TYPE_CONTAINER )
                     isGround = proto->GroundLevel;
-                ClearAnim( cr );
-                Animate( cr, 0, isGround ? ANIM2_PICKUP : ANIM2_USE );
+                cr.ClearAnim();
+                cr.Animate( 0, isGround ? ANIM2_PICKUP : ANIM2_USE, nullptr );
             }
             break;
         }
         case CRITTER_ACTION_FIDGET:
         {
-            Animate( cr, 0, ANIM2_FIDGET );
+            cr.Animate( 0, ANIM2_FIDGET, nullptr );
             break;
         }
     }
 }
 
-bool AnimationsManager::ProcessFallout( uint crType, uint& anim1, uint& anim2, uint& anim1ex, uint& anim2ex, uint& flags )
+bool FOC::AnimationsManager::ProcessFallout( uint crType, uint& anim1, uint& anim2, uint& anim1ex, uint& anim2ex, uint& flags )
 {
-    Log( "ProcessFallout(crType=%u, anim1=%u, anim2=%u, anim1ex=%u, anim2ex=%u, flags=%u)\n",
-         crType, anim1, anim2, anim1ex, anim2ex, flags );
+    WriteLog( "ProcessFallout(crType=%u, anim1=%u, anim2=%u, anim1ex=%u, anim2ex=%u, flags=%u)\n",
+              crType, anim1, anim2, anim1ex, anim2ex, flags );
 
     // Still only weapon
     anim1 &= ANIM1_WEAPON_MASK;
@@ -157,7 +163,7 @@ bool AnimationsManager::ProcessFallout( uint crType, uint& anim1, uint& anim2, u
             break;
         default:
             anim1 = ANIM1_FALLOUT_UNARMED;
-            Log( "anim1 ??? %u\n", anim1 );
+            WriteLog( "anim1 ??? %u\n", anim1 );
             break;
     }
 
@@ -405,50 +411,9 @@ bool AnimationsManager::ProcessFallout( uint crType, uint& anim1, uint& anim2, u
         // ANIM2_TWITCH_PRONE_FRONT
         // ANIM2_TWITCH_PRONE_BACK
         default:
-            Log( "anim2 ??? %u\n", anim2 );
+            WriteLog( "anim2 ??? %u\n", anim2 );
             return false;
     }
 
     return true;
-}
-
-//
-
-void AnimationsManager::ClearAnim( CritterCl& cr )
-{
-    static const char* codeClearAnim = "GetCritter(%u).ClearAnim();";
-    char               code[50];
-
-    sprintf( code, codeClearAnim, cr.Id );
-    ExecuteString( ASEngine, code );
-}
-
-bool AnimationsManager::IsAnimAvailable( CritterCl& cr, uint anim1, uint anim2 )
-{
-    static const char* codeIsAnimAvailable = "return GetCritter(%u).IsAnimAviable(%u,%u);";
-    char               code[50];
-
-    bool               result = false;
-    sprintf( code, codeIsAnimAvailable, cr.Id, anim1, anim2 );
-    ExecuteString( ASEngine, code, &result, asTYPEID_BOOL, nullptr, nullptr );
-
-    return result;
-}
-
-void AnimationsManager::Animate( CritterCl& cr, uint anim1, uint anim2 )
-{
-    static const char* codeAnimate = "GetCritter(%u).Animate(%u,%u);";
-    char               code[50];
-
-    sprintf( code, codeAnimate, cr.Id, anim1, anim2 );
-    ExecuteString( ASEngine, code );
-}
-
-void AnimationsManager::Animate( CritterCl& cr, uint anim1, uint anim2, ItemCl* item )
-{
-    static const char* codeAnimate = "GetCritter(%u).Animate(%u,%u,%u);";
-    char               code[50];
-
-    sprintf( code, codeAnimate, cr.Id, anim1, anim2, item ? item->Id : 0 );
-    ExecuteString( ASEngine, code );
 }

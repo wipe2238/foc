@@ -1,6 +1,5 @@
 add_subdirectory( data )
 add_subdirectory( dialogs )
-add_subdirectory( extensions )
 add_subdirectory( maps )
 add_subdirectory( proto )
 add_subdirectory( scripts )

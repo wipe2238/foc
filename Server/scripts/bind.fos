@@ -1,1 +1,0 @@
-#pragma bindfunc "void SERVER() -> FOC.Server.EXTENSION SERVER"

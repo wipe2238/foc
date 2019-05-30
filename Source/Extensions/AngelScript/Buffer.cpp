@@ -1,11 +1,13 @@
 #include <extension.h>
 
+#include <Log.h>
+
 #include "Buffer.h"
 
-#define BUFFER_LOG( ... )                   \
-    {                                       \
-        if( Debug )                         \
-            Log( "[Buffer]" __VA_ARGS__ );  \
+#define BUFFER_LOG( ... )                        \
+    {                                            \
+        if( Debug )                              \
+            WriteLog( "[Buffer]" __VA_ARGS__ );  \
     }
 
 #define BUFFER_DELETE_DATA( data ) \
@@ -403,7 +405,7 @@ Buffer& Buffer::operator>>( SCRIPTARRAY_FETCH arr )
                 break;
             default:
                 // TODO throw exception
-                Log( "[Buffer] ERROR : unknown typeId<%d:%s>\n", elementTypeId, engine->GetTypeDeclaration( elementTypeId, true ) );
+                WriteLog( "[Buffer] ERROR : unknown typeId<%d:%s>\n", elementTypeId, engine->GetTypeDeclaration( elementTypeId, true ) );
                 break;
         }
     }

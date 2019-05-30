@@ -1,6 +1,13 @@
 #ifndef __ANIMATIONS__
 #define __ANIMATIONS__
 
+#include <CritterCl.h>
+#include <Extension.h>
+#include <Item.h>
+#include <Types.h>
+
+typedef Item ItemCl;
+
 // Anim loading flags
 #define ANIM_FLAG_FIRST_FRAME               (0x01)
 #define ANIM_FLAG_LAST_FRAME                (0x02)
@@ -173,18 +180,16 @@
 #define ANIM2_FALLOUT_DEAD_FRONT2           (15)
 #define ANIM2_FALLOUT_DEAD_BACK2            (16)
 
-class AnimationsManager
+namespace FOC
 {
+    class AnimationsManager
+    {
 public:
-    void ProcessAction( bool localCall, CritterCl& cr, int action, int actionExt, ItemCl* item );
-    bool ProcessFallout( uint crType, uint& anim1, uint& anim2, uint& anim1ex, uint& anim2ex, uint& flags );
-//
-    void ClearAnim( CritterCl& cr );
-    bool IsAnimAvailable( CritterCl& cr, uint anim1, uint anim2 );
-    void Animate( CritterCl& cr, uint anim1, uint anim2 );
-    void Animate( CritterCl& cr, uint anim1, uint anim2, ItemCl* item );
-};
+        AnimationsManager();
 
-extern AnimationsManager Animations;
+        void ProcessAction( bool localCall, CritterCl& cr, int action, int actionExt, ItemCl* item );
+        bool ProcessFallout( uint crType, uint& anim1, uint& anim2, uint& anim1ex, uint& anim2ex, uint& flags );
+    };
+}
 
 #endif // __ANIMATIONS__ //

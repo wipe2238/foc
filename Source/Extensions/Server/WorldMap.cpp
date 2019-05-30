@@ -1,13 +1,16 @@
 #include <cassert>
 
-#include <extension.h>
-#include <ExecuteString.h>
+#include <Critter.h>
+#include <GameOptions.h>
+#include <Item.h>
+#include <Log.h>
+#include <MapManager.h>
 
-#include "WorldMap.h"
+#include "FOC.h"
+#include "Server/WorldMap.h"
+#include "Shared/SScriptFunc.h"
 
-WorldmapManager WorldMap;
-
-WorldmapManager::WorldmapManager() :
+FOC::WorldMapManager::WorldMapManager() :
     Width( 0 ),
     Height( 0 ),
     ZoneSize( 0 ),
@@ -15,12 +18,12 @@ WorldmapManager::WorldmapManager() :
     BaseSpeed( 1.0f )
 {}
 
-WorldmapManager::~WorldmapManager()
+FOC::WorldMapManager::~WorldMapManager()
 {
     Critters.clear();
 }
 
-void WorldmapManager::Init()
+void FOC::WorldMapManager::Init()
 {
     Width = GAME_OPTION( GlobalMapWidth ) * GAME_OPTION( GlobalMapZoneLength );
     Height = GAME_OPTION( GlobalMapHeight ) * GAME_OPTION( GlobalMapZoneLength );
@@ -29,7 +32,7 @@ void WorldmapManager::Init()
 
 //
 
-void WorldmapManager::Process( int processType, Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void FOC::WorldMapManager::Process( int processType, Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {
     assert( processType >= 0 && processType <= 7 );
 
@@ -46,7 +49,7 @@ void WorldmapManager::Process( int processType, Critter& cr, Item* car, float& c
     };
 
     if( Debug )
-        Log( "WorldmapManager::Process critter<%u> type<%s>\n", cr.Id, processName[processType] );
+        WriteLogF( _FUNC_, "<%s> critter<%u>\n", processName[processType], cr.GetId() );
 
     switch( processType )
     {
@@ -93,56 +96,54 @@ void WorldmapManager::Process( int processType, Critter& cr, Item* car, float& c
     }
 }
 
-void WorldmapManager::ProcessInvite( Critter& crLeader, Item* car, uint encounterDescriptor, int combatMode, uint& mapId, uint16& hexX, uint16& hexY, uint8& dir )
+void FOC::WorldMapManager::ProcessInvite( Critter& crLeader, Item* car, uint encounterDescriptor, int combatMode, uint& mapId, uint16& hexX, uint16& hexY, uint8& dir )
 {
     if( Debug )
-        Log( "WorldmapManager::ProcessInvite : critter<%u>\n", crLeader.Id );
+        WriteLogF( _FUNC_, " critter<%u>\n", crLeader.GetId() );
 }
 
 //
 
-void WorldmapManager::ProcessMove( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void FOC::WorldMapManager::ProcessMove( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {
     MoveGroup( cr, car, curX, curY, toX, toY, speed );
 }
 
-void WorldmapManager::ProcessEnter( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void FOC::WorldMapManager::ProcessEnter( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {}
 
-void WorldmapManager::ProcessStartFast( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void FOC::WorldMapManager::ProcessStartFast( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {
     int zoneX = (int)curX / ZoneSize;
     int zoneY = (int)curY / ZoneSize;
 
-    Log( "WorldmapManager::ProcessStartFast critter<%u> zone<%d:%d>\n", cr.Id, zoneX, zoneY );
+    if( Debug )
+        WriteLogF( _FUNC_, " critter<%u> zone<%d:%d>\n", cr.GetId(), zoneX, zoneY );
 
-    assert( zoneX >= 0 && zoneX <= MAX_UINT16 );
-    assert( zoneY >= 0 && zoneY <= MAX_UINT16 );
-
-    // UpdateFog(cr, zoneX, zoneY); << CRASH
+    UpdateFog( cr, zoneX, zoneY ); // << CRASH
 }
 
-void WorldmapManager::ProcessStart( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void FOC::WorldMapManager::ProcessStart( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {}
 
-void WorldmapManager::ProcessSetMove( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void FOC::WorldMapManager::ProcessSetMove( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {
     speed = BaseSpeed;
     MoveGroup( cr, car, curX, curY, toX, toY, speed );
 }
 
-void WorldmapManager::ProcessStopped( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void FOC::WorldMapManager::ProcessStopped( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {}
 
-void WorldmapManager::ProcessNpcIdle( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void FOC::WorldMapManager::ProcessNpcIdle( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {}
 
-void WorldmapManager::ProcessKick( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
+void FOC::WorldMapManager::ProcessKick( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed, uint& encounterDescriptor, bool& waitForAnswer )
 {}
 
 //
 
-void WorldmapManager::MoveGroup( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed )
+void FOC::WorldMapManager::MoveGroup( Critter& cr, Item* car, float& curX, float& curY, float& toX, float& toY, float& speed )
 {
     const float oldDist = GetDistance( curX, curY, toX, toY );
     const uint  movementType = (car ? car->Proto->Car_MovementType : WORLDMAP_WALK_GROUND);
@@ -196,7 +197,7 @@ void WorldmapManager::MoveGroup( Critter& cr, Item* car, float& curX, float& cur
     int curXi = (int)curX, curYi = (int)curY;
 
     if( Debug )
-        Log( "WorldmapManager::MoveGroup critter<%u> move<%d,%d -> %d,%d>\n", cr.Id, oldXi, oldYi, curXi, curYi );
+        WriteLogF( _FUNC_, " critter<%u> move<%d,%d -> %d,%d>\n", cr.GetId(), oldXi, oldYi, curXi, curYi );
     //
 
     if( oldXi != curXi || oldYi != curYi )
@@ -219,7 +220,7 @@ void WorldmapManager::MoveGroup( Critter& cr, Item* car, float& curX, float& cur
             return;
         }
 
-        int steps = max( abs( curXi - oldXi ), abs( curYi - oldYi ) );
+        int steps = std::max( abs( curXi - oldXi ), abs( curYi - oldYi ) );
         int newXi = oldXi, newYi = oldYi;
         if( steps )
         {
@@ -278,41 +279,20 @@ void WorldmapManager::MoveGroup( Critter& cr, Item* car, float& curX, float& cur
     }
 }
 
-void WorldmapManager::MoveGroupZone( Critter& cr, const uint16& fromZoneX, const uint16& fromZoneY, const uint16& toZoneX, const uint16& toZoneY )
+void FOC::WorldMapManager::MoveGroupZone( Critter& cr, const uint16& fromZoneX, const uint16& fromZoneY, const uint16& toZoneX, const uint16& toZoneY )
 {
     if( Debug )
-        Log( "WorldmapManager::MoveGroupZone : critter<%u> zone<%u:%u> -> zone<%u:%u>\n", cr.Id, fromZoneX, fromZoneY, toZoneX, toZoneY );
+        WriteLog( _FUNC_, " critter<%u> zone<%u:%u> -> zone<%u:%u>\n", cr.GetId(), fromZoneX, fromZoneY, toZoneX, toZoneY );
 
-    UpdateFog( cr.GroupMove->Group, toZoneX, toZoneY );
-    UpdateLocations( cr.GroupMove->Group, toZoneX, toZoneY );
+    UpdateFog( cr.GroupMove->CritMove, toZoneX, toZoneY );
+    UpdateLocations( cr.GroupMove->CritMove, toZoneX, toZoneY );
 }
 
 //
 
-int WorldmapManager::GetFog( Critter& cr, uint16 zx, uint16 zy )
+void FOC::WorldMapManager::UpdateFog( Critter& cr, const uint16& zoneX, const uint16& zoneY )
 {
-    static const char* codeGetFog = "return GetCritter(%u).GetFog(%u,%u);";
-    char               code[100];
-    int                result = -1;
-
-    sprintf( code, codeGetFog, cr.Id, zx, zy );
-    ExecuteString( ASEngine, code, &result, asTYPEID_INT32, nullptr, nullptr );
-
-    return result;
-}
-
-void WorldmapManager::SetFog( Critter& cr, uint16 zx, uint16 zy, uint8 fog )
-{
-    static const char* codeSetFog = "GetCritter(%u).SetFog(%u,%u,%u)";
-    char               code[100];
-
-    sprintf( code, codeSetFog, cr.Id, zx, zy, fog );
-    ExecuteString( ASEngine, code );
-}
-
-void WorldmapManager::UpdateFog( Critter& cr, const uint16& zoneX, const uint16& zoneY )
-{
-    if( cr.CritterIsNpc )
+    if( cr.IsNotValid || cr.IsNpc() )
         return;
 
     static const char* fogName[] =
@@ -333,63 +313,58 @@ void WorldmapManager::UpdateFog( Critter& cr, const uint16& zoneX, const uint16&
 
             if( lookZoneX >= 0 && (uint)lookZoneX < Width && lookZoneY >= 0 && (uint)lookZoneY < Height )
             {
-                uint8 oldFog = GetFog( cr, lookZoneX, lookZoneY );
+                uint8 oldFog = FOServer::SScriptFunc::Cl_GetFog( &cr, lookZoneX, lookZoneY );
                 uint8 newFog = ( (zoneX == lookZoneX && zoneY == lookZoneY) ? WORLDMAP_FOG_NONE : WORLDMAP_FOG_HALF );
                 if( oldFog < 0 || oldFog > 3 )
-                    Log( "WorldmapManager::UpdateFog critter<%u> fog<ERROR>\n", cr.Id );
+                    WriteLogF( _FUNC_, " critter<%u> fog<ERROR>\n", cr.GetId() );
                 else if( oldFog < newFog )
                 {
                     if( Debug )
-                        Log( "WorldmapManager::UpdateFog critter<%u> fog<%s -> %s>\n", cr.Id, fogName[oldFog], fogName[newFog] );
+                        WriteLogF( _FUNC_, " critter<%u> fog<%s -> %s>\n", cr.GetId(), fogName[oldFog], fogName[newFog] );
 
-                    SetFog( cr, lookZoneX, lookZoneY, newFog );
+                    FOServer::SScriptFunc::Cl_SetFog( &cr, lookZoneX, lookZoneY, newFog );
                 }
             }
         }
     }
 }
 
-void WorldmapManager::UpdateFog( const CrVec& crVec, const uint16& zoneX, const uint16& zoneY )
+void FOC::WorldMapManager::UpdateFog( const CrVec& crVec, const uint16& zoneX, const uint16& zoneY )
 {
     for( auto it = crVec.begin(); it != crVec.end(); ++it )
     {
         Critter* cr = *it;
 
-        if( !cr )
+        if( !cr || cr->IsNotValid || cr->IsNpc() )
             continue;
 
         UpdateFog( *cr, zoneX, zoneY );
     }
 }
 
-void WorldmapManager::UpdateLocations( Critter& cr, const uint16& zoneX, const uint16& zoneY )
+void FOC::WorldMapManager::UpdateLocations( Critter& cr, const uint16& zoneX, const uint16& zoneY )
 {
-    static const char* codeUpdateLocations =
-        "Critter@ cr = GetCritter(%u);                        "
-        "array<uint> locIds1;                                 "
-        "GetZoneLocationIds(%u, %u, 1, locIds1);              "
-        "for (uint l = 0, len=locIds1.length(); l<len; l++)   "
-        "{                                                    "
-        "   uint locId = locIds1[l];                          "
-        "   if (!cr.IsKnownLoc(true, locId))                  "
-        "   {                                                 "
-        "       Location@ loc = GetLocation(locId);           "
-        "       if (@loc != null) cr.SetKnownLoc(true, locId);"
-        "   }                                                 "
-        "}                                                    ";
-    char code[MAX_FOTEXT];
-    sprintf( code, codeUpdateLocations, cr.Id, zoneX, zoneY );
+    if( cr.IsNotValid || cr.IsNpc() )
+        return;
 
-    ExecuteString( ASEngine, code );
+    // SScriptFunc not used to avoid pointless array conversion
+    UIntVec loc_ids;
+    MapMngr.GetZoneLocations( zoneX, zoneY, 1, loc_ids );
+
+    for( auto it = loc_ids.begin(), end = loc_ids.end(); it != end; ++it )
+    {
+        if( !FOServer::SScriptFunc::Cl_IsKnownLoc( &cr, true, *it ) )
+            FOServer::SScriptFunc::Cl_SetKnownLoc( &cr, true, *it );
+    }
 }
 
-void WorldmapManager::UpdateLocations( const CrVec& crVec, const uint16& zoneX, const uint16& zoneY )
+void FOC::WorldMapManager::UpdateLocations( const CrVec& crVec, const uint16& zoneX, const uint16& zoneY )
 {
-    for( auto it = crVec.begin(); it != crVec.end(); ++it )
+    for( auto it = crVec.begin(), end = crVec.end(); it != end; ++it )
     {
         Critter* cr = *it;
 
-        if( !cr )
+        if( !cr || cr->IsNotValid || cr->IsNpc() )
             continue;
 
         UpdateLocations( *cr, zoneX, zoneY );

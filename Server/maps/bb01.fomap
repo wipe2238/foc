@@ -3280,7 +3280,7 @@ MapObjType           2
 ProtoId              2011
 MapX                 111
 MapY                 99
-ScriptName           FOC.Server.dll
+ScriptName           FOC.extension
 FuncName             SceneryDialog
 Scenery_CanTalk      1
 Scenery_ParamsCount  1
@@ -5244,7 +5244,7 @@ MapObjType           2
 ProtoId              2183
 MapX                 117
 MapY                 104
-ScriptName           FOC.Server.dll
+ScriptName           FOC.extension
 FuncName             SceneryDialog
 Scenery_CanTalk      1
 Scenery_ParamsCount  1

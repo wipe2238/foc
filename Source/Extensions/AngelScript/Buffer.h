@@ -1,7 +1,8 @@
 #ifndef __BUFFER__
 #define __BUFFER__
 
-#include <extension.h>
+#include <Addons/scriptarray.h>
+#include <Types.h>
 
 class Buffer
 {

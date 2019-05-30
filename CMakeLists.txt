@@ -39,18 +39,23 @@ list( APPEND FOCLASSIC_COPY_SERVER_DIR     "${SERVER_DIR}" )
 list( APPEND FOCLASSIC_COPY_ASCOMPILER_DIR "${SERVER_DIR}/scripts" )
 
 execute_process(
-	COMMAND ${GIT_EXECUTABLE} config -f .gitmodules --get submodule.FOClassic.path
+	COMMAND ${GIT_EXECUTABLE} config -f .gitmodules --get submodule.Engine.path
 	WORKING_DIRECTORY ${FOC_ROOT_DIR}
-	OUTPUT_VARIABLE FOC_FOCLASSIC_DIR
+	OUTPUT_VARIABLE ENGINE_DIR
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-if( NOT FOC_FOCLASSIC_DIR )
-	message( FATAL_ERROR "Cannot find git submodule 'FOClassic' path" )
+if( NOT ENGINE_DIR )
+	message( FATAL_ERROR "Cannot find git submodule 'Engine' path" )
 endif()
 
-message( STATUS "Configuring FOClassic... ${FOC_FOCLASSIC_DIR}" )
-add_subdirectory( ${FOC_FOCLASSIC_DIR} )
+#include( ${ENGINE_DIR}/CMake/Extensions.cmake )
+#FOClassicExtensionInit( "${CMAKE_CURRENT_LIST_DIR}/${FOC_FOCLASSIC_DIR}" )
+
+#set( FOC_CMAKE_DIR ${CMAKE_CURRENT_BINARY_DIR}/${FOC_FOCLASSIC_DIR}/CMake/include )
+
+message( STATUS "Configuring FOClassic... ${ENGINE_DIR}" )
+add_subdirectory( ${ENGINE_DIR} )
 message( STATUS "Configuring FOClassic... OK" )
 
 ##
@@ -64,7 +69,7 @@ add_subdirectory( Server )
 set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 set_property( GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake" )
 
-set_property( TARGET ${FOCLASSIC_ALL_TARGETS} PROPERTY FOLDER Engine )
+#set_property( TARGET ${FOCLASSIC_ALL_TARGETS} PROPERTY FOLDER Engine )
 
 add_custom_target( Content
 	SOURCES

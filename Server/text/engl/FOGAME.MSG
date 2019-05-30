@@ -85,6 +85,11 @@
 {394}{}{New record}
 {395}{}{Type record name}
 
+{419}{}{You don't have enough action points to access the inventory.}
+{425}{}{You cannot pick that up. You are at your maximum weight capacity.}
+{426}{}{There is no space left for that item.}
+{433}{}{You can't find anything to take from that.}
+
 {1001}{}{|4291317840 Incorrect login.}
 {1002}{}{|4291317840 Incorrect password.}
 {1003}{}{|4291317840 The account with such login already exists, choose another login.}
