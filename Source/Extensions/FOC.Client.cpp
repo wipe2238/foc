@@ -29,14 +29,21 @@ static bool start()
     GAME_OPTION( MapDataPrefix ).assign( "art/geometry/fallout/" );
     GAME_OPTION_EXT( WallAlpha ) = 200;
 
+    if( !FOC::Self()->Interface->ProcessStart() )
+        return false;
+
     return true;
 }
 
 static void finish()
-{}
+{
+    FOC::Self()->Interface->ProcessFinish();
+}
 
 static uint loop()
 {
+    FOC::Self()->Interface->ProcessLoop();
+
     return 10;
 }
 
@@ -56,44 +63,39 @@ static void render_iface( uint layer )
 }
 
 static void render_map()
-{}
+{
+    FOC::Self()->Interface->ProcessRenderMap();
+}
 
 static bool mouse_down( int click )
 {
-    WriteLogF( _FUNC_, "<%u>\n", click );
-
-    if( click == MOUSE_CLICK_WHEEL_UP || click == MOUSE_CLICK_WHEEL_DOWN )
-    {
-        float zoom = GAME_OPTION( SpritesZoom ) + (click == MOUSE_CLICK_WHEEL_DOWN ? 0.1f : -0.1f);
-        FOClient::SScriptFunc::Global_SetZoom( zoom );
-    }
-
-    return false;
+    return FOC::Self()->Interface->ProcessMouseDown( click );
 }
 
 static bool mouse_up( int click )
 {
-    WriteLogF( _FUNC_, "<%u>\n", click );
-    return false;
+    return FOC::Self()->Interface->ProcessMouseUp( click );
 }
 
 static void mouse_move( int x, int y )
-{}
+{
+    FOC::Self()->Interface->ProcessMouseMove( x, y );
+}
 
 static bool key_down( uint8 key, ScriptString& keyText )
 {
-    WriteLogF( _FUNC_, "<%u> %s\n", key, keyText.c_str() );
-    return false;
+    return FOC::Self()->Interface->ProcessKeyDown( key, (string&)keyText.c_std_str() );
 }
 
 static bool key_up( uint8 key, ScriptString& keyText )
 {
-    WriteLogF( _FUNC_, "<%u> %s\n", key, keyText.c_str() );
-    return false;
+    return FOC::Self()->Interface->ProcessKeyUp( key, (string&)keyText.c_std_str() );
 }
 
 static void input_lost()
-{}
+{
+    FOC::Self()->Interface->ProcessInputLost();
+}
 
 static void critter_in( CritterCl& cr )
 {}

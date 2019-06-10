@@ -2,6 +2,8 @@
 
 #include <Addons/scriptarray.h>
 #include <Log.h>
+#include <Map.h>
+#include <MapManager.h>
 
 #include "FOC.Server.h"
 #include "Server/Lockers.h"
@@ -68,13 +70,13 @@ bool FOC::LockersManager::UseLocker( Critter& cr, Item* locker )
         {
             if( Debug )
                 WriteLog( "LockersManager::UseLocker item<%u> pid<%u> critter<%u> : close door\n", locker->Id, locker->Proto->ProtoId, cr.GetId() );
-            FOServer::SScriptFunc::Item_LockerClose( locker );
+            UseLockerAction( locker, false );
         }
         else
         {
             if( Debug )
                 WriteLog( "LockersManager::UseLocker item<%u> pid<%u> critter<%u> : open door\n", locker->Id, locker->Proto->ProtoId, cr.GetId() );
-            FOServer::SScriptFunc::Item_LockerOpen( locker );
+            UseLockerAction( locker, true );
         }
     }
     else if( locker->IsContainer() )
@@ -87,13 +89,13 @@ bool FOC::LockersManager::UseLocker( Critter& cr, Item* locker )
             {
                 if( Debug )
                     WriteLog( "LockersManager::UseLocker item<%u> pid<%u> critter<%u> : close container\n", locker->Id, locker->Proto->ProtoId, cr.GetId() );
-                FOServer::SScriptFunc::Item_LockerClose( locker );
+                UseLockerAction( locker, false );
             }
             else
             {
                 if( Debug )
                     WriteLog( "LockersManager::UseLocker item<%u> pid<%u> critter<%u> : open container\n", locker->Id, locker->Proto->ProtoId, cr.GetId() );
-                FOServer::SScriptFunc::Item_LockerOpen( locker );
+                UseLockerAction( locker, true );
                 FOServer::SScriptFunc::Cl_ShowContainer( &cr, nullptr, locker, transferType );
             }
         }
@@ -116,5 +118,9 @@ void FOC::LockersManager::UseLockerAction( Item* locker, bool open, uint delay /
             FOServer::SScriptFunc::Item_LockerOpen( locker );
         else
             FOServer::SScriptFunc::Item_LockerClose( locker );
+
+        std::string text = open ? "open" : "close";
+        Map*        map = MapMngr.GetMap( locker->AccHex.MapId );
+        map->SetText( locker->AccHex.HexX, locker->AccHex.HexY, COLOR_XRGB( 0, 255, 0 ), text.c_str(), text.size(), 0, true );
     }
 }

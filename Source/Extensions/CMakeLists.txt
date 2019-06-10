@@ -1,10 +1,11 @@
 set( EXTENSION_PREFIX "FOC." )
-set( EXTENSION_DIR    "${SERVER_DIR}/scripts" )
 
 set( CLIENT_MAPPER_SERVER_SOURCES
 	${CMAKE_CURRENT_LIST_FILE}
 
 	FOC.h
+	Shared/Hex2D.cpp
+	Shared/Hex2D.h
 	Shared/SScriptFunc.h
 
 	AngelScript/Buffer.cpp
@@ -14,6 +15,7 @@ set( CLIENT_MAPPER_SERVER_SOURCES
 set( CLIENT_SERVER_SOURCES
 	Shared/ApCost.cpp
 	Shared/ApCost.h
+	Shared/CritterMutual.h
 	Shared/MoveItem.cpp
 	Shared/MoveItem.h
 )
@@ -35,6 +37,13 @@ target_sources( ${EXTENSION_PREFIX}Client
 		Client/Animations.h
 		Client/Interface.cpp
 		Client/Interface.h
+
+		Client/Screen/Game.cpp
+		Client/Screen/Game.h
+		Client/Screen/Login.cpp
+		Client/Screen/Login.h
+		Client/Screen/MiniMap.cpp
+		Client/Screen/MiniMap.h
 )
 
 target_sources( ${EXTENSION_PREFIX}Mapper
@@ -78,11 +87,18 @@ FOClassicExtension( CLIENT ${EXTENSION_PREFIX}Client )
 FOClassicExtension( MAPPER ${EXTENSION_PREFIX}Mapper )
 FOClassicExtension( SERVER ${EXTENSION_PREFIX}Server )
 
+PdbSetup( ${EXTENSION_PREFIX}Client )
+PdbSetup( ${EXTENSION_PREFIX}Mapper )
+PdbSetup( ${EXTENSION_PREFIX}Server )
+
+add_subdirectory( PGUI )
 
 source_group( " "         REGULAR_EXPRESSION "\.([Cc]|[Cc][Pp][Pp]|[Hh])$" )
 source_group( "CMake"     REGULAR_EXPRESSION "[Cc][Mm][Aa][Kk][Ee]" )
-source_group( "Extension" REGULAR_EXPRESSION "^${CMAKE_CURRENT_LIST_DIR}/FOC\..+" )
+source_group( "Extension" REGULAR_EXPRESSION "^${CMAKE_CURRENT_LIST_DIR}/FOC\." )
 
 source_group( "AngelScript" REGULAR_EXPRESSION "^${FOCLASSIC_HEADERS_DIR}/AngelScript" )
 source_group( "AngelScript" REGULAR_EXPRESSION "^${CMAKE_CURRENT_LIST_DIR}/AngelScript" )
-source_group( "Shared"      REGULAR_EXPRESSION "^${CMAKE_CURRENT_LIST_DIR}/Shared/.+" )
+source_group( "Shared"      REGULAR_EXPRESSION "^${CMAKE_CURRENT_LIST_DIR}/Shared/" )
+
+source_group( "Screen" REGULAR_EXPRESSION "^${CMAKE_CURRENT_LIST_DIR}/Client/Screen/" )

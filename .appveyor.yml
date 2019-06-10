@@ -35,12 +35,12 @@ for:
    clone_folder: C:\FOC
 
 cache:
- - Cache -> CMakeLists.txt, Build.cmake, Pack.cmake
+ - Cache -> CMakeLists.txt, Source/Extensions/CMakeLists.txt, Build.cmake, Pack.cmake
 
 install:
  - git submodule update --init --recursive
  - cmd: set PATH=Cache\cmake\bin;%PATH%
- - cmake -DO=Build.cmake;Pack.cmake;Upstream/FOClassic/Build.cmake -DOWNLOAD_DIR=Cache -P Upstream/FOClassic/CMake/SelfUpdate/SelfUpdate.cmake
+ - cmake -DO=Build.cmake;Pack.cmake;Source/Engine/Build.cmake -DOWNLOAD_DIR=Cache -P Source/Engine/CMake/SelfUpdate/SelfUpdate.cmake
 
 build_script:
  - cmake -P Build.cmake

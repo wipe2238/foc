@@ -2,6 +2,7 @@
 #include <Log.h>
 #include <Ini.h>
 #include <Item.h>
+#include <Map.h>
 #include <ProtoMap.h>
 #include <Script.h>
 
@@ -185,10 +186,14 @@ static void critter_respawn( Critter& cr )
 {}
 
 static void map_critter_in( Map& map, Critter& cr )
-{}
+{
+    WriteLogF( _FUNC_, " : map<id:%u,pid:%u> critter<%u>\n", map.GetId(), map.GetPid(), cr.GetId() );
+}
 
 static void map_critter_out( Map& map, Critter& cr )
-{}
+{
+    WriteLogF( _FUNC_, " : map<id:%u,pid:%u> critter<%u>\n", map.GetId(), map.GetPid(), cr.GetId() );
+}
 
 static bool npc_plane_begin( Critter& npc, NpcPlane& plane, int reason, Critter* crTarget, Item* itemTarget )
 {
