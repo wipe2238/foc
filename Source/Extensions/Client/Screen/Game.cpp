@@ -17,7 +17,9 @@
     if( what )         \
         App.WriteLogF( _FUNC_, " : %s\n",# what )
 
-FOC::Screen::Game::Game( PGUI::Core* gui ) : PGUI::Screen( gui )
+FOC::Screen::Game::Game( PGUI::Core* gui ) : PGUI::Screen( gui ),
+// private
+    MiniMap( false )
 {
     if( GUI->Debug )
         App.WriteLogF( _FUNC_, "\n" );
@@ -159,14 +161,19 @@ void FOC::Screen::Game::OnOpen()
 {
     GameOpt.DebugInfo = true;
 
-    PGUI::Element::Update();
+    if( MiniMap )
+        GUI->OpenScreen( CLIENT_SCREEN_MINIMAP );
+
+    PGUI::Screen::Update();
 }
 
 void FOC::Screen::Game::OnClose()
 {
     GameOpt.DebugInfo = false;
 
+    MiniMap = GUI->IsScreenOpen( CLIENT_SCREEN_MINIMAP );
+
     GUI->CloseAllScreens();
 
-    PGUI::Element::Update();
+    PGUI::Screen::Update();
 }

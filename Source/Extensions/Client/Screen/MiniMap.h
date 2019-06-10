@@ -18,17 +18,19 @@ public:
                 MapHex( bool show, uint8 r, uint8 g, uint8 b, uint8 alpha = 255 );
             };
 
-            uint             MiniMapPid;
-            PGUI::DrawCache* MiniMapData;
-            float            MiniMapZoom;
+            uint   MiniMapPid;
 
-            MapHex           ScrollBlock;
-            MapHex           ExitGrid;
-            MapHex           Wall;
-            MapHex           Scenery;
+            MapHex ScrollBlock;
+            MapHex ExitGrid;
+            MapHex Wall;
+            MapHex Scenery;
 
 private:
-            bool NeedUpdateMiniMap;
+            uint16           MiniMapWidth;
+            uint16           MiniMapHeight;
+            float            MiniMapZoom;
+            PGUI::DrawCache* MiniMapData;
+            bool             NeedUpdateMiniMap;
 
 public:
             MiniMap( PGUI::Core* gui );
@@ -39,11 +41,15 @@ public:
             void SetColor( MapHex& object, uint8 r, uint8 g, uint8 b, uint8 alpha = 255 );
             void SetObject( MapHex& object, bool show, uint8 r, uint8 g, uint8 b, uint8 alpha = 255 );
 
+
 public:
             virtual void Update() override;
             void         UpdateMiniMap();
+            void         UpdateZoom( float zoom );
 
             virtual void DrawContent() override;
+
+            virtual bool KeyDown( const uint8& key, const std::string& keyText ) override;
         };
     };
 };

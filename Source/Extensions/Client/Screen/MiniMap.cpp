@@ -1,7 +1,7 @@
 #include <App.h>
 #include <GameOptions.h>
 #include <HexManager.h>
-
+#include <Keyboard.h>
 
 #include "Client/Screen/MiniMap.h"
 #include "Shared/Hex2D.h"
@@ -19,18 +19,18 @@ FOC::Screen::MiniMap::MapHex::MapHex( bool show, uint8 r, uint8 g, uint8 b, uint
 FOC::Screen::MiniMap::MiniMap( PGUI::Core* gui ) : PGUI::Screen( gui ),
 // public
     MiniMapPid( uint( -1 ) ),
-    MiniMapData(),
-    MiniMapZoom( 1.0f ),
     ScrollBlock( false, 127, 127, 127 ),
     ExitGrid( true, 127, 255, 0 ),
     Wall( true, 255, 127, 0 ),
     Scenery( true, 0, 255, 0 ),
 // private
+    MiniMapWidth( 0 ),
+    MiniMapHeight( 0 ),
+    MiniMapZoom( 1.0f ),
+    MiniMapData( nullptr ),
     NeedUpdateMiniMap( true )
 {
     Layer = 2;
-
-    SetBorderVisible( false );
 }
 
 FOC::Screen::MiniMap::~MiniMap()
@@ -69,7 +69,7 @@ bool FOC::Screen::MiniMap::GetHex( uint16 hexX, uint16 hexY, bool& show, uint& c
         show = Wall.Show;
         color = Wall.Color;
     }
-    else if( field.IsScen )
+    else if( field.IsScen ) // should be last-ish, to not consume cases above
     {
         show = Scenery.Show;
         color = Scenery.Color;
@@ -120,8 +120,12 @@ void FOC::Screen::MiniMap::Update()
     if( !GameOpt.ClientMap )
         NeedUpdateMiniMap = true;
 
-    // different map
+    // different map; needs fix when/if dynamic sceneries are born
     if( MiniMapPid != mapPid )
+        NeedUpdateMiniMap = true;
+
+    // no size
+    if( !MiniMapWidth || !MiniMapHeight )
         NeedUpdateMiniMap = true;
 
     // no data
@@ -219,14 +223,33 @@ void FOC::Screen::MiniMap::UpdateMiniMap()
     if( GUI->Debug )
         App.WriteLogF( _FUNC_, " : %d point%s\n", automap.Points.size(), automap.Points.size() != 1 ? "s" : "" );
 
-    PGUI::Draw::DeleteCache( MiniMapData );
-    MiniMapData = automap.NewCache();
     MiniMapPid = mapPid;
 
-    SetSize( maxPX - minPX, maxPY - minPY );
-    SetPositionAt( 5 + 1, -5 - -1 ); // top-right, 5px margin
+    PGUI::Draw::DeleteCache( MiniMapData );
+    MiniMapData = automap.NewCache();
+
+    MiniMapWidth = maxPX - minPX;
+    MiniMapHeight = maxPY - minPY;
+
+    UpdateZoom( MiniMapZoom );
 
     NeedUpdateMiniMap = false;
+}
+
+void FOC::Screen::MiniMap::UpdateZoom( float zoom )
+{
+    uint16 width = (uint16)(MiniMapWidth / zoom);
+    uint16 height = (uint16)(MiniMapHeight / zoom);
+
+    if( zoom >= 0.2f && zoom <= 3.6f && width < GUI->GetScreenWidth() && height < GUI->GetScreenWidth() )
+    {
+        SetSize( width, height );
+        SetPositionAt( 5 + 1, -5 - -1 );       // top-right, 5px margin
+        MiniMapZoom = zoom;
+
+        if( GUI->Debug )
+            App.WriteLogF( _FUNC_, " = %.1ff\n", MiniMapZoom );
+    }
 }
 
 void FOC::Screen::MiniMap::DrawContent()
@@ -235,4 +258,19 @@ void FOC::Screen::MiniMap::DrawContent()
         return;
 
     PGUI::Draw::RenderData( MiniMapData, GetLeft(), GetTop(), MiniMapZoom );
+}
+
+bool FOC::Screen::MiniMap::KeyDown( const uint8& key, const std::string& keyText )
+{
+    if( !IsKeyboardActive )
+        return false;
+
+    if( key == DIK_ADD || key == DIK_SUBTRACT )
+    {
+        UpdateZoom( MiniMapZoom + (key == DIK_ADD ? -0.1f : 0.1f) );
+
+        return true;
+    }
+
+    return false;
 }

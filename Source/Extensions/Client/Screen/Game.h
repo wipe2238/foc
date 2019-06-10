@@ -24,6 +24,9 @@ public:
                 static const uint8 ActionPoints = 11;
             };
 
+private:
+            bool MiniMap;
+
 public:
             Game( PGUI::Core* gui );
             virtual ~Game();
