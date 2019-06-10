@@ -171,7 +171,15 @@ static void critter_reload_weapon( Critter& cr, Item& weapon, Item* ammo )
 {}
 
 static void critter_init( Critter& cr, bool firstTime )
-{}
+{
+    cr.ChangeParam( ST_MAX_LIFE );
+    cr.ChangeParam( ST_ACTION_POINTS );
+    cr.ChangeParam( ST_CARRY_WEIGHT );
+    cr.Data.Params[ST_MAX_LIFE] = std::max( 5, cr.GetRawParam( ST_MAX_LIFE ) );
+    cr.Data.Params[ST_ACTION_POINTS] = std::max( 5, cr.GetRawParam( ST_ACTION_POINTS ) );
+    cr.Data.Params[ST_CARRY_WEIGHT] = std::max( 10000, cr.GetRawParam( ST_CARRY_WEIGHT ) );
+    cr.ProcessChangedParams();
+}
 
 static void critter_finish( Critter& cr, bool toDelete )
 {}

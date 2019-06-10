@@ -45,10 +45,13 @@ int16 PGUI::Element::GetLeft( bool ignore_parent /* = false */ )
 
 void PGUI::Element::SetLeft( int16 left )
 {
-    if( GUI->Debug )
-        App.WriteLogF( _FUNC_, "(%d)\n", left );
+    if( GetLeft( true ) != left )
+    {
+        if( GUI->Debug )
+            App.WriteLogF( _FUNC_, "(%d)\n", left );
 
-    Left = left;
+        Left = left;
+    }
 }
 
 int16 PGUI::Element::GetRight( bool ignoreParent /* = false */ )
@@ -66,10 +69,13 @@ int16 PGUI::Element::GetTop( bool ignore_parent /* = false */ )
 
 void PGUI::Element::SetTop( int16 top )
 {
-    if( GUI->Debug )
-        App.WriteLogF( _FUNC_, "(%d)\n", top );
+    if( GetTop( true ) != top )
+    {
+        if( GUI->Debug )
+            App.WriteLogF( _FUNC_, "(%d)\n", top );
 
-    Top = top;
+        Top = top;
+    }
 }
 
 int16 PGUI::Element::GetBottom( bool ignoreParent )
@@ -88,8 +94,8 @@ void PGUI::Element::SetPosition( int16 left, int16 top )
     if( GUI->Debug )
         App.WriteLogF( _FUNC_, "(%d,%d)\n", left, top );
 
-    Left = left;
-    Top = top;
+    SetLeft( left );
+    SetTop( top );
 }
 
 void PGUI::Element::SetPositionAt( int16 xx, int16 yy, bool ignoreParent /* = false */ )
@@ -118,7 +124,8 @@ void PGUI::Element::SetPositionAt( int16 xx, int16 yy, bool ignoreParent /* = fa
     else if( yy > 0 )
         top = parentHeight - height - --yy;
 
-    SetPosition( left, top );
+    if( GetLeft( true ) != left || GetTop( true ) != top )
+        SetPosition( left, top );
 }
 
 uint16 PGUI::Element::GetWidth()
@@ -128,11 +135,14 @@ uint16 PGUI::Element::GetWidth()
 
 void PGUI::Element::SetWidth( uint16 value )
 {
-    if( GUI->Debug )
-        App.WriteLogF( _FUNC_, "(%u)\n", value );
+    if( GetWidth() != value )
+    {
+        if( GUI->Debug )
+            App.WriteLogF( _FUNC_, "(%u)\n", value );
 
-    Width = value;
-    NeedUpdateDecorations = true;
+        Width = value;
+        NeedUpdateDecorations = true;
+    }
 }
 
 uint16 PGUI::Element::GetHeight()
@@ -142,11 +152,14 @@ uint16 PGUI::Element::GetHeight()
 
 void PGUI::Element::SetHeight( uint16 value )
 {
-    if( GUI->Debug )
-        App.WriteLogF( _FUNC_, "(%u)\n", value );
+    if( GetHeight() != value )
+    {
+        if( GUI->Debug )
+            App.WriteLogF( _FUNC_, "(%u)\n", value );
 
-    Height = value;
-    NeedUpdateDecorations = true;
+        Height = value;
+        NeedUpdateDecorations = true;
+    }
 }
 
 void PGUI::Element::GetSize( uint16& width, uint16& height )
@@ -157,12 +170,8 @@ void PGUI::Element::GetSize( uint16& width, uint16& height )
 
 void PGUI::Element::SetSize( uint16 width, uint16 height )
 {
-    if( GUI->Debug )
-        App.WriteLogF( _FUNC_, "(%u,%u)\n", width, height );
-
-    Width = width;
-    Height = height;
-    NeedUpdateDecorations = true;
+    SetWidth( width );
+    SetHeight( height );
 }
 
 void PGUI::Element::SetSize( PGUI::Element* other )
@@ -192,11 +201,14 @@ bool PGUI::Element::GetBackgroundVisible()
 
 void PGUI::Element::SetBackgroundVisible( bool value )
 {
-    if( GUI->Debug )
-        App.WriteLogF( _FUNC_, "(%s)\n", value ? "true" : "false" );
+    if( GetBackgroundVisible() != value )
+    {
+        if( GUI->Debug )
+            App.WriteLogF( _FUNC_, "(%s)\n", value ? "true" : "false" );
 
-    BackgroundVisible = value;
-    NeedUpdateDecorations = true;
+        BackgroundVisible = value;
+        NeedUpdateDecorations = true;
+    }
 }
 
 bool PGUI::Element::GetBorderVisible()
@@ -206,11 +218,13 @@ bool PGUI::Element::GetBorderVisible()
 
 void PGUI::Element::SetBorderVisible( bool value )
 {
-    if( GUI->Debug )
-        App.WriteLogF( _FUNC_, "(%s)\n", value ? "true" : "false" );
-
-    BorderVisible = value;
-    NeedUpdateDecorations = true;
+    if( GetBorderVisible() != value )
+    {
+        if( GUI->Debug )
+            App.WriteLogF( _FUNC_, "(%s)\n", value ? "true" : "false" );
+        BorderVisible = value;
+        NeedUpdateDecorations = true;
+    }
 }
 
 uint8 PGUI::Element::GetBorderThickness()
@@ -220,17 +234,20 @@ uint8 PGUI::Element::GetBorderThickness()
 
 void PGUI::Element::SetBorderThickness( uint8 value )
 {
-    if( GUI->Debug )
-        App.WriteLogF( _FUNC_, "(%u)\n", value );
+    if( GetBorderThickness() != value )
+    {
+        if( GUI->Debug )
+            App.WriteLogF( _FUNC_, "(%u)\n", value );
 
-    BorderThickness = value;
+        BorderThickness = value;
 
-    if( value && !BorderVisible )
-        SetBorderVisible( true );
-    else if( !value && BorderVisible )
-        SetBorderVisible( false );
+        if( value && !GetBorderVisible() )
+            SetBorderVisible( true );
+        else if( !value && GetBorderVisible() )
+            SetBorderVisible( false );
 
-    NeedUpdateDecorations = true;
+        NeedUpdateDecorations = true;
+    }
 }
 
 //
@@ -245,11 +262,23 @@ bool PGUI::Element::IsElement( uint id )
 
 bool PGUI::Element::AddElement( uint id, PGUI::Element* element )
 {
-    if( !id || !element )
+    if( !id )
+    {
+        App.WriteLogF( _FUNC_, " ERROR : id is zero\n" );
         return false;
+    }
+
+    if( !element )
+    {
+        App.WriteLogF( _FUNC_, " ERROR : element is null\n" );
+        return false;
+    }
 
     if( IsElement( id ) )
+    {
+        App.WriteLogF( _FUNC_, " ERROR : element with id<%u> already added\n", id );
         return false;
+    }
 
     element->SetGUI( GUI );
     element->Parent = this;
@@ -308,7 +337,7 @@ void PGUI::Element::UpdateDecorations()
     Draw::DeleteCache( BackgroundCache );
     Draw::DeleteCache( BorderCache );
 
-    if( BackgroundVisible )
+    if( GetBackgroundVisible() )
     {
         DrawData background;
 
@@ -316,11 +345,11 @@ void PGUI::Element::UpdateDecorations()
         BackgroundCache = background.NewCache();
     }
 
-    if( BorderVisible )
+    if( GetBorderVisible() )
     {
         DrawData border;
 
-        border.MakeRectangleFrame( 0, 0, GetWidth(), GetHeight(), GUI->Settings.ColorBorder, BorderThickness );
+        border.MakeRectangleFrame( 0, 0, GetWidth(), GetHeight(), GUI->Settings.ColorBorder, GetBorderThickness() );
         BorderCache = border.NewCache();
     }
 
@@ -344,7 +373,7 @@ void PGUI::Element::DrawBack()
     if( !IsVisible )
         return;
 
-    if( BackgroundVisible )
+    if( GetBackgroundVisible() )
         Draw::RenderData( BackgroundCache, GetLeft(), GetTop() );
 
     for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
@@ -361,7 +390,7 @@ void PGUI::Element::DrawFront()
     if( !IsVisible )
         return;
 
-    if( BorderVisible )
+    if( GetBorderVisible() )
         Draw::RenderData( BorderCache, GetLeft(), GetTop() );
 }
 

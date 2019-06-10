@@ -35,7 +35,7 @@ using namespace std;
 #define NoShift       (!LeftShift && !RightShift)
 
 FOC::InterfaceManager::InterfaceManager() :
-    UI(nullptr)
+    UI( nullptr )
 {
     TextBlock& debug = TextBlocks[TB_DEBUG];
     debug.StartX = debug.StartY = 5;
@@ -69,13 +69,12 @@ bool FOC::InterfaceManager::ProcessStart()
     UI = new PGUI::Core();
     UI->Debug = true;
 
-    //UI->EventScreenRemove = std::bind( &InterfaceManager::UI_ScreenAdd, this, placeholders::_1, placeholders::_2 );
+    // UI->EventScreenRemove = std::bind( &InterfaceManager::UI_ScreenAdd, this, placeholders::_1, placeholders::_2 );
     UI->EventScreenRemove = std::bind( &InterfaceManager::UI_ScreenRemove, this, placeholders::_1, placeholders::_2 );
 
     UI->AddScreen( CLIENT_MAIN_SCREEN_LOGIN, new Screen::Login( UI ) );
     UI->AddScreen( CLIENT_MAIN_SCREEN_GAME, new Screen::Game( UI ) );
     UI->AddScreen( CLIENT_SCREEN_MINIMAP, new Screen::MiniMap( UI ) );
-
 
     return true;
 }

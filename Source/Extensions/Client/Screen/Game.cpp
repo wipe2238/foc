@@ -19,6 +19,9 @@
 
 FOC::Screen::Game::Game( PGUI::Core* gui ) : PGUI::Screen( gui )
 {
+    if( GUI->Debug )
+        App.WriteLogF( _FUNC_, "\n" );
+
     uint16 itemWidth = 100, itemHeight = 50;
 
     IsStatic = true;
@@ -28,14 +31,14 @@ FOC::Screen::Game::Game( PGUI::Core* gui ) : PGUI::Screen( gui )
     PGUI::Label* label;
 
     label = new PGUI::Label( gui, "0" );
-    label->AutoSize();
     AddElement( ID::HitPoints, label );
-    uint hpBottom = label->GetBottom( true );
+    label->AutoSize();
+    int hpBottom = label->GetBottom( true );
 
     label = new PGUI::Label( gui, "*" );
+    AddElement( ID::ActionPoints, label );
     label->AutoSize();
     label->SetTop( hpBottom );
-    AddElement( ID::ActionPoints, label );
     int            apBottom = label->GetBottom( true );
 
     PGUI::Element* element = new PGUI::Element( gui, itemWidth, itemHeight );
@@ -68,13 +71,18 @@ FOC::Screen::Game::~Game()
 
 void FOC::Screen::Game::Update()
 {
+    if( !IsUpdating )
+        return;
+
+    PGUI::Screen::Update();
+
     CritterCl* chosen = FOClient::SScriptFunc::Global_GetChosen();
-    IF_LOG( !chosen );
+
     if( !chosen )
         return;
 
     bool debug = GUI->Debug;
-    GUI->Debug = false;
+    // GUI->Debug = false;
 
     PGUI::Label* label = GetElementType<PGUI::Label>( ID::HitPoints );
 
@@ -100,37 +108,37 @@ void FOC::Screen::Game::Update()
     label->SetLeft( GetWidth() / 2 - label->GetWidth() / 2 );
 
     GUI->Debug = debug;
-
-    PGUI::Screen::Update();
 }
 
 void FOC::Screen::Game::Draw()
 {
+    if( !IsVisible )
+        return;
+
     PGUI::Screen::Draw();
 
     CritterCl* chosen = FOClient::SScriptFunc::Global_GetChosen();
-    IF_LOG( !chosen );
     if( !chosen )
         return;
 
-    DrawItem( ID::HandLeft, chosen->ItemSlotMain );
-    DrawItem( ID::BodyArmor, chosen->ItemSlotArmor );
-    DrawItem( ID::HandRight, chosen->ItemSlotExt );
+    if( chosen->ItemSlotMain && chosen->ItemSlotMain->GetId() )
+        DrawItem( ID::HandLeft, chosen->ItemSlotMain );
+    if( chosen->ItemSlotArmor && chosen->ItemSlotArmor->GetId() )
+        DrawItem( ID::BodyArmor, chosen->ItemSlotArmor );
+    if( chosen->ItemSlotExt && chosen->ItemSlotExt->GetId() )
+        DrawItem( ID::HandRight, chosen->ItemSlotExt );
 }
 
 void FOC::Screen::Game::DrawItem( uint id, Item* item )
 {
     PGUI::Element* element = GetElement( id );
+    if( !element->IsVisible )
+        return;
 
-    IF_LOG( !element );
-    IF_LOG( !item );
-    IF_LOG( item->IsNotValid );
-    IF_LOG( !item->GetId() );
     if( !element || !item || item->IsNotValid || !item->GetId() )
         return;
 
     AnyFrames* sprite = ResMngr.GetInvAnim( item->GetPicInv() );
-    IF_LOG( !sprite );
     if( !sprite )
         return;
 
