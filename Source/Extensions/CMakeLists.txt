@@ -73,7 +73,7 @@ target_sources( ${EXTENSION_PREFIX}Server
 		Server/WorldMap.h
 )
 if( UNIX )
-	target_compile_definitios( ${EXTENSION_PREFIX}Server PUBLIC USE_LIBEVENT LIBEVENT_TIMEOUTS_WORKAROUND )
+	target_compile_definitions( ${EXTENSION_PREFIX}Server PUBLIC USE_LIBEVENT LIBEVENT_TIMEOUTS_WORKAROUND )
 endif()
 
 get_property( targets DIRECTORY "${CMAKE_CURRENT_LIST_DIR}" PROPERTY BUILDSYSTEM_TARGETS )
