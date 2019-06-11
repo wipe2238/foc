@@ -10,7 +10,7 @@
 
 PGUI::Element::Element( PGUI::Core* gui, uint16 width /* = 0 */, uint16 height /* = 0 */, int16 left /* = 0 */, int16 top /* = 0 */ ) :
 // public
-    IsVisible( true ), IsUpdating( true ), IsKeyboardActive( true ), IsMouseActive( true ),
+    IsDrawEnabled( true ), IsUpdateEnabled( true ), IsKeyboardEnabled( true ), IsMouseEnabled( true ),
 // protected
     Left( left ), Top( top ), Width( width ), Height( height ),
     BackgroundVisible( false ),
@@ -314,7 +314,7 @@ void PGUI::Element::SetGUI( PGUI::Core* gui )
 
 void PGUI::Element::Update()
 {
-    if( !IsUpdating )
+    if( !IsUpdateEnabled )
         return;
 
     if( (BackgroundVisible || BorderVisible) && NeedUpdateDecorations )
@@ -324,7 +324,7 @@ void PGUI::Element::Update()
     {
         PGUI::Element* element = it->second;
 
-        if( element->IsUpdating )
+        if( element->IsUpdateEnabled )
             element->Update();
     }
 }
@@ -360,7 +360,7 @@ void PGUI::Element::UpdateDecorations()
 
 void PGUI::Element::Draw()
 {
-    if( !IsVisible )
+    if( !IsDrawEnabled )
         return;
 
     DrawBack();
@@ -370,7 +370,7 @@ void PGUI::Element::Draw()
 
 void PGUI::Element::DrawBack()
 {
-    if( !IsVisible )
+    if( !IsDrawEnabled )
         return;
 
     if( GetBackgroundVisible() )
@@ -380,14 +380,14 @@ void PGUI::Element::DrawBack()
     {
         PGUI::Element* element = it->second;
 
-        if( element->IsVisible )
+        if( element->IsDrawEnabled )
             element->Draw();
     }
 }
 
 void PGUI::Element::DrawFront()
 {
-    if( !IsVisible )
+    if( !IsDrawEnabled )
         return;
 
     if( GetBorderVisible() )
@@ -396,21 +396,21 @@ void PGUI::Element::DrawFront()
 
 void PGUI::Element::DrawMap()
 {
-    if( !IsVisible )
+    if( !IsDrawEnabled )
         return;
 
     for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
     {
         PGUI::Element* element = it->second;
 
-        if( element->IsVisible )
+        if( element->IsDrawEnabled )
             element->DrawMap();
     }
 }
 
 bool PGUI::Element::KeyDown( const uint8& key, const std::string& keyString )
 {
-    if( !IsKeyboardActive )
+    if( !IsKeyboardEnabled )
         return false;
 
     bool isPress = false;
@@ -419,7 +419,7 @@ bool PGUI::Element::KeyDown( const uint8& key, const std::string& keyString )
     {
         PGUI::Element* element = it->second;
 
-        if( element->IsVisible && element->IsKeyboardActive )
+        if( element->IsDrawEnabled && element->IsKeyboardEnabled )
             isPress = element->KeyDown( key, keyString ) ? true : isPress;
     }
 
@@ -428,7 +428,7 @@ bool PGUI::Element::KeyDown( const uint8& key, const std::string& keyString )
 
 bool PGUI::Element::KeyUp( const uint8& key, const std::string& keyString )
 {
-    if( !IsKeyboardActive )
+    if( !IsKeyboardEnabled )
         return false;
 
     bool isPress = false;
@@ -437,7 +437,7 @@ bool PGUI::Element::KeyUp( const uint8& key, const std::string& keyString )
     {
         PGUI::Element* element = it->second;
 
-        if( element->IsVisible && element->IsKeyboardActive )
+        if( element->IsDrawEnabled && element->IsKeyboardEnabled )
             isPress = element->KeyUp( key, keyString ) ? true : isPress;
     }
 
@@ -446,7 +446,7 @@ bool PGUI::Element::KeyUp( const uint8& key, const std::string& keyString )
 
 bool PGUI::Element::MouseDown( uint8 click, int16 x, int16 y )
 {
-    if( !IsMouseActive )
+    if( !IsMouseEnabled )
         return false;
 
     bool inside = IsInside( x, y );
@@ -459,7 +459,7 @@ bool PGUI::Element::MouseDown( uint8 click, int16 x, int16 y )
     {
         PGUI::Element* element = it->second;
 
-        if( element->IsVisible && element->IsMouseActive && element->MouseDown( click, x, y ) )
+        if( element->IsDrawEnabled && element->IsMouseEnabled && element->MouseDown( click, x, y ) )
             return true;
     }
 
@@ -468,21 +468,21 @@ bool PGUI::Element::MouseDown( uint8 click, int16 x, int16 y )
 
 void PGUI::Element::MouseMove( int16 fromX, int16 fromY, int16 toX, int16 toY )
 {
-    if( !IsMouseActive )
+    if( !IsMouseEnabled )
         return;
 
     for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
     {
         PGUI::Element* element = it->second;
 
-        if( element->IsVisible && element->IsMouseActive )
+        if( element->IsDrawEnabled && element->IsMouseEnabled )
             element->MouseMove( fromX, fromY, toX, toY );
     }
 }
 
 bool PGUI::Element::MouseUp( uint8 click, int16 x, int16 y )
 {
-    if( !IsMouseActive )
+    if( !IsMouseEnabled )
         return false;
 
     bool found = false;
@@ -491,7 +491,7 @@ bool PGUI::Element::MouseUp( uint8 click, int16 x, int16 y )
     {
         PGUI::Element* element = it->second;
 
-        if( element->IsVisible && element->IsMouseActive && element->MouseUp( click, x, y ) )
+        if( element->IsDrawEnabled && element->IsMouseEnabled && element->MouseUp( click, x, y ) )
         {
             found = true;
             break;
@@ -515,7 +515,7 @@ void PGUI::Element::InputLost()
     {
         PGUI::Element* element = it->second;
 
-        if( element->IsVisible )
+        if( element->IsDrawEnabled )
         {
             element->InputLost();
         }

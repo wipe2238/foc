@@ -68,7 +68,7 @@ void PGUI::Screen::AutoSize()
 
 bool PGUI::Screen::MouseDown( uint8 click, int16 x, int16 y )
 {
-    if( !IsMouseActive )
+    if( !IsMouseEnabled )
         return false;
 
     if( IsStatic )
@@ -77,7 +77,7 @@ bool PGUI::Screen::MouseDown( uint8 click, int16 x, int16 y )
         {
             PGUI::Element* element = it->second;
 
-            if( element->IsVisible && element->IsMouseActive &&  element->MouseDown( click, x, y ) )
+            if( element->IsDrawEnabled && element->IsMouseEnabled &&  element->MouseDown( click, x, y ) )
                 return true;
         }
 
@@ -89,7 +89,7 @@ bool PGUI::Screen::MouseDown( uint8 click, int16 x, int16 y )
 
 void PGUI::Screen::MouseMove( int16 fromX, int16 fromY, int16 toX, int16 toY )
 {
-    if( !IsMouseActive )
+    if( !IsMouseEnabled )
         return;
 
     if( IsStatic )
@@ -98,7 +98,7 @@ void PGUI::Screen::MouseMove( int16 fromX, int16 fromY, int16 toX, int16 toY )
         {
             PGUI::Element* element = it->second;
 
-            if( element->IsVisible && element->IsMouseActive )
+            if( element->IsDrawEnabled && element->IsMouseEnabled )
                 element->MouseMove( fromX, fromY, toX, toY );
         }
 
@@ -157,7 +157,7 @@ void PGUI::Screen::MouseMove( int16 fromX, int16 fromY, int16 toX, int16 toY )
 
 bool PGUI::Screen::MouseUp( uint8 click, int16 x, int16 y )
 {
-    if( !IsMouseActive )
+    if( !IsMouseEnabled )
         return false;
 
     if( IsStatic )
@@ -166,7 +166,7 @@ bool PGUI::Screen::MouseUp( uint8 click, int16 x, int16 y )
         {
             PGUI::Element* element = it->second;
 
-            if( element->IsVisible && element->IsMouseActive &&  element->MouseDown( click, x, y ) )
+            if( element->IsDrawEnabled && element->IsMouseEnabled &&  element->MouseDown( click, x, y ) )
                 return true;
         }
 

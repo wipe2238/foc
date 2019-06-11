@@ -15,10 +15,10 @@ namespace PGUI
     {
         friend class PGUI::Core;
 public:
-        bool IsVisible;
-        bool IsUpdating;
-        bool IsKeyboardActive;
-        bool IsMouseActive;
+        bool IsDrawEnabled;
+        bool IsUpdateEnabled;
+        bool IsKeyboardEnabled;
+        bool IsMouseEnabled;
 
 protected:
 
@@ -40,7 +40,7 @@ protected:
         PGUI::Element*           Parent;
         std::map<uint, Element*> Elements;
 
-        bool                     NeedUpdateDecorations; // if true, background/border cache will be rebuilt on next Draw() call
+        bool                     NeedUpdateDecorations; // if true, background/border cache will be rebuilt on next Update() call
         DrawCache*               BackgroundCache;
         DrawCache*               BorderCache;
 
@@ -92,7 +92,7 @@ public:
         PGUI::Element* GetElement( uint id );
 
         template<typename T>
-        T* GetElementType( uint id )
+        T* GetElementAs( uint id )
         {
             return (T*)GetElement( id );
         }

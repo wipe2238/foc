@@ -36,10 +36,10 @@ namespace PGUI
 public:
         bool         Debug;
         bool         DebugDraw;
-        bool         IsVisible;
-        bool         IsUpdating;
-        bool         IsKeyboardActive;
-        bool         IsMouseActive;
+        bool         IsDrawEnabled;
+        bool         IsUpdateEnabled;
+        bool         IsKeyboardEnabled;
+        bool         IsMouseEnabled;
 
         CoreSettings Settings;
 

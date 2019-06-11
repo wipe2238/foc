@@ -73,7 +73,7 @@ FOC::Screen::Game::~Game()
 
 void FOC::Screen::Game::Update()
 {
-    if( !IsUpdating )
+    if( !IsUpdateEnabled )
         return;
 
     PGUI::Screen::Update();
@@ -86,13 +86,13 @@ void FOC::Screen::Game::Update()
     bool debug = GUI->Debug;
     // GUI->Debug = false;
 
-    PGUI::Label* label = GetElementType<PGUI::Label>( ID::HitPoints );
+    PGUI::Label* label = GetElementAs<PGUI::Label>( ID::HitPoints );
 
     label->SetText( std::to_string( (long long)chosen->GetParam( ST_CURRENT_HP ) ) );
     label->AutoSize();
     label->SetLeft( GetWidth() / 2 - label->GetWidth() / 2 );
 
-    label = GetElementType<PGUI::Label>( ID::ActionPoints );
+    label = GetElementAs<PGUI::Label>( ID::ActionPoints );
 
     int ap = chosen->GetRawParam( ST_CURRENT_AP ) / AP_DIVIDER;
     if( ap > 0 )
@@ -114,7 +114,7 @@ void FOC::Screen::Game::Update()
 
 void FOC::Screen::Game::Draw()
 {
-    if( !IsVisible )
+    if( !IsDrawEnabled )
         return;
 
     PGUI::Screen::Draw();
@@ -134,7 +134,7 @@ void FOC::Screen::Game::Draw()
 void FOC::Screen::Game::DrawItem( uint id, Item* item )
 {
     PGUI::Element* element = GetElement( id );
-    if( !element->IsVisible )
+    if( !element->IsDrawEnabled )
         return;
 
     if( !element || !item || item->IsNotValid || !item->GetId() )

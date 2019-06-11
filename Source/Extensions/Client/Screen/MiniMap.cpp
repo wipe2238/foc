@@ -105,7 +105,7 @@ void FOC::Screen::MiniMap::SetObject( MapHex& object, bool show, uint8 r, uint8 
 
 void FOC::Screen::MiniMap::Update()
 {
-    if( !IsUpdating )
+    if( !IsUpdateEnabled )
         return;
 
     PGUI::Screen::Update();
@@ -254,7 +254,7 @@ void FOC::Screen::MiniMap::UpdateZoom( float zoom )
 
 void FOC::Screen::MiniMap::DrawContent()
 {
-    if( !IsVisible )
+    if( !IsDrawEnabled )
         return;
 
     PGUI::Draw::RenderData( MiniMapData, GetLeft(), GetTop(), MiniMapZoom );
@@ -262,7 +262,7 @@ void FOC::Screen::MiniMap::DrawContent()
 
 bool FOC::Screen::MiniMap::KeyDown( const uint8& key, const std::string& keyText )
 {
-    if( !IsKeyboardActive )
+    if( !IsKeyboardEnabled )
         return false;
 
     if( key == DIK_ADD || key == DIK_SUBTRACT )

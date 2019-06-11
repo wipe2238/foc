@@ -90,7 +90,7 @@ void PGUI::TextBox::UpdateDrawText()
 
 void PGUI::TextBox::Update()
 {
-    if( !IsUpdating )
+    if( !IsUpdateEnabled )
         return;
 
     uint tick = Timer::FastTick();
@@ -116,7 +116,7 @@ void PGUI::TextBox::Update()
 
 void PGUI::TextBox::DrawContent()
 {
-    if( !IsVisible )
+    if( !IsDrawEnabled )
         return;
 
     Draw::RenderText( TextToDraw, GUI->Settings.ColorFont, GUI->Settings.FontType, GUI->Settings.FontFlags, GetLeft() + GUI->Settings.TextBoxMargin, GetTop() + GUI->Settings.TextBoxMargin, Width, Height );
@@ -124,7 +124,7 @@ void PGUI::TextBox::DrawContent()
 
 bool PGUI::TextBox::KeyDown( const uint8& key, const std::string& keyText )
 {
-    if( !IsKeyboardActive )
+    if( !IsKeyboardEnabled )
         return false;
 
     switch( key )
@@ -201,7 +201,7 @@ bool PGUI::TextBox::KeyDown( const uint8& key, const std::string& keyText )
 
 bool PGUI::TextBox::KeyUp( const uint8& key, const std::string& keyText )
 {
-    if( !IsKeyboardActive )
+    if( !IsKeyboardEnabled )
         return false;
 
     return false;

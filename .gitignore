@@ -14,6 +14,8 @@ CrashDump*.txt
 /Client/*.exe
 /Client/*.pdb
 /Client/*.log
+/Client/messbox_*.txt
+/Client/screen_*.jpg
 
 /Client/data/*.dat
 /Client/data/*.zip

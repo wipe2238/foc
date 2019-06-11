@@ -43,6 +43,7 @@ install:
  - cmake -DO="Build.cmake;Pack.cmake;Source/Engine/Build.cmake" -DOWNLOAD_DIR=Cache -P Source/Engine/CMake/SelfUpdate/SelfUpdate.cmake
 
 build_script:
+ - sh: ln -s Source/Engine/CMake CMake
  - cmake -P Build.cmake
  - cmake -P Pack.cmake
 

@@ -23,7 +23,7 @@ PGUI::CoreSettings::CoreSettings() :
 PGUI::Core::Core( bool visible /* = true */ ) :
 // public
     Debug( false ), DebugDraw( false ),
-    IsVisible( visible ), IsUpdating( true ), IsKeyboardActive( true ), IsMouseActive( true ),
+    IsDrawEnabled( visible ), IsUpdateEnabled( true ), IsKeyboardEnabled( true ), IsMouseEnabled( true ),
 // private
     AllScreens(), OpenScreens(), ActiveScreen( nullptr ),
     KeyboardPressed(), MousePressed()
@@ -126,6 +126,7 @@ bool PGUI::Core::AddScreen( uint id, PGUI::Screen* screen )
 
             EventScreenAdd( id, screen );
         }
+
         return true;
     }
 
@@ -289,7 +290,9 @@ void PGUI::Core::CloseAllScreens()
     if( Debug )
         App.WriteLogF( _FUNC_, "\n" );
 
-    for( auto it = OpenScreens.begin(), end = OpenScreens.end(); it != end; ++it )
+    std::list<uint> list = GetOpenScreenList();
+
+    for( auto it = list.begin(), end = list.end(); it != end; ++it )
     {
         CloseScreen( *it );
     }
@@ -299,6 +302,9 @@ void PGUI::Core::ToggleScreen( uint id )
 {
     if( !IsScreen( id ) )
         return;
+
+    if( Debug )
+        App.WriteLogF( _FUNC_, "\n" );
 
     if( IsScreenOpen( id ) )
         CloseScreen( id );
@@ -436,14 +442,20 @@ void PGUI::Core::SetActiveScreen( PGUI::Screen* screen )
 
 void PGUI::Core::Update()
 {
-    if( !IsUpdating )
+    if( !IsUpdateEnabled )
         return;
 
     for( auto it = OpenScreens.begin(), end = OpenScreens.end(); it != end; ++it )
     {
         PGUI::Screen* screen = GetOpenScreen( *it );
 
-        if( !screen || !screen->IsUpdating )
+        if( !screen )
+            continue;
+
+        if( screen->IsStatic && ActiveScreen && ActiveScreen == screen )
+            SetActiveScreen( nullptr );
+
+        if( !screen->IsUpdateEnabled )
             continue;
 
         screen->Update();
@@ -452,7 +464,7 @@ void PGUI::Core::Update()
 
 void PGUI::Core::Draw( uint8 layer )
 {
-    if( !IsVisible )
+    if( !IsDrawEnabled )
         return;
 
     if( DebugDraw )
@@ -463,11 +475,9 @@ void PGUI::Core::Draw( uint8 layer )
         uint          id = *it;
 
         PGUI::Screen* screen = GetScreen( id );
-        if( !screen || !screen->IsVisible )
-            continue;
 
-        if( screen->IsStatic && ActiveScreen && ActiveScreen == screen )
-            SetActiveScreen( nullptr );
+        if( !screen || !screen->IsDrawEnabled )
+            continue;
 
         if( screen->Layer && screen->Layer == layer )
         {
@@ -483,7 +493,7 @@ void PGUI::Core::Draw( uint8 layer )
 
 void PGUI::Core::DrawMap()
 {
-    if( !IsVisible )
+    if( !IsDrawEnabled )
         return;
 
     if( DebugDraw )
@@ -495,7 +505,7 @@ void PGUI::Core::DrawMap()
 
         PGUI::Screen* screen = GetScreen( id );
 
-        if( !screen || !screen->IsVisible )
+        if( !screen || !screen->IsDrawEnabled )
             continue;
 
         if( DebugDraw )
@@ -506,7 +516,7 @@ void PGUI::Core::DrawMap()
 
 bool PGUI::Core::KeyDown( uint8 key, std::string& keyString )
 {
-    if( !IsKeyboardActive )
+    if( !IsKeyboardEnabled )
         return false;
 
     if( Debug )
@@ -514,7 +524,7 @@ bool PGUI::Core::KeyDown( uint8 key, std::string& keyString )
 
     KeyboardPressed.insert( key );
 
-    if( ActiveScreen && ActiveScreen->KeyDown( key, keyString ) )
+    if( ActiveScreen && ActiveScreen->IsKeyboardEnabled && ActiveScreen->KeyDown( key, keyString ) )
         return true;
 
     return false;
@@ -522,7 +532,7 @@ bool PGUI::Core::KeyDown( uint8 key, std::string& keyString )
 
 bool PGUI::Core::KeyUp( uint8 key, std::string& keyString )
 {
-    if( !IsKeyboardActive )
+    if( !IsKeyboardEnabled )
         return false;
 
     if( Debug )
@@ -536,7 +546,7 @@ bool PGUI::Core::KeyUp( uint8 key, std::string& keyString )
 
     KeyboardPressed.erase( key );
 
-    if( ActiveScreen && ActiveScreen->KeyUp( key, keyString ) )
+    if( ActiveScreen && ActiveScreen->IsKeyboardEnabled && ActiveScreen->KeyUp( key, keyString ) )
         return true;
 
 
@@ -545,7 +555,7 @@ bool PGUI::Core::KeyUp( uint8 key, std::string& keyString )
 
 bool PGUI::Core::MouseDown( int click, int x, int y )
 {
-    if( !IsMouseActive )
+    if( !IsMouseEnabled )
         return false;
 
     if( Debug )
@@ -560,11 +570,8 @@ bool PGUI::Core::MouseDown( int click, int x, int y )
             uint          id = *it;
             PGUI::Screen* screen = GetScreen( id );
 
-            if( !screen || !screen->IsVisible || !screen->IsMouseActive )
+            if( !screen || !screen->IsMouseEnabled )
                 continue;
-
-            if( screen->IsStatic && ActiveScreen == screen )
-                SetActiveScreen( nullptr );
 
             if( screen->IsInside( x, y ) )
             {
@@ -600,7 +607,7 @@ bool PGUI::Core::MouseDown( int click, int x, int y )
 
 void PGUI::Core::MouseMove( int fromX, int fromY, int toX, int toY )
 {
-    if( !IsMouseActive )
+    if( !IsMouseEnabled )
         return;
 
     // if( Debug )
@@ -619,7 +626,7 @@ void PGUI::Core::MouseMove( int fromX, int fromY, int toX, int toY )
 
 bool PGUI::Core::MouseUp( int click, int x, int y )
 {
-    if( !IsMouseActive )
+    if( !IsMouseEnabled )
         return false;
 
     if( Debug )
@@ -638,7 +645,7 @@ bool PGUI::Core::MouseUp( int click, int x, int y )
         uint          id = *it;
         PGUI::Screen* screen = GetOpenScreen( id );
 
-        if( !screen || !screen->IsVisible || !screen->IsMouseActive  )
+        if( !screen || !screen->IsMouseEnabled  )
             continue;
 
         if( Debug )
@@ -661,7 +668,7 @@ void PGUI::Core::InputLost()
         uint          id = *it;
         PGUI::Screen* screen = GetOpenScreen( id );
 
-        if( !screen || !screen->IsVisible )
+        if( !screen )
             continue;
 
         screen->InputLost();

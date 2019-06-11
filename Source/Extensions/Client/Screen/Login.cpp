@@ -54,7 +54,7 @@ FOC::Screen::Login::Login( PGUI::Core* gui ) : PGUI::Screen( gui ),
 
 bool FOC::Screen::Login::KeyDown( const uint8& key, const std::string& keyString )
 {
-    if( !IsKeyboardActive )
+    if( !IsKeyboardEnabled )
         return false;
 
     if( key == DIK_ESCAPE )
@@ -68,7 +68,7 @@ bool FOC::Screen::Login::KeyDown( const uint8& key, const std::string& keyString
     {
         if( ActiveElement )
         {
-            PGUI::TextBox* element = GetElementType<PGUI::TextBox>( ActiveElement );
+            PGUI::TextBox* element = GetElementAs<PGUI::TextBox>( ActiveElement );
             element->CursorDraw = false;
             element->SetBorderThickness( 1 );
         }
@@ -78,7 +78,7 @@ bool FOC::Screen::Login::KeyDown( const uint8& key, const std::string& keyString
         if( ActiveElement > ID::UserPass )
             ActiveElement = ID::UserName;
 
-        PGUI::TextBox* element = GetElementType<PGUI::TextBox>( ActiveElement );
+        PGUI::TextBox* element = GetElementAs<PGUI::TextBox>( ActiveElement );
         element->CursorDraw = true;
         element->SetBorderThickness( 2 );
 
@@ -86,8 +86,8 @@ bool FOC::Screen::Login::KeyDown( const uint8& key, const std::string& keyString
     }
     else if( key == DIK_RETURN || key == DIK_NUMPADENTER )
     {
-        GameOpt.Name = GetElementType<PGUI::TextBox>( ID::UserName )->GetText();
-        FOClient::Self->Password = GetElementType<PGUI::TextBox>( ID::UserPass )->GetText();
+        GameOpt.Name = GetElementAs<PGUI::TextBox>( ID::UserName )->GetText();
+        FOClient::Self->Password = GetElementAs<PGUI::TextBox>( ID::UserPass )->GetText();
 
         FOClient::Self->LogTryConnect();
 
@@ -110,13 +110,17 @@ bool FOC::Screen::Login::KeyDown( const uint8& key, const std::string& keyString
 
 void FOC::Screen::Login::OnOpen()
 {
-    GetElementType<PGUI::TextBox>( ID::UserName )->SetText( GameOpt.Name.c_std_str() );
-    GetElementType<PGUI::TextBox>( ID::UserPass )->SetText( "" );
+    GetElementAs<PGUI::TextBox>( ID::UserName )->SetText( GameOpt.Name.c_std_str() );
+    GetElementAs<PGUI::TextBox>( ID::UserPass )->SetText( "" );
+
+    GameOpt.HideCursor = true;
 }
 
 void FOC::Screen::Login::OnClose()
 {
-    GetElementType<PGUI::TextBox>( ID::UserPass )->SetText( "" );
+    GetElementAs<PGUI::TextBox>( ID::UserPass )->SetText( "" );
+
+    GameOpt.HideCursor = false;
 }
 
 void FOC::Screen::Login::OnActive( bool active )
@@ -126,7 +130,7 @@ void FOC::Screen::Login::OnActive( bool active )
     if( !ActiveElement )
         return;
 
-    PGUI::TextBox* element = GetElementType<PGUI::TextBox>( ActiveElement );
+    PGUI::TextBox* element = GetElementAs<PGUI::TextBox>( ActiveElement );
 
     element->CursorDraw = false;
     element->SetBorderThickness( 1 );

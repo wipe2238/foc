@@ -64,7 +64,7 @@ void PGUI::Label::UpdateDecorations()
 
 void PGUI::Label::DrawContent()
 {
-    if( !IsVisible )
+    if( !IsDrawEnabled )
         return;
 
     Draw::RenderText( Text, GUI->Settings.ColorFont, GUI->Settings.FontType, GUI->Settings.FontFlags, GetLeft(), GetTop(), Width, Height );
