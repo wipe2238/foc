@@ -9,7 +9,7 @@
 PGUI::TextBox::TextBox( PGUI::Core* gui ) : PGUI::Element( gui ),
 // protected
     Cursor( "" ),
-    CursorDraw( false ),
+    IsDrawCursorEnabled( false ),
     CursorList(),
     CursorTime( 1000 ),
     CursorChanged( 0 ),
@@ -99,7 +99,7 @@ void PGUI::TextBox::Update()
     {
         CursorChanged = tick;
 
-        if( CursorDraw )
+        if( IsDrawCursorEnabled )
         {
             Cursor = CursorList.front();
             CursorList.pop_front();

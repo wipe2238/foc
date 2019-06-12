@@ -14,19 +14,23 @@ class FOClient
 {
 public:
     static FOClient* Self;
-    uint16           Dummy0;
-    bool             Dummy1;
-    uint*            Dummy2;
+    uint8            Dummy[8];
     std::string      Password;
 
     void LogTryConnect();
     void ShowMainScreen( int new_screen );
 };
 
+static void StaticAsserts()
+{
+    STATIC_ASSERT( offsetof( FOClient, Password ) == 8 );
+}
+
 FOC::Screen::Login::Login( PGUI::Core* gui ) : PGUI::Screen( gui ),
 // private
     ActiveElement( 0 )
 {
+
     Layer = 3;
     SetSize( 270, 70 );
     SetPositionAt( 0, 0 );
@@ -69,7 +73,8 @@ bool FOC::Screen::Login::KeyDown( const uint8& key, const std::string& keyString
         if( ActiveElement )
         {
             PGUI::TextBox* element = GetElementAs<PGUI::TextBox>( ActiveElement );
-            element->CursorDraw = false;
+            // cursor still will be drawn on unselected element for a short time; not a bug
+            element->IsDrawCursorEnabled = false;
             element->SetBorderThickness( 1 );
         }
 
@@ -79,13 +84,14 @@ bool FOC::Screen::Login::KeyDown( const uint8& key, const std::string& keyString
             ActiveElement = ID::UserName;
 
         PGUI::TextBox* element = GetElementAs<PGUI::TextBox>( ActiveElement );
-        element->CursorDraw = true;
+        element->IsDrawCursorEnabled = true;
         element->SetBorderThickness( 2 );
 
         return true;
     }
     else if( key == DIK_RETURN || key == DIK_NUMPADENTER )
     {
+        // copy login data where engine expects it
         GameOpt.Name = GetElementAs<PGUI::TextBox>( ID::UserName )->GetText();
         FOClient::Self->Password = GetElementAs<PGUI::TextBox>( ID::UserPass )->GetText();
 
@@ -132,7 +138,7 @@ void FOC::Screen::Login::OnActive( bool active )
 
     PGUI::TextBox* element = GetElementAs<PGUI::TextBox>( ActiveElement );
 
-    element->CursorDraw = false;
+    element->IsDrawCursorEnabled = false;
     element->SetBorderThickness( 1 );
 
     ActiveElement = 0;

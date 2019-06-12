@@ -317,7 +317,7 @@ void PGUI::Element::Update()
     if( !IsUpdateEnabled )
         return;
 
-    if( (BackgroundVisible || BorderVisible) && NeedUpdateDecorations )
+    if( (GetBackgroundVisible() || GetBorderVisible() ) && NeedUpdateDecorations )
         UpdateDecorations();
 
     for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
@@ -331,6 +331,9 @@ void PGUI::Element::Update()
 
 void PGUI::Element::UpdateDecorations()
 {
+    if( !IsUpdateEnabled )
+        return;
+
     if( GUI->Debug )
         App.WriteLogF( _FUNC_, "\n" );
 

@@ -148,19 +148,17 @@ void FOC::Screen::Game::DrawItem( uint id, Item* item )
     if( size > 5 )
         size -= 5;
 
-    int         x = element->GetLeft() + (element->GetWidth() / 2 - size / 2);
-    int         y = element->GetTop() + (element->GetHeight() / 2 - size / 2);
+    int x = element->GetLeft() + (element->GetWidth() / 2 - size / 2);
+    int y = element->GetTop() + (element->GetHeight() / 2 - size / 2);
 
-    static bool scratch = false;
-    static bool center = true;
-
-    SprMngr.DrawSpriteSize( sprite, x, y, (float)size, (float)size, scratch, center, GUI->Settings.ColorItem );
+    SprMngr.DrawSpriteSize( sprite, x, y, (float)size, (float)size, false, true, GUI->Settings.ColorItem );
 }
 
 void FOC::Screen::Game::OnOpen()
 {
     GameOpt.DebugInfo = true;
 
+    // restore minimap
     if( MiniMap )
         GUI->OpenScreen( CLIENT_SCREEN_MINIMAP );
 

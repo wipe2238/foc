@@ -16,7 +16,7 @@ namespace PGUI
     {
         friend class PGUI::Core;
 public:
-        bool CursorDraw;
+        bool IsDrawCursorEnabled;
         uint CursorTime;
 
 protected:
