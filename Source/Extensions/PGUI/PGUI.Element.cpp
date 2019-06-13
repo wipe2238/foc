@@ -15,7 +15,7 @@ PGUI::Element::Element( PGUI::Core* gui, uint16 width /* = 0 */, uint16 height /
     Left( left ), Top( top ), Width( width ), Height( height ),
     BackgroundVisible( false ),
     BorderVisible( false ), BorderThickness( 1 ),
-    Padding(),
+    _Padding(),
     GUI( gui ), Parent( nullptr ), Elements(),
     NeedUpdateDecorations( true ),
     BackgroundCache(), BorderCache(),
@@ -411,65 +411,76 @@ void PGUI::Element::DrawMap()
     }
 }
 
-bool PGUI::Element::KeyDown( const uint8& key, const std::string& keyString )
+bool PGUI::Element::KeyDown( uint8 key, std::string& keyText )
 {
     if( !IsKeyboardEnabled )
         return false;
 
-    bool isPress = false;
+    if( GUI->Debug )
+        App.WriteLogF( _FUNC_, "(%u,\"%s\")\n", key, keyText.c_str() );
 
     for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
     {
         PGUI::Element* element = it->second;
 
-        if( element->IsDrawEnabled && element->IsKeyboardEnabled )
-            isPress = element->KeyDown( key, keyString ) ? true : isPress;
-    }
+        if( !element || !element->IsKeyboardEnabled )
+            continue;
 
-    return isPress;
-}
-
-bool PGUI::Element::KeyUp( const uint8& key, const std::string& keyString )
-{
-    if( !IsKeyboardEnabled )
-        return false;
-
-    bool isPress = false;
-
-    for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
-    {
-        PGUI::Element* element = it->second;
-
-        if( element->IsDrawEnabled && element->IsKeyboardEnabled )
-            isPress = element->KeyUp( key, keyString ) ? true : isPress;
-    }
-
-    return isPress;
-}
-
-bool PGUI::Element::MouseDown( uint8 click, int16 x, int16 y )
-{
-    if( !IsMouseEnabled )
-        return false;
-
-    bool inside = IsInside( x, y );
-
-    MousePressed = inside;
-    MouseButton = inside ? click : -1;
-
-    bool result = false;
-    for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
-    {
-        PGUI::Element* element = it->second;
-
-        if( element->IsDrawEnabled && element->IsMouseEnabled && element->MouseDown( click, x, y ) )
+        if( element->KeyDown( key, keyText ) )
             return true;
     }
 
     return false;
 }
 
-void PGUI::Element::MouseMove( int16 fromX, int16 fromY, int16 toX, int16 toY )
+bool PGUI::Element::KeyUp( uint8 key, std::string& keyText )
+{
+    if( !IsKeyboardEnabled )
+        return false;
+
+    if( GUI->Debug )
+        App.WriteLogF( _FUNC_, "(%u,\"%s\")\n", key, keyText.c_str() );
+
+    for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
+    {
+        PGUI::Element* element = it->second;
+
+        if( !element || !element->IsKeyboardEnabled )
+            continue;
+
+        if( element->KeyUp( key, keyText ) )
+            return true;
+    }
+
+    return false;
+}
+
+bool PGUI::Element::MouseDown( uint8 button, int16 mx, int16 my )
+{
+    if( !IsMouseEnabled )
+        return false;
+
+    bool inside = IsInside( mx, my );
+
+    MousePressed = inside;
+    MouseButton = inside ? button : uint8( -1 );
+
+    bool found = false;
+    for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
+    {
+        PGUI::Element* element = it->second;
+
+        if( !element || !element->IsMouseEnabled )
+            continue;
+
+        if( element->MouseDown( button, mx, my ) )
+            return true;
+    }
+
+    return false;
+}
+
+void PGUI::Element::MouseMove( int16 fromMX, int16 fromMY, int16 toMX, int16 toMY )
 {
     if( !IsMouseEnabled )
         return;
@@ -478,38 +489,40 @@ void PGUI::Element::MouseMove( int16 fromX, int16 fromY, int16 toX, int16 toY )
     {
         PGUI::Element* element = it->second;
 
-        if( element->IsDrawEnabled && element->IsMouseEnabled )
-            element->MouseMove( fromX, fromY, toX, toY );
+        if( !element || !element->IsMouseEnabled )
+            continue;
+
+        element->MouseMove( fromMX, fromMY, toMX, toMY );
     }
 }
 
-bool PGUI::Element::MouseUp( uint8 click, int16 x, int16 y )
+bool PGUI::Element::MouseUp( uint8 button, int16 mx, int16 my )
 {
     if( !IsMouseEnabled )
         return false;
 
-    bool found = false;
+    bool wasMousePressed = MousePressed;
+    MousePressed = false;
+    MouseButton = uint8( -1 );
 
     for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
     {
         PGUI::Element* element = it->second;
 
-        if( element->IsDrawEnabled && element->IsMouseEnabled && element->MouseUp( click, x, y ) )
-        {
-            found = true;
-            break;
-        }
+        if( !element || !element->IsMouseEnabled )
+            continue;
+
+        if( element->MouseUp( button, mx, my ) )
+            return true;
     }
 
-    bool inside = IsInside( x, y );
+    if( IsInside( mx, my ) && wasMousePressed )
+    {
+        MouseClick( button );
+        return true;
+    }
 
-    if( !found && inside && MousePressed )
-        MouseClick();
-
-    MousePressed = false;
-    MouseButton = -1;
-
-    return found || inside;
+    return false;
 }
 
 void PGUI::Element::InputLost()
@@ -518,9 +531,9 @@ void PGUI::Element::InputLost()
     {
         PGUI::Element* element = it->second;
 
-        if( element->IsDrawEnabled )
-        {
-            element->InputLost();
-        }
+        if( !element )
+            continue;
+
+        element->InputLost();
     }
 }

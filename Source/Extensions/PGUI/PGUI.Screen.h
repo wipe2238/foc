@@ -18,7 +18,7 @@ namespace PGUI
     {
         friend class PGUI::Core;
 public:
-        bool  IsStatic;
+        bool  IsMovable;
         uint8 Layer;
 
 protected:
@@ -36,14 +36,19 @@ public:
         virtual void AutoSize() override;
 
 protected: // reserved functions handling
-        virtual bool MouseDown( uint8 click, int16 x, int16 y ) override;
         virtual void MouseMove( int16 fromX, int16 fromY, int16 toX, int16 toY ) override;
-        virtual bool MouseUp( uint8 click, int16 x, int16 y ) override;
 
-public:         // events
-        virtual void OnOpen()                {}
-        virtual void OnClose()               {}
-        virtual void OnActive( bool active ) {}
+public:    // events
+
+        // called when screen is opening
+        // modal: if set to true, screen will consume all keyboard/mouse events; false by defaul
+        virtual void OnOpen( bool& modal ) {}
+
+        // called when screen is closing
+        virtual void OnClose() {}
+
+        //
+        virtual void OnTop( bool top ) {}
     };
 };
 

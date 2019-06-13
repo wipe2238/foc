@@ -26,8 +26,8 @@ FOC::Screen::Game::Game( PGUI::Core* gui ) : PGUI::Screen( gui ),
 
     uint16 itemWidth = 100, itemHeight = 50;
 
-    IsStatic = true;
     Layer = 3;
+    IsMouseEnabled = false;
     SetSize( itemWidth * 3, GUI->GetScreenHeight() );
 
     PGUI::Label* label;
@@ -154,7 +154,7 @@ void FOC::Screen::Game::DrawItem( uint id, Item* item )
     SprMngr.DrawSpriteSize( sprite, x, y, (float)size, (float)size, false, true, GUI->Settings.ColorItem );
 }
 
-void FOC::Screen::Game::OnOpen()
+void FOC::Screen::Game::OnOpen( bool& modal )
 {
     GameOpt.DebugInfo = true;
 
@@ -169,6 +169,7 @@ void FOC::Screen::Game::OnClose()
 {
     GameOpt.DebugInfo = false;
 
+    // store minimap state
     MiniMap = GUI->IsScreenOpen( CLIENT_SCREEN_MINIMAP );
 
     GUI->CloseAllScreens();

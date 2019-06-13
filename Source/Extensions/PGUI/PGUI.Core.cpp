@@ -1,4 +1,5 @@
 #include <climits>
+#include <list>
 
 #include <App.h>
 #include <Defines.Public.h>
@@ -8,6 +9,48 @@
 #include "PGUI.Core.h"
 #include "PGUI.Keyboard.h"
 #include "PGUI.Screen.h"
+
+static void LogContainer( const char* func, const std::map<uint, PGUI::Screen*>& container, const char* name )
+{
+    App.WriteLogF( func, " : container<%s> = ", name );
+
+    if( container.empty() )
+        App.WriteLogX( "empty\n" );
+    else
+    {
+        bool first = true;
+        for( auto it = container.begin(), end = container.end(); it != end; ++it )
+        {
+            if( first )
+                first = false;
+            else
+                App.WriteLogX( "," );
+            App.WriteLogX( "%u", it->first );
+        }
+        App.WriteLogX( "\n" );
+    }
+}
+
+static void LogContainer( const char* func, const std::list<uint>& container, const char* name )
+{
+    App.WriteLogF( func, " : container<%s> = ", name );
+
+    if( container.empty() )
+        App.WriteLogX( "empty\n" );
+    else
+    {
+        bool first = true;
+        for( auto it = container.begin(), end = container.end(); it != end; ++it )
+        {
+            if( first )
+                first = false;
+            else
+                App.WriteLogX( "," );
+            App.WriteLogX( "%u", *it );
+        }
+        App.WriteLogX( "\n" );
+    }
+}
 
 PGUI::CoreSettings::CoreSettings() :
 // public
@@ -25,8 +68,9 @@ PGUI::Core::Core( bool visible /* = true */ ) :
     Debug( false ), DebugDraw( false ),
     IsDrawEnabled( visible ), IsUpdateEnabled( true ), IsKeyboardEnabled( true ), IsMouseEnabled( true ),
 // private
-    AllScreens(), OpenScreens(), ActiveScreen( nullptr ),
-    KeyboardPressed(), MousePressed()
+    AllScreens(), OpenScreens(), ModalScreen( nullptr ),
+    KeyboardPressed(),
+    MousePressed(), MouseLastX( 0 ), MouseLastY( 0 )
 {}
 
 PGUI::Core::~Core()
@@ -119,6 +163,9 @@ bool PGUI::Core::AddScreen( uint id, PGUI::Screen* screen )
         screen->SetGUI( this );
         AllScreens[id] = screen;
 
+        if( Debug )
+            LogContainer( _FUNC_, AllScreens, "AllScreens" );
+
         if( EventScreenAdd )
         {
             if( Debug )
@@ -161,6 +208,9 @@ bool PGUI::Core::RemoveScreen( uint id )
         CloseScreen( id );
 
     AllScreens.erase( id );
+
+    if( Debug )
+        LogContainer( _FUNC_, AllScreens, "AllScreens" );
 
     if( EventScreenRemove )
     {
@@ -215,6 +265,9 @@ bool PGUI::Core::OpenScreen( uint id )
     // allow open events to use OpenAllScreens()
     OpenScreens.push_back( id );
 
+    if( Debug )
+        LogContainer( _FUNC_, OpenScreens, "OpenScreens" );
+
     if( EventScreenOpen )
     {
         if( Debug )
@@ -225,9 +278,13 @@ bool PGUI::Core::OpenScreen( uint id )
     if( Debug )
         App.WriteLogF( _FUNC_, "(%u) Screen::OnOpen()\n", id );
 
-    screen->OnOpen();
+    bool modal = false;
+    screen->OnOpen( modal );
 
-    SetActiveScreen( screen );
+    SetTopScreen( id );
+
+    if( modal )
+        SetModalScreen( screen );
 
     if( !screen->Layer )
         App.WriteLogF( _FUNC_, "(%u) WARNING : Screen::Layer not set\n", id );
@@ -265,11 +322,14 @@ bool PGUI::Core::CloseScreen( uint id )
         return false;
     }
 
-    if( ActiveScreen == screen )
-        SetActiveScreen( nullptr );
+    if( GetModalScreen() == screen )
+        SetModalScreen( nullptr );
 
     // allow close events to use CloseAllScreens()
     OpenScreens.remove( id );
+
+    if( Debug )
+        LogContainer( _FUNC_, OpenScreens, "OpenScreens" );
 
     if( EventScreenClose )
     {
@@ -344,16 +404,16 @@ PGUI::Screen* PGUI::Core::GetOpenScreen( uint id )
     return nullptr;
 }
 
-PGUI::Screen* PGUI::Core::GetActiveScreen()
+PGUI::Screen* PGUI::Core::GetModalScreen()
 {
-    return ActiveScreen;
+    return ModalScreen;
 }
 
 
-uint PGUI::Core::GetActiveScreenID()
+uint PGUI::Core::GetModalScreenID()
 {
-    if( ActiveScreen )
-        return GetScreenID( ActiveScreen );
+    if( ModalScreen )
+        return GetScreenID( ModalScreen );
 
     return 0;
 }
@@ -372,9 +432,7 @@ std::list<uint> PGUI::Core::GetAllScreenList()
 
 std::list<uint> PGUI::Core::GetOpenScreenList()
 {
-    std::list<uint> result = OpenScreens;
-
-    return result;
+    return OpenScreens;
 }
 
 //
@@ -384,18 +442,23 @@ bool PGUI::Core::IsKeyPressed( uint8 key )
     return KeyboardPressed.find( key ) != KeyboardPressed.end();
 }
 
-bool PGUI::Core::IsMousePressed( int click )
+bool PGUI::Core::IsMousePressed( uint8 click )
 {
     return MousePressed.find( click ) != MousePressed.end();
 }
 
+bool PGUI::Core::IsMouseInsideScreen( int x, int y )
+{
+    return x >= 0 && x <= GetScreenWidth() && y >= 0 && y <= GetScreenHeight();
+}
+
 //
 
-void PGUI::Core::SetActiveScreen( PGUI::Screen* screen )
+void PGUI::Core::SetModalScreen( PGUI::Screen* screen )
 {
-    if( ActiveScreen )
+    if( ModalScreen )
     {
-        if( ActiveScreen == screen )
+        if( ModalScreen == screen )
         {
             if( Debug )
                 App.WriteLogF( _FUNC_, " : no change\n" );
@@ -403,38 +466,67 @@ void PGUI::Core::SetActiveScreen( PGUI::Screen* screen )
             return;
         }
 
-        uint id = GetScreenID( ActiveScreen );
+        uint id = GetScreenID( ModalScreen );
 
-        if( EventScreenActive )
+        if( EventScreenModal )
         {
             if( Debug )
-                App.WriteLogF( _FUNC_, " : screen<%u> EventScreenActive(false)\n", id );
-            EventScreenActive( id, ActiveScreen, false );
+                App.WriteLogF( _FUNC_, " : screen<%u> EventScreenModal(false)\n", id );
+
+            EventScreenModal( id, ModalScreen, false );
         }
 
-        if( Debug )
-            App.WriteLogF( _FUNC_, " : screen<%u> OnActive(false)\n", id );
-        ActiveScreen->OnActive( false );
-
-        ActiveScreen = nullptr;
+        ModalScreen = nullptr;
     }
 
     if( screen )
     {
         uint id = GetScreenID( screen );
 
-        ActiveScreen = screen;
+        ModalScreen = screen;
 
-        if( EventScreenActive )
+        if( EventScreenModal )
         {
             if( Debug )
-                App.WriteLogF( _FUNC_, " : screen<%u> EventScreenActive(true)\n", id );
-            EventScreenActive( id, ActiveScreen, true );
+                App.WriteLogF( _FUNC_, " : screen<%u> EventScreenModal(true)\n", id );
+
+            EventScreenModal( id, ModalScreen, true );
         }
+    }
+}
+
+void PGUI::Core::SetTopScreen( uint id )
+{
+    if( !IsScreenOpen( id ) )
+    {
+        App.WriteLogF( _FUNC_, " ERROR : screen<%u> not opened\n", id );
+        return;
+    }
+
+    if( !OpenScreens.empty() && OpenScreens.back() != id )
+    {
+        // handle old screen
+
+        uint          oldID = OpenScreens.back();
+
+        PGUI::Screen* screen = GetOpenScreen( oldID );
 
         if( Debug )
-            App.WriteLogF( _FUNC_, " : screen<%u> OnActive(true)\n", id );
-        ActiveScreen->OnActive( true );
+            App.WriteLogF( _FUNC_, "(%u) : screen<%u> OnTop(false)\n", id, oldID );
+
+        screen->OnTop( false );
+
+        OpenScreens.remove( id );
+
+        // handle new screen
+
+        OpenScreens.push_back( id );
+
+        screen = GetScreen( id );
+        if( Debug )
+            App.WriteLogF( _FUNC_, "(%u) : screen<%u> OnTop(true)\n", id, id );
+
+        screen->OnTop( true );
     }
 }
 
@@ -449,13 +541,7 @@ void PGUI::Core::Update()
     {
         PGUI::Screen* screen = GetOpenScreen( *it );
 
-        if( !screen )
-            continue;
-
-        if( screen->IsStatic && ActiveScreen && ActiveScreen == screen )
-            SetActiveScreen( nullptr );
-
-        if( !screen->IsUpdateEnabled )
+        if( !screen || !screen->IsUpdateEnabled )
             continue;
 
         screen->Update();
@@ -476,10 +562,10 @@ void PGUI::Core::Draw( uint8 layer )
 
         PGUI::Screen* screen = GetScreen( id );
 
-        if( !screen || !screen->IsDrawEnabled )
+        if( !screen || !screen->IsDrawEnabled || !screen->Layer )
             continue;
 
-        if( screen->Layer && screen->Layer == layer )
+        if( screen->Layer == layer )
         {
             if( DebugDraw )
                 App.WriteLogF( _FUNC_, "(%u) screen<%u> Draw()\n", layer, id );
@@ -514,43 +600,119 @@ void PGUI::Core::DrawMap()
     }
 }
 
-bool PGUI::Core::KeyDown( uint8 key, std::string& keyString )
+bool PGUI::Core::KeyDown( uint8 key, std::string& keyText )
 {
     if( !IsKeyboardEnabled )
         return false;
 
     if( Debug )
-        App.WriteLogF( _FUNC_, "(%u,\"%s\") // %s\n", key, keyString.c_str(), PGUI::Keyboard::GetKeyName( key ).c_str() );
+        App.WriteLogF( _FUNC_, "(%u,\"%s\") // %s\n", key, keyText.c_str(), PGUI::Keyboard::GetKeyName( key ).c_str() );
 
     KeyboardPressed.insert( key );
 
-    if( ActiveScreen && ActiveScreen->IsKeyboardEnabled && ActiveScreen->KeyDown( key, keyString ) )
-        return true;
+    PGUI::Screen* screen = GetModalScreen();
+
+    if( screen )
+    {
+        if( Debug )
+            App.WriteLogF( _FUNC_, " : modal check\n" );
+
+        if( screen->IsKeyboardEnabled && screen->KeyDown( key, keyText ) )
+            return true;
+    }
+    else
+    {
+        std::list<uint> screens = GetOpenScreenList();
+
+        if( Debug )
+            LogContainer( _FUNC_, screens, "GetOpenScreenList()" );
+
+        for( auto it = screens.rbegin(), end = screens.rend(); it != end; ++it ) // reversed order
+        {
+            uint id = *it;
+            screen = GetOpenScreen( id );
+
+            if( !screen )
+            {
+                App.WriteLogF( _FUNC_, " WARNING : screen<%u> is null\n", id );
+                continue;
+            }
+
+            if( !screen->IsKeyboardEnabled )
+                continue;
+
+            if( screen->KeyDown( key, keyText ) )
+                return true;
+        }
+    }
 
     return false;
 }
 
-bool PGUI::Core::KeyUp( uint8 key, std::string& keyString )
+bool PGUI::Core::KeyUp( uint8 key, std::string& keyText )
 {
     if( !IsKeyboardEnabled )
         return false;
 
     if( Debug )
-        App.WriteLogF( _FUNC_, "(%u,\"%s\") // %s\n", key, keyString.c_str(), PGUI::Keyboard::GetKeyName( key ).c_str() );
+        App.WriteLogF( _FUNC_, "(%u,\"%s\") // %s\n", key, keyText.c_str(), PGUI::Keyboard::GetKeyName( key ).c_str() );
 
-    if( KeyboardPressed.find( key ) == KeyboardPressed.end() )
+    if( !IsKeyPressed( key ) )
     {
-        App.WriteLogF( _FUNC_, "(%u,\"%s\") WARNING : ghost key ignored\n", key, keyString.c_str() );
+        App.WriteLogF( _FUNC_, "(%u,\"%s\") WARNING : ghost key ignored\n", key, keyText.c_str() );
         return true;
     }
 
     KeyboardPressed.erase( key );
 
-    if( ActiveScreen && ActiveScreen->IsKeyboardEnabled && ActiveScreen->KeyUp( key, keyString ) )
-        return true;
+    PGUI::Screen* screen = GetModalScreen();
 
+    if( screen )
+    {
+        if( Debug )
+            App.WriteLogF( _FUNC_, " : modal check\n" );
+
+        if( screen->IsKeyboardEnabled && screen->KeyUp( key, keyText ) )
+            return true;
+    }
+    else
+    {
+        std::list<uint> screens = GetOpenScreenList();
+
+        if( Debug )
+            LogContainer( _FUNC_, screens, "GetOpenScreenList()" );
+
+        for( auto it = screens.rbegin(), end = screens.rend(); it != end; ++it ) // reversed order
+        {
+            uint id = *it;
+            screen = GetOpenScreen( id );
+
+            if( !screen )
+            {
+                App.WriteLogF( _FUNC_, " WARNING : screen<%u> is null\n", id );
+                continue;
+            }
+
+            if( !screen->IsKeyboardEnabled )
+                continue;
+
+            if( screen->KeyUp( key, keyText ) )
+                return true;
+        }
+    }
 
     return false;
+}
+
+bool PGUI::Core::MouseDown( int click )
+{
+    if( !IsMouseEnabled )
+        return false;
+
+    if( Debug )
+        App.WriteLogF( _FUNC_, "(%d)\n", click );
+
+    return MouseDown( click, GameOpt.MouseX, GameOpt.MouseY );
 }
 
 bool PGUI::Core::MouseDown( int click, int x, int y )
@@ -559,100 +721,189 @@ bool PGUI::Core::MouseDown( int click, int x, int y )
         return false;
 
     if( Debug )
-        App.WriteLogF( _FUNC_, "(%u,%d,%d)\n", click, x, y );
+        App.WriteLogF( _FUNC_, "(%d,%d,%d)\n", click, x, y );
 
-    MousePressed.insert( click );
-
-    if( !OpenScreens.empty() )
+    if( click < 0  || click > uint8( -1 ) )
     {
-        for( auto end = OpenScreens.end(), it = OpenScreens.begin(); end != it; --end )
-        {
-            uint          id = *it;
-            PGUI::Screen* screen = GetScreen( id );
+        App.WriteLogF( _FUNC_, " WARNING : ignored click<%d>\n", click );
+        return false;
+    }
 
-            if( !screen || !screen->IsMouseEnabled )
+    uint8 button = CLAMP( click, 0, uint8( -1 ) );
+
+    MousePressed.insert( button );
+
+    int16 mx = CLAMP( x, SHRT_MIN, SHRT_MAX );
+    int16 my = CLAMP( y, SHRT_MIN, SHRT_MAX );
+
+    // block events outside of screen bounds
+    if( !IsMouseInsideScreen( mx, my ) )
+        return false;
+
+    PGUI::Screen* screen = GetModalScreen();
+
+    if( screen )
+    {
+        if( screen->IsMouseEnabled && screen->IsInside( mx, my ) && screen->MouseDown( button, mx, my ) )
+            return true;
+    }
+    else
+    {
+        std::list<uint> screens = GetOpenScreenList();
+
+        if( Debug )
+            LogContainer( _FUNC_, screens, "GetOpenScreenList()" );
+
+        for( auto it = screens.rbegin(), end = screens.rend(); it != end; ++it )        // reversed order
+        {
+            uint id = *it;
+            screen = GetOpenScreen( id );
+
+            if( !screen )
+            {
+                App.WriteLogF( _FUNC_, " WARNING : screen<%u> is null\n", id );
+                continue;
+            }
+
+            if( !screen->IsMouseEnabled )
                 continue;
 
             if( screen->IsInside( x, y ) )
             {
-                if( !screen->IsStatic )
-                {
-                    // draw order
-                    if( OpenScreens.back() != id )
-                    {
-                        OpenScreens.remove( id );
-                        OpenScreens.push_back( id );
-                    }
-
-                    SetActiveScreen( screen );
-                }
+                // draw order
+                SetTopScreen( id );
 
                 if( Debug )
-                    App.WriteLogF( _FUNC_, "(%d,%d,%d) : screen<%u> MouseDown()%s\n", click, x, y, id, screen->IsStatic ? " static" : "" );
-                if( screen->MouseDown( click, x, y ) )
-                    return true;
+                    App.WriteLogF( _FUNC_, "(%d,%d,%d) : screen<%u> MouseDown(%u,%u,%u)\n", click, x, y, id,  button, mx, my );
 
-                if( screen->IsStatic )
-                    continue;
-                else
-                    return false;
+                if( screen->MouseDown( button, mx, my ) )
+                    return true;
             }
         }
-
-        SetActiveScreen( nullptr );
     }
 
     return false;
 }
 
-void PGUI::Core::MouseMove( int fromX, int fromY, int toX, int toY )
+void PGUI::Core::MouseMove( int x, int y )
 {
     if( !IsMouseEnabled )
         return;
 
-    // if( Debug )
-    //    App.WriteLogF( _FUNC_, " from<%d,%d> to<%d,%d>\n", fromX, fromY, toX, toY );
+    // ignore passed arguments, use GameOptions values instead
+    int16 mx = CLAMP( GameOpt.MouseX, SHRT_MIN, SHRT_MAX );
+    int16 my = CLAMP( GameOpt.MouseY, SHRT_MIN, SHRT_MAX );
 
-    if( !OpenScreens.empty() )
+    // block events outside of screen bounds
+    if( !IsMouseInsideScreen( mx, my ) )
     {
-        PGUI::Screen* last = GetScreen( OpenScreens.back() );
+        MouseLastX = mx;
+        MouseLastY = my;
 
-        if( !last )
-            return;
-
-        last->MouseMove( fromX, fromY, toX, toY );
+        return;
     }
+
+    PGUI::Screen* screen = GetModalScreen();
+
+    if( screen )
+    {
+        if( screen->IsMouseEnabled && screen->IsInside( mx, my ) )
+            screen->MouseMove( MouseLastX, MouseLastY, mx, my );
+    }
+    else
+    {
+        std::list<uint> screens = GetOpenScreenList();
+
+        if( Debug )
+            LogContainer( _FUNC_, screens, "GetOpenScreenList()" );
+
+        for( auto it = screens.rbegin(), end = screens.rend(); it != end; ++it ) // reversed order
+        {
+            uint id = *it;
+            screen = GetOpenScreen( id );
+
+            if( !screen )
+            {
+                App.WriteLogF( _FUNC_, " WARNING : screen<%u> is null\n", id );
+                continue;
+            }
+
+            if( !screen->IsMouseEnabled )
+                continue;
+
+            screen->MouseMove( MouseLastX, MouseLastY, mx, my );
+        }
+    }
+
+    MouseLastX = mx;
+    MouseLastY = my;
 }
 
-bool PGUI::Core::MouseUp( int click, int x, int y )
+bool PGUI::Core::MouseUp( int click )
 {
     if( !IsMouseEnabled )
         return false;
 
     if( Debug )
-        App.WriteLogF( _FUNC_, "(%d,%d,%d)\n", click, x, y );
+        App.WriteLogF( _FUNC_, "(%d)\n", click );
 
-    if( MousePressed.find( click ) == MousePressed.end() )
+    if( click < 0 || click > uint8( -1 ) )
     {
-        App.WriteLogF( _FUNC_, "(%d,%d,%d) WARNING : ghost click ignored\n", click, x, y );
+        App.WriteLogF( _FUNC_, " WARNING : ignored click<%d>\n", click );
+        return false;
+    }
+
+    uint8 button = CLAMP( click, 0, uint8( -1 ) );
+
+    if( !IsMousePressed( button ) )
+    {
+        App.WriteLogF( _FUNC_, "(%u) WARNING : ghost button ignored\n", button );
         return true;
     }
 
-    MousePressed.erase( click );
+    MousePressed.erase( button );
 
-    for( auto end = OpenScreens.end(), it = OpenScreens.begin(); end != it; --end )
+    int16 mx = CLAMP( GameOpt.MouseX, SHRT_MIN, SHRT_MAX );
+    int16 my = CLAMP( GameOpt.MouseY, SHRT_MIN, SHRT_MAX );
+
+    // block events outside of screen bounds
+    if( !IsMouseInsideScreen( mx, my ) )
+        return false;
+
+    PGUI::Screen* screen = GetModalScreen();
+
+    if( screen )
     {
-        uint          id = *it;
-        PGUI::Screen* screen = GetOpenScreen( id );
-
-        if( !screen || !screen->IsMouseEnabled  )
-            continue;
+        if( screen->IsMouseEnabled && screen->IsInside( mx, my ) && screen->MouseUp( button, mx, my ) )
+            return true;
+    }
+    else
+    {
+        std::list<uint> screens = GetOpenScreenList();
 
         if( Debug )
-            App.WriteLogF( _FUNC_, "(%d,%d,%d) : screen<%u> MouseUp()%s\n", click, x, y, id, screen->IsStatic ? " static" : "" );
+            LogContainer( _FUNC_, screens, "GetOpenScreenList()" );
 
-        if( screen->MouseUp( click, x, y ) )
-            return true;
+        for( auto it = screens.rbegin(), end = screens.rend(); it != end; ++it )        // reversed order
+        {
+            uint          id = *it;
+            PGUI::Screen* screen = GetOpenScreen( id );
+
+            if( !screen )
+            {
+                App.WriteLogF( _FUNC_, " WARNING : screen<%u> is null\n", id );
+                continue;
+            }
+
+            if( !screen->IsMouseEnabled )
+                continue;
+
+            if( Debug )
+                App.WriteLogF( _FUNC_, "(%d) : screen<%u> MouseUp(%u,%u,%u)\n", click, id, button, mx, my );
+
+            if( screen->MouseUp( button, mx, my ) )
+                return true;
+        }
     }
 
     return false;
@@ -660,17 +911,31 @@ bool PGUI::Core::MouseUp( int click, int x, int y )
 
 void PGUI::Core::InputLost()
 {
+    // TODO reduce number of events sent to screens
+    // Current behavior: Client calls input_lost() N times per loop as long main window is not focused
+    // Wanted behavior: send event once when window is not focused, and once when it regains focus
+
     KeyboardPressed.clear();
     MousePressed.clear();
 
-    for( auto end = OpenScreens.end(), it = OpenScreens.begin(); end != it; --end )
-    {
-        uint          id = *it;
-        PGUI::Screen* screen = GetOpenScreen( id );
+    /*
+       std::list<uint> screens = GetOpenScreenList();
 
-        if( !screen )
-            continue;
+       for( auto it = screens.rbegin(), end = screens.rend(); it != end; ++it ) // reversed order
+       {
+       uint          id = *it;
+       PGUI::Screen* screen = GetOpenScreen( id );
 
-        screen->InputLost();
-    }
+       if( !screen )
+           {
+           App.WriteLogF(_FUNC_, " WARNING : screen<%u> is null\n",id);
+        continue;
+                }
+
+       if( Debug )
+        App.WriteLogF( _FUNC_, " : screen<%u>\n", id );
+
+       screen->InputLost();
+       }
+     */
 }

@@ -25,11 +25,12 @@ private:
 public:
             Login( PGUI::Core* gui );
 
-            virtual void OnOpen() override;
-            virtual void OnClose() override;
-            virtual void OnActive( bool active ) override;
 public:
-            virtual bool KeyDown( const uint8& key, const std::string& keyString );
+            virtual bool KeyDown( uint8 key, std::string& keyText );
+
+            virtual void OnOpen( bool& modal ) override;
+            virtual void OnClose() override;
+            virtual void OnTop( bool active ) override;
         };
     };
 };

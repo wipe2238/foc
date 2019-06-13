@@ -32,7 +32,7 @@ protected:
         bool   BackgroundVisible;
         bool   BorderVisible;
         uint8  BorderThickness;
-        uint8  Padding; // 12b
+        uint8  _Padding; // 12b
 
         // runtime
 
@@ -45,7 +45,7 @@ protected:
         DrawCache*               BorderCache;
 
         bool                     MousePressed;
-        int8                     MouseButton;
+        uint8                    MouseButton;
 
 
 public:
@@ -114,15 +114,15 @@ public:
 
         // Keyboard
 
-        virtual bool KeyDown( const uint8& key, const std::string& keyString );
-        virtual bool KeyUp( const uint8& key, const std::string& keyString );
+        virtual bool KeyDown( uint8 key, std::string& keyText );
+        virtual bool KeyUp( uint8 key, std::string& keyText );
 
         // Mouse
 
-        virtual bool MouseDown( uint8 click, int16 x, int16 y );
-        virtual void MouseMove( int16 fromX, int16 fromY, int16 toX, int16 toY );
-        virtual bool MouseUp( uint8 click, int16 x, int16 y );
-        virtual void MouseClick() {}
+        virtual bool MouseDown( uint8 button, int16 mx, int16 my );
+        virtual void MouseMove( int16 fromMX, int16 fromMY, int16 toMX, int16 toMY );
+        virtual bool MouseUp( uint8 button, int16 mx, int16 my );
+        virtual void MouseClick( uint8 button ) {}
 
         // Misc
 

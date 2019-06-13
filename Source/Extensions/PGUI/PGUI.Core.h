@@ -46,10 +46,12 @@ public:
 private:
         std::map<uint, PGUI::Screen*> AllScreens;
         std::list<uint>               OpenScreens;
-        PGUI::Screen*                 ActiveScreen;
+        PGUI::Screen*                 ModalScreen;
 
         std::set<uint8>               KeyboardPressed;
         std::set<int>                 MousePressed;
+        int16                         MouseLastX;
+        int16                         MouseLastY;
 
 public:
         Core( bool visible = true );
@@ -83,36 +85,40 @@ public:
         PGUI::Screen*   GetScreen( uint id );
         uint            GetScreenID( PGUI::Screen* screen );
         PGUI::Screen*   GetOpenScreen( uint id );
-        PGUI::Screen*   GetActiveScreen();
-        uint            GetActiveScreenID();
+        PGUI::Screen*   GetModalScreen();
+        uint            GetModalScreenID();
         std::list<uint> GetAllScreenList();
         std::list<uint> GetOpenScreenList();
 
         // input
 
         bool IsKeyPressed( uint8 key );
-        bool IsMousePressed( int click );
+        bool IsMousePressed( uint8 click );
+        bool IsMouseInsideScreen( int x, int y );
 
 private:
-        void SetActiveScreen( PGUI::Screen* screen );
+        void SetModalScreen( PGUI::Screen* screen );
+        void SetTopScreen( uint id );
 
 public:
         Event::UIntScreen     EventScreenAdd;
         Event::UIntScreen     EventScreenRemove;
         Event::UIntScreen     EventScreenOpen;
         Event::UIntScreen     EventScreenClose;
-        Event::UIntScreenBool EventScreenActive;
+        Event::UIntScreenBool EventScreenModal;
+        Event::UIntScreenBool EventScreenTop;
 
 public:
-        void Update();                                            // reserved_function : loop
-        void Draw( uint8 layer );                                 // reserved function : render_iface
-        void DrawMap();                                           // reserved function : render_map
-        bool KeyDown( uint8 key, std::string& keyString );        // reserved_function : key_down
-        bool KeyUp( uint8 key, std::string& keyString );          // reserved_function : key_up
-        bool MouseDown( int click, int x, int y );                // reserved_function : mouse_down
-        void MouseMove( int fromX, int fromY, int toX, int toY ); // reserved function : mouse_move
-        bool MouseUp( int click, int x, int y );                  // reserved_function : mouse_up
-        void InputLost();                                         // reserved_function : input_lost
+        void Update();                                   // reserved_function : loop
+        void Draw( uint8 layer );                        // reserved function : render_iface
+        void DrawMap();                                  // reserved function : render_map
+        bool KeyDown( uint8 key, std::string& keyText ); // reserved_function : key_down
+        bool KeyUp( uint8 key, std::string& keyText );   // reserved_function : key_up
+        bool MouseDown( int click );                     // reserved_function : mouse_down
+        bool MouseDown( int click, int x, int y );
+        void MouseMove( int x, int y );                  // reserved function : mouse_move
+        bool MouseUp( int click );                       // reserved_function : mouse_up
+        void InputLost();                                // reserved_function : input_lost
 
         void NOP() {}
     };

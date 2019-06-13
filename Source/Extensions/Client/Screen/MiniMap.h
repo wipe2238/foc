@@ -26,8 +26,20 @@ public:
             MapHex Scenery;
 
 private:
-            uint16           MiniMapWidth;
-            uint16           MiniMapHeight;
+            struct Bounds
+            {
+                uint16 MinPX;
+                uint16 MinPY;
+                uint16 MaxPX;
+                uint16 MaxPY;
+
+                uint16 Width;
+                uint16 Height;
+
+                Bounds();
+            };
+
+            Bounds           MiniMapBounds;
             float            MiniMapZoom;
             PGUI::DrawCache* MiniMapData;
             bool             NeedUpdateMiniMap;
@@ -45,11 +57,11 @@ public:
 public:
             virtual void Update() override;
             void         UpdateMiniMap();
-            void         UpdateZoom( float zoom );
+            void         UpdateMiniMapZoom( float zoom );
 
             virtual void DrawContent() override;
 
-            virtual bool KeyDown( const uint8& key, const std::string& keyText ) override;
+            virtual bool KeyDown( uint8 key, std::string& keyText ) override;
         };
     };
 };

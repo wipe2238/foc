@@ -237,12 +237,12 @@ void FOC::InterfaceManager::ProcessRenderMap()
         UI->DrawMap();
 }
 
-bool FOC::InterfaceManager::ProcessKeyDown( uint8 key, std::string& keyString )
+bool FOC::InterfaceManager::ProcessKeyDown( uint8 key, std::string& keyText )
 {
     if( !UI )
         return false;
 
-    if( UI->KeyDown( key, keyString ) )
+    if( UI->KeyDown( key, keyText ) )
         return true;
 
     if( UI->IsScreenOpen( CLIENT_MAIN_SCREEN_GAME ) )
@@ -257,9 +257,9 @@ bool FOC::InterfaceManager::ProcessKeyDown( uint8 key, std::string& keyString )
     return false;
 }
 
-bool FOC::InterfaceManager::ProcessKeyUp( uint8 key, std::string& keyString )
+bool FOC::InterfaceManager::ProcessKeyUp( uint8 key, std::string& keyText )
 {
-    if( UI && UI->KeyUp( key, keyString ) )
+    if( UI && UI->KeyUp( key, keyText ) )
         return true;
 
     return false;
@@ -268,7 +268,7 @@ bool FOC::InterfaceManager::ProcessKeyUp( uint8 key, std::string& keyString )
 bool FOC::InterfaceManager::ProcessMouseDown( int click )
 {
 
-    if( UI && UI->MouseDown( click, GameOpt.MouseX, GameOpt.MouseY ) )
+    if( UI && UI->MouseDown( click ) )
         return true;
 
     if( click == MOUSE_CLICK_WHEEL_UP || click == MOUSE_CLICK_WHEEL_DOWN )
@@ -285,7 +285,7 @@ bool FOC::InterfaceManager::ProcessMouseDown( int click )
 void FOC::InterfaceManager::ProcessMouseMove( int x, int y )
 {
     if( UI )
-        UI->MouseMove( Mouse.LastX, Mouse.LastY, GameOpt.MouseX, GameOpt.MouseY );
+        UI->MouseMove( x, y );
 
     Mouse.LastX = GameOpt.MouseX;
     Mouse.LastY = GameOpt.MouseY;
@@ -293,7 +293,7 @@ void FOC::InterfaceManager::ProcessMouseMove( int x, int y )
 
 bool FOC::InterfaceManager::ProcessMouseUp( int click )
 {
-    if( UI && UI->MouseUp( click, GameOpt.MouseX, GameOpt.MouseY ) )
+    if( UI && UI->MouseUp( click ) )
         return true;
 
     return false;

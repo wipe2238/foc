@@ -8,7 +8,7 @@
 
 PGUI::Screen::Screen( PGUI::Core* gui, uint width /* = 0 */, uint height /* = 0 */, int left /* = 0 */, int top /* = 0 */ ) : PGUI::Element( gui, width, height, left, top ),
 // public
-    IsStatic( false ),
+    IsMovable( true ),
     Layer( 0 ),
     ScreenData( nullptr ),
 // protected
@@ -66,46 +66,12 @@ void PGUI::Screen::AutoSize()
     SetSize( width, height );
 }
 
-bool PGUI::Screen::MouseDown( uint8 click, int16 x, int16 y )
-{
-    if( !IsMouseEnabled )
-        return false;
-
-    if( IsStatic )
-    {
-        for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
-        {
-            PGUI::Element* element = it->second;
-
-            if( element->IsDrawEnabled && element->IsMouseEnabled &&  element->MouseDown( click, x, y ) )
-                return true;
-        }
-
-        return false;
-    }
-
-    return PGUI::Element::MouseDown( click, x, y );
-}
-
 void PGUI::Screen::MouseMove( int16 fromX, int16 fromY, int16 toX, int16 toY )
 {
     if( !IsMouseEnabled )
         return;
 
-    if( IsStatic )
-    {
-        for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
-        {
-            PGUI::Element* element = it->second;
-
-            if( element->IsDrawEnabled && element->IsMouseEnabled )
-                element->MouseMove( fromX, fromY, toX, toY );
-        }
-
-        return;
-    }
-
-    if( MousePressed && MouseButton == MOUSE_CLICK_LEFT )
+    if( IsMovable && MousePressed && MouseButton == MOUSE_CLICK_LEFT )
     {
         int16 oldLeft = 0, oldTop = 0;
         GetPosition( oldLeft, oldTop, true );
@@ -153,25 +119,4 @@ void PGUI::Screen::MouseMove( int16 fromX, int16 fromY, int16 toX, int16 toY )
     }
 
     PGUI::Element::MouseMove( fromX, fromY, toX, toY );
-}
-
-bool PGUI::Screen::MouseUp( uint8 click, int16 x, int16 y )
-{
-    if( !IsMouseEnabled )
-        return false;
-
-    if( IsStatic )
-    {
-        for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
-        {
-            PGUI::Element* element = it->second;
-
-            if( element->IsDrawEnabled && element->IsMouseEnabled &&  element->MouseDown( click, x, y ) )
-                return true;
-        }
-
-        return false;
-    }
-
-    return PGUI::Element::MouseUp( click, x, y );
 }

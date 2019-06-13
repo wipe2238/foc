@@ -45,8 +45,8 @@ public:
 public:
         virtual void Update() override;
         virtual void DrawContent() override;
-        virtual bool KeyDown( const uint8& key, const std::string& keyText ) override;
-        virtual bool KeyUp( const uint8& key, const std::string& keyText ) override;
+        virtual bool KeyDown( uint8 key, std::string& keyText ) override;
+        virtual bool KeyUp( uint8 key, std::string& keyText ) override;
     };
 };
 

@@ -84,8 +84,8 @@ public:
         void ProcessGetActiveScreens( ScriptArray& screens );
         void ProcessRenderInterface( uint layer );
         void ProcessRenderMap();
-        bool ProcessKeyDown( uint8 key, std::string& keyString );
-        bool ProcessKeyUp( uint8 key, std::string& keyString );
+        bool ProcessKeyDown( uint8 key, std::string& keyText );
+        bool ProcessKeyUp( uint8 key, std::string& keyText );
         bool ProcessMouseDown( int click );
         void ProcessMouseMove( int x, int y );
         bool ProcessMouseUp( int click );

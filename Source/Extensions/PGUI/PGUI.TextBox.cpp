@@ -122,10 +122,13 @@ void PGUI::TextBox::DrawContent()
     Draw::RenderText( TextToDraw, GUI->Settings.ColorFont, GUI->Settings.FontType, GUI->Settings.FontFlags, GetLeft() + GUI->Settings.TextBoxMargin, GetTop() + GUI->Settings.TextBoxMargin, Width, Height );
 }
 
-bool PGUI::TextBox::KeyDown( const uint8& key, const std::string& keyText )
+bool PGUI::TextBox::KeyDown( uint8 key, std::string& keyText )
 {
     if( !IsKeyboardEnabled )
         return false;
+
+    if( GUI->Debug )
+        App.WriteLogF( _FUNC_, "(%u,%s)\n", key, keyText.c_str() );
 
     switch( key )
     {
@@ -199,10 +202,13 @@ bool PGUI::TextBox::KeyDown( const uint8& key, const std::string& keyText )
     return true;
 }
 
-bool PGUI::TextBox::KeyUp( const uint8& key, const std::string& keyText )
+bool PGUI::TextBox::KeyUp( uint8 key, std::string& keyText )
 {
     if( !IsKeyboardEnabled )
         return false;
+
+    if( GUI->Debug )
+        App.WriteLogF( _FUNC_, "(%u,%s)\n", key, keyText.c_str() );
 
     return false;
 }

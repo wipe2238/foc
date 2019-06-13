@@ -84,12 +84,14 @@ static void mouse_move( int x, int y )
 
 static bool key_down( uint8 key, ScriptString& keyText )
 {
-    return FOC::Self()->Interface->ProcessKeyDown( key, (string&)keyText.c_std_str() );
+    string keyString = keyText.c_std_str(); // yeah
+    return FOC::Self()->Interface->ProcessKeyDown( key, keyString );
 }
 
 static bool key_up( uint8 key, ScriptString& keyText )
 {
-    return FOC::Self()->Interface->ProcessKeyUp( key, (string&)keyText.c_std_str() );
+    string keyString = keyText.c_std_str(); // yeah
+    return FOC::Self()->Interface->ProcessKeyUp( key, keyString );
 }
 
 static void input_lost()

@@ -35,7 +35,7 @@ public:
             virtual void Draw() override;
             void         DrawItem( uint id, Item* item );
 
-            virtual void OnOpen() override;
+            virtual void OnOpen( bool& modal ) override;
             virtual void OnClose() override;
         };
     };

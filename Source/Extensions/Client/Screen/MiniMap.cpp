@@ -1,4 +1,5 @@
 #include <App.h>
+#include <CritterCl.h>
 #include <GameOptions.h>
 #include <HexManager.h>
 #include <Keyboard.h>
@@ -16,6 +17,13 @@ FOC::Screen::MiniMap::MapHex::MapHex( bool show, uint8 r, uint8 g, uint8 b, uint
     Color( COLOR_ARGB( alpha, r, g, b ) )
 {}
 
+FOC::Screen::MiniMap::Bounds::Bounds() :
+// public
+    MinPX( uint16( -1 ) ), MaxPX( 0 ),
+    MinPY( uint16( -1 ) ), MaxPY( 0 ),
+    Width( 0 ), Height( 0 )
+{}
+
 FOC::Screen::MiniMap::MiniMap( PGUI::Core* gui ) : PGUI::Screen( gui ),
 // public
     MiniMapPid( uint( -1 ) ),
@@ -24,13 +32,13 @@ FOC::Screen::MiniMap::MiniMap( PGUI::Core* gui ) : PGUI::Screen( gui ),
     Wall( true, 255, 127, 0 ),
     Scenery( true, 0, 255, 0 ),
 // private
-    MiniMapWidth( 0 ),
-    MiniMapHeight( 0 ),
+    MiniMapBounds(),
     MiniMapZoom( 1.0f ),
     MiniMapData( nullptr ),
     NeedUpdateMiniMap( true )
 {
     Layer = 2;
+    IsMouseEnabled = false;
 }
 
 FOC::Screen::MiniMap::~MiniMap()
@@ -125,7 +133,7 @@ void FOC::Screen::MiniMap::Update()
         NeedUpdateMiniMap = true;
 
     // no size
-    if( !MiniMapWidth || !MiniMapHeight )
+    if( !MiniMapBounds.Width || !MiniMapBounds.Height )
         NeedUpdateMiniMap = true;
 
     // no data
@@ -153,7 +161,8 @@ void FOC::Screen::MiniMap::UpdateMiniMap()
 
     // define minimap bounds
 
-    uint16 minPX = uint16( -1 ), maxPX = 0, minPY = uint16( -1 ), maxPY = 0;
+    MiniMapBounds = Bounds();
+
     for( uint16 hexX = 0; hexX < mapWidth; hexX++ )
     {
         for( uint16 hexY = 0; hexY < mapHeight; hexY++ )
@@ -172,10 +181,10 @@ void FOC::Screen::MiniMap::UpdateMiniMap()
 
                 // update bounds
 
-                minPX = std::min( minPX, px );
-                maxPX = std::max( maxPX, px );
-                minPY = std::min( minPY, py );
-                maxPY = std::max( maxPY, py );
+                MiniMapBounds.MinPX = std::min( MiniMapBounds.MinPX, px );
+                MiniMapBounds.MaxPX = std::max( MiniMapBounds.MaxPX, px );
+                MiniMapBounds.MinPY = std::min( MiniMapBounds.MinPY, py );
+                MiniMapBounds.MaxPY = std::max( MiniMapBounds.MaxPY, py );
             }
         }
     }
@@ -197,7 +206,7 @@ void FOC::Screen::MiniMap::UpdateMiniMap()
 
             // ignore everything outside bounds
 
-            if( px < minPX || px > maxPX || py < minPY || py > maxPY )
+            if( px < MiniMapBounds.MinPX || px > MiniMapBounds.MaxPX || py < MiniMapBounds.MinPY || py > MiniMapBounds.MaxPY )
                 continue;
 
             // check if current hex is going to be part of minimap
@@ -209,8 +218,8 @@ void FOC::Screen::MiniMap::UpdateMiniMap()
 
             // adjust position
 
-            px -= minPX;
-            py -= minPY;
+            px -= MiniMapBounds.MinPX;
+            py -= MiniMapBounds.MinPY;
 
             // update minimap
 
@@ -224,31 +233,33 @@ void FOC::Screen::MiniMap::UpdateMiniMap()
         App.WriteLogF( _FUNC_, " : %d point%s\n", automap.Points.size(), automap.Points.size() != 1 ? "s" : "" );
 
     MiniMapPid = mapPid;
+    MiniMapBounds.Width = MiniMapBounds.MaxPX - MiniMapBounds.MinPX;
+    MiniMapBounds.Height = MiniMapBounds.MaxPY - MiniMapBounds.MinPY;
 
     PGUI::Draw::DeleteCache( MiniMapData );
     MiniMapData = automap.NewCache();
 
-    MiniMapWidth = maxPX - minPX;
-    MiniMapHeight = maxPY - minPY;
-
-    UpdateZoom( MiniMapZoom );
+    UpdateMiniMapZoom( MiniMapZoom );
 
     NeedUpdateMiniMap = false;
 }
 
-void FOC::Screen::MiniMap::UpdateZoom( float zoom )
+void FOC::Screen::MiniMap::UpdateMiniMapZoom( float zoom )
 {
-    uint16 width = (uint16)(MiniMapWidth / zoom);
-    uint16 height = (uint16)(MiniMapHeight / zoom);
-
-    if( zoom >= 0.2f && zoom <= 3.6f && width < GUI->GetScreenWidth() && height < GUI->GetScreenWidth() )
+    if( zoom >= 0.1f && zoom <= 3.6f )
     {
-        SetSize( width, height );
-        SetPositionAt( 5 + 1, -5 - -1 );       // top-right, 5px margin
-        MiniMapZoom = zoom;
+        uint16 width = (uint16)(MiniMapBounds.Width / zoom);
+        uint16 height = (uint16)(MiniMapBounds.Height / zoom);
 
-        if( GUI->Debug )
-            App.WriteLogF( _FUNC_, " = %.1ff\n", MiniMapZoom );
+        if( width < GUI->GetScreenWidth() && height < GUI->GetScreenWidth() )
+        {
+            SetSize( width, height );
+            SetPositionAt( 5 + 1, -5 - -1 );                 // top-right, 5px margin
+            MiniMapZoom = zoom;
+
+            if( GUI->Debug )
+                App.WriteLogF( _FUNC_, " = %.1ff\n", MiniMapZoom );
+        }
     }
 }
 
@@ -257,17 +268,20 @@ void FOC::Screen::MiniMap::DrawContent()
     if( !IsDrawEnabled )
         return;
 
-    PGUI::Draw::RenderData( MiniMapData, GetLeft(), GetTop(), MiniMapZoom );
+    if( MiniMapData )
+    {
+        PGUI::Draw::RenderData( MiniMapData, GetLeft(), GetTop(), MiniMapZoom );
+    }
 }
 
-bool FOC::Screen::MiniMap::KeyDown( const uint8& key, const std::string& keyText )
+bool FOC::Screen::MiniMap::KeyDown( uint8 key, std::string& keyText )
 {
     if( !IsKeyboardEnabled )
         return false;
 
     if( key == DIK_ADD || key == DIK_SUBTRACT )
     {
-        UpdateZoom( MiniMapZoom + (key == DIK_ADD ? -0.1f : 0.1f) );
+        UpdateMiniMapZoom( MiniMapZoom + (key == DIK_ADD ? -0.1f : 0.1f) );
 
         return true;
     }

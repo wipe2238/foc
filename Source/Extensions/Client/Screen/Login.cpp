@@ -30,8 +30,9 @@ FOC::Screen::Login::Login( PGUI::Core* gui ) : PGUI::Screen( gui ),
 // private
     ActiveElement( 0 )
 {
-
     Layer = 3;
+    IsMovable = false;
+
     SetSize( 270, 70 );
     SetPositionAt( 0, 0 );
 
@@ -42,6 +43,8 @@ FOC::Screen::Login::Login( PGUI::Core* gui ) : PGUI::Screen( gui ),
     {
         PGUI::TextBox* box = new PGUI::TextBox( gui );
 
+        box->IsKeyboardEnabled = false;
+        box->IsDrawCursorEnabled = false;
         box->SetText( std::string( MAX_NAME, 'w' ) );
         box->AutoSize();
         box->SetText( "" );
@@ -56,10 +59,15 @@ FOC::Screen::Login::Login( PGUI::Core* gui ) : PGUI::Screen( gui ),
     GetElement( ID::UserPass )->SetTop( GetElement( ID::UserPass )->GetBottom( true ) + GUI->Settings.TextBoxMargin * 2 );
 }
 
-bool FOC::Screen::Login::KeyDown( const uint8& key, const std::string& keyString )
+//
+
+bool FOC::Screen::Login::KeyDown( uint8 key, std::string& keyText )
 {
     if( !IsKeyboardEnabled )
         return false;
+
+    if( GUI->Debug )
+        App.WriteLogF( _FUNC_, "(%u,\"%s\")\n", key, keyText.c_str() );
 
     if( key == DIK_ESCAPE )
     {
@@ -70,11 +78,14 @@ bool FOC::Screen::Login::KeyDown( const uint8& key, const std::string& keyString
     }
     else if( key == DIK_TAB )
     {
+        PGUI::TextBox* element;
+
         if( ActiveElement )
         {
-            PGUI::TextBox* element = GetElementAs<PGUI::TextBox>( ActiveElement );
+            element = GetElementAs<PGUI::TextBox>( ActiveElement );
             // cursor still will be drawn on unselected element for a short time; not a bug
             element->IsDrawCursorEnabled = false;
+            element->IsKeyboardEnabled = false;
             element->SetBorderThickness( 1 );
         }
 
@@ -83,8 +94,9 @@ bool FOC::Screen::Login::KeyDown( const uint8& key, const std::string& keyString
         if( ActiveElement > ID::UserPass )
             ActiveElement = ID::UserName;
 
-        PGUI::TextBox* element = GetElementAs<PGUI::TextBox>( ActiveElement );
+        element = GetElementAs<PGUI::TextBox>( ActiveElement );
         element->IsDrawCursorEnabled = true;
+        element->IsKeyboardEnabled = true;
         element->SetBorderThickness( 2 );
 
         return true;
@@ -106,7 +118,7 @@ bool FOC::Screen::Login::KeyDown( const uint8& key, const std::string& keyString
         return true;
     }
 
-    if( ActiveElement && IsElement( ActiveElement ) && GetElement( ActiveElement )->KeyDown( key, keyString ) )
+    if( PGUI::Screen::KeyDown( key, keyText ) )
         return true;
 
     return false;
@@ -114,10 +126,21 @@ bool FOC::Screen::Login::KeyDown( const uint8& key, const std::string& keyString
 
 //
 
-void FOC::Screen::Login::OnOpen()
+void FOC::Screen::Login::OnOpen( bool& modal )
 {
-    GetElementAs<PGUI::TextBox>( ID::UserName )->SetText( GameOpt.Name.c_std_str() );
-    GetElementAs<PGUI::TextBox>( ID::UserPass )->SetText( "" );
+    PGUI::TextBox* username = GetElementAs<PGUI::TextBox>( ID::UserName );
+    PGUI::TextBox* userpass = GetElementAs<PGUI::TextBox>( ID::UserPass );
+
+    username->SetText( GameOpt.Name.c_std_str() );
+    userpass->SetText( "" );
+
+    // autofocus
+    PGUI::TextBox* focus = username->GetText().length() ? userpass : username;
+    focus->IsKeyboardEnabled = true;
+    focus->IsDrawCursorEnabled = true;
+    focus->SetBorderThickness( 2 );
+
+    ActiveElement = focus == username ? ID::UserName : ID::UserPass;
 
     GameOpt.HideCursor = true;
 }
@@ -129,17 +152,7 @@ void FOC::Screen::Login::OnClose()
     GameOpt.HideCursor = false;
 }
 
-void FOC::Screen::Login::OnActive( bool active )
+void FOC::Screen::Login::OnTop( bool top )
 {
-    SetBorderThickness( active ? 2 : 1 );
-
-    if( !ActiveElement )
-        return;
-
-    PGUI::TextBox* element = GetElementAs<PGUI::TextBox>( ActiveElement );
-
-    element->IsDrawCursorEnabled = false;
-    element->SetBorderThickness( 1 );
-
-    ActiveElement = 0;
+    SetBorderThickness( top ? 2 : 1 );
 }

@@ -279,6 +279,8 @@ static bool player_getaccess( Critter& cr, uint8 access, ScriptString& password 
 
 static bool player_allowcommand( Critter* cr, ScriptString* admin, uint8 command )
 {
+    WriteLogF( _FUNC_, " : command<%u>\n", command );
+
     return true;
 }
 
