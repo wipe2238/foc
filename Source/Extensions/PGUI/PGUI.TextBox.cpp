@@ -70,23 +70,6 @@ void PGUI::TextBox::SetTextMask( const std::string& mask )
     UpdateDrawText();
 }
 
-void PGUI::TextBox::UpdateDrawText()
-{
-    std::string text = GetText();
-
-    if( TextMask.length() == 1 )
-        text = std::string( text.length(), TextMask.front() );
-    else if( TextMask.length() >= 2 )
-    {
-        TextToDraw = TextMask;
-        return;
-    }
-
-    if( CursorPosition == text.length() )
-        TextToDraw = text + Cursor;
-    else
-        TextToDraw = text.substr( 0, CursorPosition ) + Cursor + text.substr( CursorPosition, text.length() - CursorPosition );
-}
 
 void PGUI::TextBox::Update()
 {
@@ -112,6 +95,24 @@ void PGUI::TextBox::Update()
     }
 
     PGUI::Element::Update();
+}
+
+void PGUI::TextBox::UpdateDrawText()
+{
+    std::string text = GetText();
+
+    if( TextMask.length() == 1 )
+        text = std::string( text.length(), TextMask.front() );
+    else if( TextMask.length() >= 2 )
+    {
+        TextToDraw = TextMask;
+        return;
+    }
+
+    if( CursorPosition == text.length() )
+        TextToDraw = text + Cursor;
+    else
+        TextToDraw = text.substr( 0, CursorPosition ) + Cursor + text.substr( CursorPosition, text.length() - CursorPosition );
 }
 
 void PGUI::TextBox::DrawContent()
@@ -200,15 +201,4 @@ bool PGUI::TextBox::KeyDown( uint8 key, std::string& keyText )
     UpdateDrawText();
 
     return true;
-}
-
-bool PGUI::TextBox::KeyUp( uint8 key, std::string& keyText )
-{
-    if( !IsKeyboardEnabled )
-        return false;
-
-    if( GUI->Debug )
-        App.WriteLogF( _FUNC_, "(%u,%s)\n", key, keyText.c_str() );
-
-    return false;
 }

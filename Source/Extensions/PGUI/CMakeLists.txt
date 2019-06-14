@@ -3,6 +3,8 @@ target_sources( PGUI
 	PRIVATE
 		${CMAKE_CURRENT_LIST_FILE}
 
+		PGUI.Button.cpp
+		PGUI.Button.h
 		PGUI.Core.cpp
 		PGUI.Core.h
 		PGUI.Draw.h

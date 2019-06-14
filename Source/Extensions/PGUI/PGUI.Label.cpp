@@ -10,7 +10,10 @@
 PGUI::Label::Label( PGUI::Core* gui, const std::string& text /* = std::string() */ ) : PGUI::Element( gui ),
 // protected
     Text( text )
-{}
+{
+    IsKeyboardEnabled = false;
+    IsMouseEnabled = false;
+}
 
 PGUI::Label::~Label()
 {
@@ -67,5 +70,5 @@ void PGUI::Label::DrawContent()
     if( !IsDrawEnabled )
         return;
 
-    Draw::RenderText( Text, GUI->Settings.ColorFont, GUI->Settings.FontType, GUI->Settings.FontFlags, GetLeft(), GetTop(), Width, Height );
+    Draw::RenderText( Text, GUI->Settings.ColorFont, GUI->Settings.FontType, GUI->Settings.FontFlags, GetLeft(), GetTop(), GetWidth(), GetHeight() );
 }

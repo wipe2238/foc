@@ -3,8 +3,8 @@
 
 #include <string>
 
+#include "PGUI/PGUI.Button.h"
 #include "PGUI/PGUI.Screen.h"
-#include "PGUI/PGUI.TextBox.h"
 
 namespace FOC
 {
@@ -17,6 +17,8 @@ public:
             {
                 static const uint8 UserName = 1;
                 static const uint8 UserPass = 2;
+                static const uint8 ButtonRegister = 3;
+                static const uint8 ButtonExit = 4;
             };
 
 private:
@@ -31,6 +33,8 @@ public:
             virtual void OnOpen( bool& modal ) override;
             virtual void OnClose() override;
             virtual void OnTop( bool active ) override;
+
+            void OnButton( uint id, PGUI::Button* button );
         };
     };
 };

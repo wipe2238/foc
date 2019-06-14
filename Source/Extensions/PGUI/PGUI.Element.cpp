@@ -38,7 +38,7 @@ PGUI::Element::~Element()
 int16 PGUI::Element::GetLeft( bool ignore_parent /* = false */ )
 {
     if( !ignore_parent && Parent )
-        return Parent->Left + Left;
+        return Parent->GetLeft() + Left;
 
     return Left;
 }
@@ -62,7 +62,7 @@ int16 PGUI::Element::GetRight( bool ignoreParent /* = false */ )
 int16 PGUI::Element::GetTop( bool ignore_parent /* = false */ )
 {
     if( !ignore_parent && Parent )
-        return Parent->Top + Top;
+        return Parent->GetTop() + Top;
 
     return Top;
 }
@@ -191,7 +191,26 @@ void PGUI::Element::SetSize( PGUI::Element* other )
 
 bool PGUI::Element::IsInside( int16 x, int16 y )
 {
-    return (x >= GetLeft() ) && (x <= (int)(GetLeft() + Width) ) && (y >= GetTop() ) && (y <= (int)(GetTop() + Height) );
+    return x >= GetLeft() && x <= GetRight() && y >= GetTop() && y <= GetBottom();
+}
+
+bool PGUI::Element::IsInsideStrict( int16 x, int16 y )
+{
+    if( IsInside( x, y ) )
+        return true;
+
+    for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
+    {
+        PGUI::Element* element = it->second;
+
+        if( !element )
+            continue;
+
+        if( element->IsInsideStrict( x, y ) )
+            return true;
+    }
+
+    return false;
 }
 
 bool PGUI::Element::GetBackgroundVisible()
@@ -252,6 +271,14 @@ void PGUI::Element::SetBorderThickness( uint8 value )
 
 //
 
+uint PGUI::Element::GetID()
+{
+    if( Parent )
+        return Parent->GetElementID( this );
+
+    return 0;
+}
+
 bool PGUI::Element::IsElement( uint id )
 {
     if( !id )
@@ -298,6 +325,20 @@ PGUI::Element* PGUI::Element::GetElement( uint id )
         return it->second;
 
     return nullptr;
+}
+
+uint PGUI::Element::GetElementID( PGUI::Element* element )
+{
+    if( element )
+    {
+        for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
+        {
+            if( it->second == element )
+                return it->first;
+        }
+    }
+
+    return 0;
 }
 
 //
@@ -460,12 +501,7 @@ bool PGUI::Element::MouseDown( uint8 button, int16 mx, int16 my )
     if( !IsMouseEnabled )
         return false;
 
-    bool inside = IsInside( mx, my );
-
-    MousePressed = inside;
-    MouseButton = inside ? button : uint8( -1 );
-
-    bool found = false;
+    bool result = false;
     for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
     {
         PGUI::Element* element = it->second;
@@ -473,11 +509,18 @@ bool PGUI::Element::MouseDown( uint8 button, int16 mx, int16 my )
         if( !element || !element->IsMouseEnabled )
             continue;
 
-        if( element->MouseDown( button, mx, my ) )
-            return true;
+        result = element->MouseDown( button, mx, my ) ? true : result;
     }
 
-    return false;
+    if( !result )
+    {
+        MousePressed = IsInside( mx, my );
+        MouseButton = MousePressed ? button : uint8( -1 );
+
+        result = MousePressed;
+    }
+
+    return result;
 }
 
 void PGUI::Element::MouseMove( int16 fromMX, int16 fromMY, int16 toMX, int16 toMY )
@@ -501,10 +544,7 @@ bool PGUI::Element::MouseUp( uint8 button, int16 mx, int16 my )
     if( !IsMouseEnabled )
         return false;
 
-    bool wasMousePressed = MousePressed;
-    MousePressed = false;
-    MouseButton = uint8( -1 );
-
+    bool result = false;
     for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
     {
         PGUI::Element* element = it->second;
@@ -512,17 +552,25 @@ bool PGUI::Element::MouseUp( uint8 button, int16 mx, int16 my )
         if( !element || !element->IsMouseEnabled )
             continue;
 
-        if( element->MouseUp( button, mx, my ) )
-            return true;
+        result = element->MouseUp( button, mx, my ) ? true : result;
     }
 
-    if( IsInside( mx, my ) && wasMousePressed )
+    if( !result )
     {
-        MouseClick( button );
-        return true;
+        if( IsInside( mx, my ) && MousePressed )
+        {
+            if( GUI->Debug )
+                App.WriteLogF( _FUNC_, "(%u,%d,%d) : MouseClick(%u)\n", button, mx, my, button );
+
+            MouseClick( button );
+            result = true;
+        }
     }
 
-    return false;
+    MousePressed = false;
+    MouseButton = uint8( -1 );
+
+    return result;
 }
 
 void PGUI::Element::InputLost()

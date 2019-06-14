@@ -6,8 +6,10 @@
 
 #include "Client/Screen/Login.h"
 
+#include "PGUI/PGUI.Button.h"
 #include "PGUI/PGUI.Core.h"
 #include "PGUI/PGUI.Screen.h"
+#include "PGUI/PGUI.TextBox.h"
 
 // Client.h cannot be easily included at the moment
 class FOClient
@@ -33,30 +35,54 @@ FOC::Screen::Login::Login( PGUI::Core* gui ) : PGUI::Screen( gui ),
     Layer = 3;
     IsMovable = false;
 
-    SetSize( 270, 70 );
-    SetPositionAt( 0, 0 );
-
     SetBackgroundVisible( true );
     SetBorderVisible( true );
 
-    for( uint8 id = ID::UserName; id <= ID::UserPass; id++ )
+    const uint8 offset = 10;
+
+    for( uint8 id = ID::UserName; id <= ID::ButtonExit; id++ )
     {
-        PGUI::TextBox* box = new PGUI::TextBox( gui );
+        if( id <= ID::UserPass )
+        {
+            PGUI::TextBox* box = new PGUI::TextBox( gui );
 
-        box->IsKeyboardEnabled = false;
-        box->IsDrawCursorEnabled = false;
-        box->SetText( std::string( MAX_NAME, 'w' ) );
-        box->AutoSize();
-        box->SetText( "" );
-        box->SetPosition( 10, 10 );
+            box->IsKeyboardEnabled = false;
+            box->IsDrawCursorEnabled = false;
+            box->SetText( std::string( MAX_NAME, 'w' ) );
+            box->AutoSize();
+            box->SetText( "" );
+            box->SetPosition( offset, offset );
 
-        if( id == ID::UserPass )
-            box->SetTextMask( "*" );
+            if( id == ID::UserPass )
+                box->SetTextMask( "*" );
 
-        AddElement( id, box );
+            AddElement( id, box );
+        }
+        else if( id <= ID::ButtonExit )
+        {
+            PGUI::Button* button = new PGUI::Button( gui );
+
+            button->SetSize( GetElement( ID::UserName ) );
+            button->SetLeft( offset );
+
+            AddElement( id, button );
+        }
     }
 
-    GetElement( ID::UserPass )->SetTop( GetElement( ID::UserPass )->GetBottom( true ) + GUI->Settings.TextBoxMargin * 2 );
+    GetElement( ID::UserPass )->SetTop( GetElement( ID::UserName )->GetBottom( true ) + GUI->Settings.TextBoxMargin * 2 );
+    GetElement( ID::ButtonRegister )->SetTop( GetElement( ID::UserPass )->GetBottom( true ) + GUI->Settings.TextBoxMargin * 2 );
+    GetElement( ID::ButtonExit )->SetTop( GetElement( ID::ButtonRegister )->GetBottom( true ) + GUI->Settings.TextBoxMargin * 2 );
+
+    SetSize( GetElement( ID::UserName )->GetWidth() + offset * 2, GetElement( ID::ButtonExit )->GetBottom( true ) + offset );
+    SetPositionAt( 0, 0 );
+
+    GetElementAs<PGUI::Button>( ID::ButtonRegister )->SetText( "Registration" );
+    GetElementAs<PGUI::Button>( ID::ButtonExit )->SetText( "Exit" );
+
+    for( uint id = ID::ButtonRegister; id <= ID::ButtonExit; id++ )
+    {
+        GetElementAs<PGUI::Button>( id )->EventMouseClick = std::bind( &FOC::Screen::Login::OnButton, this, std::placeholders::_1, std::placeholders::_2 );
+    }
 }
 
 //
@@ -72,7 +98,7 @@ bool FOC::Screen::Login::KeyDown( uint8 key, std::string& keyText )
     if( key == DIK_ESCAPE )
     {
         if( GUI->IsKeyPressed( DIK_LSHIFT ) )
-            GameOpt.Quit = true;
+            OnButton( ID::ButtonExit, nullptr );
 
         return true;
     }
@@ -114,7 +140,7 @@ bool FOC::Screen::Login::KeyDown( uint8 key, std::string& keyText )
 
     if( GUI->IsKeyPressed( DIK_LMENU ) && GUI->IsKeyPressed( DIK_R ) )
     {
-        FOClient::Self->ShowMainScreen( CLIENT_MAIN_SCREEN_REGISTRATION );
+        OnButton( ID::ButtonRegister, nullptr );
         return true;
     }
 
@@ -141,18 +167,24 @@ void FOC::Screen::Login::OnOpen( bool& modal )
     focus->SetBorderThickness( 2 );
 
     ActiveElement = focus == username ? ID::UserName : ID::UserPass;
-
-    GameOpt.HideCursor = true;
 }
 
 void FOC::Screen::Login::OnClose()
 {
     GetElementAs<PGUI::TextBox>( ID::UserPass )->SetText( "" );
-
-    GameOpt.HideCursor = false;
 }
 
 void FOC::Screen::Login::OnTop( bool top )
 {
     SetBorderThickness( top ? 2 : 1 );
+}
+
+void FOC::Screen::Login::OnButton( uint id, PGUI::Button* button )
+{
+    if( !id )
+    {}
+    else if( id == ID::ButtonRegister )
+        FOClient::Self->ShowMainScreen( CLIENT_MAIN_SCREEN_REGISTRATION );
+    else if( id == ID::ButtonExit )
+        GameOpt.Quit = true;
 }

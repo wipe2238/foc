@@ -55,6 +55,8 @@ static void LogContainer( const char* func, const std::list<uint>& container, co
 PGUI::CoreSettings::CoreSettings() :
 // public
     ColorBackground( COLOR_ARGB( 100, 0, 255, 0 ) ),
+    ColorBackgroundButton( COLOR_ARGB( 150, 0, 200, 0 ) ),
+    ColorBackgroundButtonHover( COLOR_ARGB( 200, 0, 200, 0 ) ),
     ColorBorder( COLOR_ARGB( 255, 0, 255, 0 ) ),
     ColorFont( COLOR_ARGB( 255, 0, 255, 0 ) ),
     ColorItem( COLOR_ARGB( 222, 0, 222, 0 ) ),
@@ -751,9 +753,6 @@ bool PGUI::Core::MouseDown( int click, int x, int y )
     {
         std::list<uint> screens = GetOpenScreenList();
 
-        if( Debug )
-            LogContainer( _FUNC_, screens, "GetOpenScreenList()" );
-
         for( auto it = screens.rbegin(), end = screens.rend(); it != end; ++it )        // reversed order
         {
             uint id = *it;
@@ -813,9 +812,6 @@ void PGUI::Core::MouseMove( int x, int y )
     else
     {
         std::list<uint> screens = GetOpenScreenList();
-
-        if( Debug )
-            LogContainer( _FUNC_, screens, "GetOpenScreenList()" );
 
         for( auto it = screens.rbegin(), end = screens.rend(); it != end; ++it ) // reversed order
         {
@@ -880,9 +876,6 @@ bool PGUI::Core::MouseUp( int click )
     else
     {
         std::list<uint> screens = GetOpenScreenList();
-
-        if( Debug )
-            LogContainer( _FUNC_, screens, "GetOpenScreenList()" );
 
         for( auto it = screens.rbegin(), end = screens.rend(); it != end; ++it )        // reversed order
         {

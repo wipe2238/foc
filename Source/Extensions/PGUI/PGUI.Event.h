@@ -7,10 +7,13 @@
 
 namespace PGUI
 {
+    class Button;
     class Screen;
 
     namespace Event
     {
+        typedef std::function<void (uint, PGUI::Button*)>       UIntButton;
+
         typedef std::function<void (uint, PGUI::Screen*)>       UIntScreen;
         typedef std::function<void (uint, PGUI::Screen*, bool)> UIntScreenBool;
     };

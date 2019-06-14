@@ -74,6 +74,7 @@ public:
         //
 
         bool IsInside( int16 x, int16 y );
+        bool IsInsideStrict( int16 x, int16 y );
 
         //
 
@@ -87,9 +88,11 @@ public:
 
         //
 
+        uint           GetID();
         bool           IsElement( uint id );
         bool           AddElement( uint id, PGUI::Element* element );
         PGUI::Element* GetElement( uint id );
+        uint           GetElementID( PGUI::Element* element );
 
         template<typename T>
         T* GetElementAs( uint id )

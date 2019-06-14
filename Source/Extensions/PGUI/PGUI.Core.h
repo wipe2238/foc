@@ -19,6 +19,8 @@ namespace PGUI
     struct CoreSettings
     {
         uint  ColorBackground;
+        uint  ColorBackgroundButton;
+        uint  ColorBackgroundButtonHover;
         uint  ColorBorder;
         uint  ColorFont;
         uint  ColorItem;

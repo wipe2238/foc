@@ -40,13 +40,12 @@ public:
         virtual void        AppendText( const std::string& text );
         virtual void        SetTextMask( const std::string& mask );
 
-        virtual void UpdateDrawText();
 
 public:
         virtual void Update() override;
+        virtual void UpdateDrawText();
         virtual void DrawContent() override;
         virtual bool KeyDown( uint8 key, std::string& keyText ) override;
-        virtual bool KeyUp( uint8 key, std::string& keyText ) override;
     };
 };
 
