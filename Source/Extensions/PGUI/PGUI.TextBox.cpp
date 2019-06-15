@@ -99,6 +99,9 @@ void PGUI::TextBox::Update()
 
 void PGUI::TextBox::UpdateDrawText()
 {
+    if( !IsUpdateEnabled )
+        return;
+
     std::string text = GetText();
 
     if( TextMask.length() == 1 )

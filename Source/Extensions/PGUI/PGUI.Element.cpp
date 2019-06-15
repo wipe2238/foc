@@ -408,6 +408,7 @@ void PGUI::Element::Draw()
         return;
 
     DrawBack();
+    DrawElements();
     DrawContent();
     DrawFront();
 }
@@ -419,6 +420,12 @@ void PGUI::Element::DrawBack()
 
     if( GetBackgroundVisible() )
         Draw::RenderData( BackgroundCache, GetLeft(), GetTop() );
+}
+
+void PGUI::Element::DrawElements()
+{
+    if( !IsDrawEnabled )
+        return;
 
     for( auto it = Elements.begin(), end = Elements.end(); it != end; ++it )
     {

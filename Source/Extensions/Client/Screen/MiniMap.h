@@ -1,5 +1,5 @@
-#ifndef __CLIENT__INTERAFACE__AUTO_MAP__
-#define __CLIENT__INTERAFACE__AUTO_MAP__
+#ifndef __CLIENT__SCREEN__MINI_MAP__
+#define __CLIENT__SCREEN__MINI_MAP__
 
 #include "PGUI/PGUI.Screen.h"
 
@@ -66,4 +66,4 @@ public:
     };
 };
 
-#endif // __CLIENT__INTERAFACE__AUTO_MAP__ //
+#endif // __CLIENT__SCREEN__MINI_MAP__ //

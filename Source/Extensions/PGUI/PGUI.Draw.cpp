@@ -77,8 +77,17 @@ void PGUI::DrawData::MakeRectangle( int16 left, int16 top, uint16 width, uint16 
 {
     Clear();
 
-    if( !width || !height )
+    if( !width )
+    {
+        App.WriteLogF( _FUNC_, " ERROR : no width\n" );
         return;
+    }
+
+    if( !height )
+    {
+        App.WriteLogF( _FUNC_, " ERROR : no height\n" );
+        return;
+    }
 
     PointsType = DRAW_PRIMITIVE_TRIANGLELIST;
 
@@ -97,8 +106,23 @@ void PGUI::DrawData::MakeRectangleFrame( int16 left, int16 top, uint16 width, ui
 {
     Clear();
 
-    if( !width || !height || !thickness )
+    if( !width )
+    {
+        App.WriteLogF( _FUNC_, " ERROR : no width\n" );
         return;
+    }
+
+    if( !height )
+    {
+        App.WriteLogF( _FUNC_, " ERROR : no height\n" );
+        return;
+    }
+
+    if( !thickness )
+    {
+        App.WriteLogF( _FUNC_, " ERROR : no thickness\n" );
+        return;
+    }
 
     PointsType = DRAW_PRIMITIVE_LINESTRIP;
 

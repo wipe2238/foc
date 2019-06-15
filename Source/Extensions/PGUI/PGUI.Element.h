@@ -111,6 +111,7 @@ public:
 
         virtual void Draw();
         virtual void DrawBack();
+        virtual void DrawElements();
         virtual void DrawContent() {}
         virtual void DrawFront();
         virtual void DrawMap();

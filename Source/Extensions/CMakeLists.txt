@@ -40,6 +40,8 @@ target_sources( ${EXTENSION_PREFIX}Client
 
 		Client/Screen/Game.cpp
 		Client/Screen/Game.h
+		Client/Screen/Info.cpp
+		Client/Screen/Info.h
 		Client/Screen/Login.cpp
 		Client/Screen/Login.h
 		Client/Screen/MiniMap.cpp

@@ -79,10 +79,7 @@ void PGUI::Button::DrawBack()
 
     if( GetBackgroundVisible() )
     {
-        if( !IsHover )
-            Draw::RenderData( BackgroundCache, GetLeft(), GetTop() );
-        else
-            Draw::RenderData( BackgroundHoverCache, GetLeft(), GetTop() );
+        Draw::RenderData( IsHover ? BackgroundHoverCache : BackgroundCache, GetLeft(), GetTop() );
     }
 }
 

@@ -8,6 +8,7 @@
 
 #include "Client/Interface.h"
 #include "Client/Screen/Game.h"
+#include "Client/Screen/Info.h"
 #include "Client/Screen/Login.h"
 #include "Client/Screen/MiniMap.h"
 #include "Shared/Hex2D.h"
@@ -250,6 +251,13 @@ bool FOC::InterfaceManager::ProcessKeyDown( uint8 key, std::string& keyText )
         if( key == DIK_TAB )
         {
             UI->ToggleScreen( CLIENT_SCREEN_MINIMAP );
+            return true;
+        }
+        else if( key == DIK_C )
+            return true;
+        else if( key == DIK_I )
+        {
+            UI->ToggleScreen( CLIENT_SCREEN_INVENTORY );
             return true;
         }
     }

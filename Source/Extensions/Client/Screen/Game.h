@@ -1,5 +1,5 @@
-#ifndef __FOC__INTERFACE__SCREEN_GAME__
-#define __FOC__INTERFACE__SCREEN_GAME__
+#ifndef __CLIENT__SCREEN__GAME__
+#define __CLIENT__SCREEN__GAME__
 
 #include <Types.h>
 
@@ -41,4 +41,4 @@ public:
     };
 };
 
-#endif // __FOC__INTERFACE__SCREEN_GAME__ //
+#endif // __CLIENT__SCREEN__GAME__ //

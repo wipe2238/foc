@@ -10,6 +10,7 @@
 #include "PGUI.Keyboard.h"
 #include "PGUI.Screen.h"
 
+#if 0
 static void LogContainer( const char* func, const std::map<uint, PGUI::Screen*>& container, const char* name )
 {
     App.WriteLogF( func, " : container<%s> = ", name );
@@ -51,6 +52,7 @@ static void LogContainer( const char* func, const std::list<uint>& container, co
         App.WriteLogX( "\n" );
     }
 }
+#endif // 0
 
 PGUI::CoreSettings::CoreSettings() :
 // public
@@ -165,9 +167,6 @@ bool PGUI::Core::AddScreen( uint id, PGUI::Screen* screen )
         screen->SetGUI( this );
         AllScreens[id] = screen;
 
-        if( Debug )
-            LogContainer( _FUNC_, AllScreens, "AllScreens" );
-
         if( EventScreenAdd )
         {
             if( Debug )
@@ -210,9 +209,6 @@ bool PGUI::Core::RemoveScreen( uint id )
         CloseScreen( id );
 
     AllScreens.erase( id );
-
-    if( Debug )
-        LogContainer( _FUNC_, AllScreens, "AllScreens" );
 
     if( EventScreenRemove )
     {
@@ -266,9 +262,6 @@ bool PGUI::Core::OpenScreen( uint id )
 
     // allow open events to use OpenAllScreens()
     OpenScreens.push_back( id );
-
-    if( Debug )
-        LogContainer( _FUNC_, OpenScreens, "OpenScreens" );
 
     if( EventScreenOpen )
     {
@@ -329,9 +322,6 @@ bool PGUI::Core::CloseScreen( uint id )
 
     // allow close events to use CloseAllScreens()
     OpenScreens.remove( id );
-
-    if( Debug )
-        LogContainer( _FUNC_, OpenScreens, "OpenScreens" );
 
     if( EventScreenClose )
     {
@@ -626,9 +616,6 @@ bool PGUI::Core::KeyDown( uint8 key, std::string& keyText )
     {
         std::list<uint> screens = GetOpenScreenList();
 
-        if( Debug )
-            LogContainer( _FUNC_, screens, "GetOpenScreenList()" );
-
         for( auto it = screens.rbegin(), end = screens.rend(); it != end; ++it ) // reversed order
         {
             uint id = *it;
@@ -680,9 +667,6 @@ bool PGUI::Core::KeyUp( uint8 key, std::string& keyText )
     else
     {
         std::list<uint> screens = GetOpenScreenList();
-
-        if( Debug )
-            LogContainer( _FUNC_, screens, "GetOpenScreenList()" );
 
         for( auto it = screens.rbegin(), end = screens.rend(); it != end; ++it ) // reversed order
         {
