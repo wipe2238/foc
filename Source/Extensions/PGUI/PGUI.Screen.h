@@ -31,7 +31,8 @@ public:
         Screen( PGUI::Core* gui, uint width = 0, uint height = 0, int left = 0, int top = 0 );
         virtual ~Screen();
 
-        bool LoadSettings( Ini* ini, const std::string& section );
+        virtual uint GetID() override;
+        bool         LoadSettings( Ini* ini, const std::string& section );
 
         virtual void AutoSize() override;
 

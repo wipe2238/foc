@@ -9,6 +9,7 @@
 #include "Client/Interface.h"
 #include "Client/Screen/Game.h"
 #include "Client/Screen/Info.h"
+#include "Client/Screen/Inventory.h"
 #include "Client/Screen/Login.h"
 #include "Client/Screen/MiniMap.h"
 #include "Shared/Hex2D.h"
@@ -75,6 +76,7 @@ bool FOC::InterfaceManager::ProcessStart()
 
     UI->AddScreen( CLIENT_MAIN_SCREEN_LOGIN, new Screen::Login( UI ) );
     UI->AddScreen( CLIENT_MAIN_SCREEN_GAME, new Screen::Game( UI ) );
+    UI->AddScreen( CLIENT_SCREEN_INVENTORY, new Screen::Inventory( UI ) );
     UI->AddScreen( CLIENT_SCREEN_MINIMAP, new Screen::MiniMap( UI ) );
 
     return true;
@@ -110,14 +112,6 @@ void FOC::InterfaceManager::ProcessScreenChange( bool show, int screen, int p0, 
             UI->OpenScreen( screen );
         else
             UI->CloseScreen( screen );
-
-        if( false && screen == CLIENT_MAIN_SCREEN_LOGIN )
-        {
-            if( show )
-                EngineScreens.insert( screen );
-            else
-                EngineScreens.erase( screen );
-        }
     }
 }
 
@@ -311,6 +305,18 @@ void FOC::InterfaceManager::ProcessInputLost()
 {
     if( UI )
         UI->InputLost();
+}
+
+void FOC::InterfaceManager::ProcessItemInvIn( Item& item )
+{
+    if( UI && UI->IsScreen( CLIENT_SCREEN_INVENTORY ) )
+        UI->GetScreenAs<FOC::Screen::Inventory>( CLIENT_SCREEN_INVENTORY )->ItemInvIn( item );
+}
+
+void FOC::InterfaceManager::ProcessItemInvOut( Item& item )
+{
+    if( UI && UI->IsScreen( CLIENT_SCREEN_INVENTORY ) )
+        UI->GetScreenAs<FOC::Screen::Inventory>( CLIENT_SCREEN_INVENTORY )->ItemInvOut( item );
 }
 
 void FOC::InterfaceManager::DrawTextBlocks()

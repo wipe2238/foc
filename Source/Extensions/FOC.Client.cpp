@@ -117,10 +117,14 @@ static void item_map_out( ItemCl& item )
 {}
 
 static void item_inv_in( ItemCl& item )
-{}
+{
+    FOC::Self()->Interface->ProcessItemInvIn( item );
+}
 
 static void item_inv_out( ItemCl& item )
-{}
+{
+    FOC::Self()->Interface->ProcessItemInvOut( item );
+}
 
 static bool map_message( ScriptString& message, uint16& hexX, uint16& hexY, uint& color, uint& delay )
 {

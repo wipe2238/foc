@@ -21,6 +21,11 @@ PGUI::Screen::~Screen()
         App.WriteLogF( _FUNC_, "\n" );
 }
 
+uint PGUI::Screen::GetID()
+{
+    return GUI->GetScreenID( this );
+}
+
 bool PGUI::Screen::LoadSettings( Ini* ini, const std::string& section )
 {
     if( !ini )

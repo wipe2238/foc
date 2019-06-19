@@ -231,7 +231,7 @@ void PGUI::Draw::RenderText( const std::string& text, uint color, uint8 font, ui
     #endif
 }
 
-void PGUI::Draw::DeleteCache( PGUI::DrawCache* data )
+void PGUI::Draw::DeleteCache( PGUI::DrawCache*& data )
 {
     if( data )
     {

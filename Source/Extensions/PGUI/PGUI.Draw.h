@@ -44,7 +44,7 @@ namespace PGUI
         static void RenderData( PGUI::DrawData& data, int16 offsetX = 0, int16 offsetY = 0, float zoom = 1.0f );
         static void RenderText( const std::string& text, uint color, uint8 font, uint flags, int16 left, int16 top, uint16 width, uint16 height );
 
-        static void DeleteCache( PGUI::DrawCache* data );
+        static void DeleteCache( PGUI::DrawCache*& data );
     };
 }
 

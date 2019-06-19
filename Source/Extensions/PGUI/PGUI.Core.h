@@ -92,6 +92,18 @@ public:
         std::list<uint> GetAllScreenList();
         std::list<uint> GetOpenScreenList();
 
+        template<typename T>
+        T* GetScreenAs( uint id )
+        {
+            return (T*)GetScreen( id );
+        }
+
+        template<typename T>
+        T* GetOpenScreenAs( uint id )
+        {
+            return (T*)GetOpenScreen( id );
+        }
+
         // input
 
         bool IsKeyPressed( uint8 key );

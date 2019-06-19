@@ -3,9 +3,8 @@
 
 #include <Addons/scriptarray.h>
 #include <Defines.Public.h>
+#include <Item.h>
 #include <Types.h>
-
-#include "PGUI/PGUI.Core.h"
 
 #define TB_DEBUG      "Debug"
 #define TI_FPS        "00:FPS"
@@ -13,6 +12,12 @@
 #define TI_SCREENZ    "02:PGUI"
 #define TI_COORD      "03:Coords"
 #define TI_FIELD      "04:Field"
+
+namespace PGUI
+{
+    class Core;
+    class Screen;
+};
 
 namespace FOC
 {
@@ -90,6 +95,9 @@ public:
         void ProcessMouseMove( int x, int y );
         bool ProcessMouseUp( int click );
         void ProcessInputLost();
+
+        void ProcessItemInvIn( Item& item );
+        void ProcessItemInvOut( Item& item );
 
         void DrawTextBlocks();
     };
