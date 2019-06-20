@@ -9,7 +9,7 @@
 namespace PGUI
 {
     class Core;
-    struct DrawCache;
+    class DrawData;
 
     class Element
     {
@@ -41,8 +41,8 @@ protected:
         std::map<uint, Element*> Elements;
 
         bool                     NeedUpdateDecorations; // if true, background/border cache will be rebuilt on next Update() call
-        DrawCache*               BackgroundCache;
-        DrawCache*               BorderCache;
+        DrawData*                BackgroundCache;
+        DrawData*                BorderCache;
 
         bool                     MousePressed;
         uint8                    MouseButton;

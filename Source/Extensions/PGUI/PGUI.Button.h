@@ -9,15 +9,15 @@
 namespace PGUI
 {
     class Core;
-    struct DrawCache;
+    class DrawData;
     class Label;
 
     class Button : public PGUI::Element
     {
         friend class PGUI::Core;
 protected:
-        bool       IsHover;
-        DrawCache* BackgroundHoverCache;
+        bool      IsHover;
+        DrawData* BackgroundHoverCache;
 
 public:
         Button( PGUI::Core* gui );

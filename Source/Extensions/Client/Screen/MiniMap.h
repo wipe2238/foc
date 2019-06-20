@@ -39,10 +39,10 @@ private:
                 Bounds();
             };
 
-            Bounds           MiniMapBounds;
-            float            MiniMapZoom;
-            PGUI::DrawCache* MiniMapData;
-            bool             NeedUpdateMiniMap;
+            Bounds          MiniMapBounds;
+            float           MiniMapZoom;
+            PGUI::DrawData* MiniMapData;
+            bool            NeedUpdateMiniMap;
 
 public:
             MiniMap( PGUI::Core* gui );

@@ -29,8 +29,8 @@ PGUI::Element::~Element()
     if( GUI->Debug )
         App.WriteLogF( _FUNC_, "\n" );
 
-    Draw::DeleteCache( BackgroundCache );
-    Draw::DeleteCache( BorderCache );
+    Draw::DeleteData( BackgroundCache );
+    Draw::DeleteData( BorderCache );
 
     Elements.clear();
 }
@@ -378,23 +378,19 @@ void PGUI::Element::UpdateDecorations()
     if( GUI->Debug )
         App.WriteLogF( _FUNC_, "\n" );
 
-    Draw::DeleteCache( BackgroundCache );
-    Draw::DeleteCache( BorderCache );
+    Draw::DeleteData( BackgroundCache );
+    Draw::DeleteData( BorderCache );
 
     if( GetBackgroundVisible() )
     {
-        DrawData background;
-
-        background.MakeRectangle( 0, 0, GetWidth(), GetHeight(), GUI->Settings.ColorBackground );
-        BackgroundCache = background.NewCache();
+        BackgroundCache = new PGUI::DrawData();
+        BackgroundCache->MakeRectangle( 0, 0, GetWidth(), GetHeight(), GUI->Settings.ColorBackground );
     }
 
     if( GetBorderVisible() )
     {
-        DrawData border;
-
-        border.MakeRectangleFrame( 0, 0, GetWidth(), GetHeight(), GUI->Settings.ColorBorder, GetBorderThickness() );
-        BorderCache = border.NewCache();
+        BorderCache = new PGUI::DrawData();
+        BorderCache->MakeRectangleFrame( 0, 0, GetWidth(), GetHeight(), GUI->Settings.ColorBorder, GetBorderThickness() );
     }
 
     NeedUpdateDecorations = false;

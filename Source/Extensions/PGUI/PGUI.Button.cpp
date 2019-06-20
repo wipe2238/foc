@@ -20,7 +20,7 @@ PGUI::Button::Button( PGUI::Core* gui ) : PGUI::Element( gui ),
 
 PGUI::Button::~Button()
 {
-    PGUI::Draw::DeleteCache( BackgroundHoverCache );
+    PGUI::Draw::DeleteData( BackgroundHoverCache );
 }
 
 PGUI::Label* PGUI::Button::GetLabel()
@@ -48,25 +48,23 @@ void PGUI::Button::UpdateDecorations()
     if( GUI->Debug )
         App.WriteLogF( _FUNC_, "\n" );
 
-    Draw::DeleteCache( BackgroundCache );
-    Draw::DeleteCache( BackgroundHoverCache );
-    Draw::DeleteCache( BorderCache );
-
-    DrawData data;
+    Draw::DeleteData( BackgroundCache );
+    Draw::DeleteData( BackgroundHoverCache );
+    Draw::DeleteData( BorderCache );
 
     if( GetBackgroundVisible() )
     {
-        data.MakeRectangle( 0, 0, GetWidth(), GetHeight(), GUI->Settings.ColorBackgroundButton );
-        BackgroundCache = data.NewCache();
+        BackgroundCache = new PGUI::DrawData();
+        BackgroundCache->MakeRectangle( 0, 0, GetWidth(), GetHeight(), GUI->Settings.ColorBackgroundButton );
 
-        data.MakeRectangle( 0, 0, GetWidth(), GetHeight(), GUI->Settings.ColorBackgroundButtonHover );
-        BackgroundHoverCache = data.NewCache();
+        BackgroundHoverCache = new PGUI::DrawData();
+        BackgroundHoverCache->MakeRectangle( 0, 0, GetWidth(), GetHeight(), GUI->Settings.ColorBackgroundButtonHover );
     }
 
     if( GetBorderVisible() )
     {
-        data.MakeRectangleFrame( 0, 0, GetWidth(), GetHeight(), GUI->Settings.ColorBorder, GetBorderThickness() );
-        BorderCache = data.NewCache();
+        BorderCache = new PGUI::DrawData();
+        BorderCache->MakeRectangleFrame( 0, 0, GetWidth(), GetHeight(), GUI->Settings.ColorBorder, GetBorderThickness() );
     }
 
     NeedUpdateDecorations = false;

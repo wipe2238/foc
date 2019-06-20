@@ -43,7 +43,7 @@ FOC::Screen::MiniMap::MiniMap( PGUI::Core* gui ) : PGUI::Screen( gui ),
 
 FOC::Screen::MiniMap::~MiniMap()
 {
-    PGUI::Draw::DeleteCache( MiniMapData );
+    PGUI::Draw::DeleteData( MiniMapData );
 }
 
 bool FOC::Screen::MiniMap::GetHex( uint16 hexX, uint16 hexY, bool& show, uint& color )
@@ -191,7 +191,8 @@ void FOC::Screen::MiniMap::UpdateMiniMap()
 
     // process map
 
-    PGUI::DrawData automap( DRAW_PRIMITIVE_POINTLIST );
+    PGUI::Draw::DeleteData( MiniMapData );
+    MiniMapData = new PGUI::DrawData( DRAW_PRIMITIVE_POINTLIST );
 
     for( uint16 hexX = 0; hexX < mapWidth; hexX++ )
     {
@@ -223,21 +224,18 @@ void FOC::Screen::MiniMap::UpdateMiniMap()
 
             // update minimap
 
-            automap.Points.push_back( PGUI::DrawPoint( px, py, color ) );
+            MiniMapData->Points.push_back( PrepPoint( px, py, color ) );
         }
     }
 
     // finalize
 
     if( GUI->Debug )
-        App.WriteLogF( _FUNC_, " : %d point%s\n", automap.Points.size(), automap.Points.size() != 1 ? "s" : "" );
+        App.WriteLogF( _FUNC_, " : %d point%s\n", MiniMapData->Points.size(), MiniMapData->Points.size() != 1 ? "s" : "" );
 
     MiniMapPid = mapPid;
     MiniMapBounds.Width = MiniMapBounds.MaxPX - MiniMapBounds.MinPX;
     MiniMapBounds.Height = MiniMapBounds.MaxPY - MiniMapBounds.MinPY;
-
-    PGUI::Draw::DeleteCache( MiniMapData );
-    MiniMapData = automap.NewCache();
 
     UpdateMiniMapZoom( MiniMapZoom );
 
