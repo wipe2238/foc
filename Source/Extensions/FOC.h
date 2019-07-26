@@ -1,6 +1,9 @@
 #ifndef __FOC__
 #define __FOC__
 
+#include <map>
+#include <string>
+
 #include <Extension.h>
 
 #if defined (FOCLASSIC_CLIENT)
@@ -20,9 +23,6 @@
 
 namespace FOC
 {
-    void InitExtensions();
-    void FinishExtensions();
-
     template<typename T>
     void Init( bool event_debug = true )
     {

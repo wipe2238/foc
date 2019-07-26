@@ -4,12 +4,14 @@ set( CLIENT_MAPPER_SERVER_SOURCES
 	${CMAKE_CURRENT_LIST_FILE}
 
 	FOC.h
+	Shared/Buffer.cpp
+	Shared/Buffer.h
+	Shared/Buffer.Array.cpp
+	Shared/Buffer.Array.h
 	Shared/Hex2D.cpp
 	Shared/Hex2D.h
 	Shared/SScriptFunc.h
-
-	AngelScript/Buffer.cpp
-	AngelScript/Buffer.h
+	Shared/TimeCalc.h
 )
 
 set( CLIENT_SERVER_SOURCES
@@ -75,6 +77,8 @@ target_sources( ${EXTENSION_PREFIX}Server
 		Server/Lockers.h
 		Server/WorldMap.cpp
 		Server/WorldMap.h
+
+		Shared/Buffer.Test.h
 )
 if( UNIX )
 	target_compile_definitions( ${EXTENSION_PREFIX}Server PUBLIC USE_LIBEVENT LIBEVENT_TIMEOUTS_WORKAROUND )

@@ -1,10 +1,13 @@
 #ifndef __FOC__LOCKERS__
 #define __FOC__LOCKERS__
 
-#include <Critter.h>
-#include <Extension.h>
-#include <Item.h>
+#include <map>
+
 #include <Types.h>
+
+class Critter;
+class Item;
+class Map;
 
 namespace FOC
 {
@@ -12,15 +15,26 @@ namespace FOC
     {
 public:
         bool Debug;
+        uint AutoCloseTime;
 
         LockersManager();
         ~LockersManager();
 
-        bool ProcessUseSkill( Critter& cr, int skill, Item* itemTarget );
-        //
-        bool UseLocker( Critter& cr, Item* locker );
-        void UseLockerAction( Item* locker, bool open, uint delay = 0 );
+        void Init();
+
+        bool UseLocker( Critter* cr, Item* locker, int skill );
+        Map* GetMapHexOf( Item* locker, uint16& hexX, uint16& hexY );
+
+        void Open( Item* door, Critter* cr = nullptr, int transferType = -1, uint delay = 0 );
+        void Close( Item* door, Critter* cr = nullptr, uint delay = 0 );
+        uint OnOpenClose( ScriptArray* values );         // timevent
+
+private:
+        void OnOpen( Item* locker, Critter* cr = nullptr );
+        void OnClose( Item* locker, Critter* cr = nullptr );
+        void OnShowContainer( Item* locker, Critter* cr, uint8 transferType );
     };
+
 };
 
 #endif // __FOC__LOCKERS__ //

@@ -6,7 +6,11 @@
 #include "Server/Dialogs.h"
 #include "Shared/SScriptFunc.h"
 
-typedef MapObject Scenery;
+// wrapper
+bool DialogsScenery( Critter& player, MapObject& scenery, int skill, Item* item, int dialogId )
+{
+    return FOC::Self()->Dialogs->Scenery( player, scenery, skill, item, dialogId );
+}
 
 FOC::DialogsManager::DialogsManager() :
     Debug( false )
@@ -15,14 +19,19 @@ FOC::DialogsManager::DialogsManager() :
 FOC::DialogsManager::~DialogsManager()
 {}
 
-bool SceneryDialog( Critter& player, Scenery& scenery, int skill, Item* item, int dialogId )
+void FOC::DialogsManager::Init()
 {
-    if( skill == SKILL_PICK_ON_GROUND && !item )
-    {
-        if( FOC::Self()->Dialogs->Debug )
-            WriteLogF( _FUNC_, " player<%u> dialog<%d>\n", player.GetId(), dialogId );
+    FOC::Self()->SetFunctionAddress( "Dialogs::Scenery", (size_t)&DialogsScenery );
+}
 
-        return FOServer::SScriptFunc::Global_RunDialogHex( &player, dialogId, player.GetHexX(), player.GetHexY(), false );
+bool FOC::DialogsManager::Scenery( Critter& player, MapObject& scenery, int skill, Item* item, int dialogId )
+{
+    if( player.IsPlayer() && skill == SKILL_PICK_ON_GROUND && !item )
+    {
+        if( Debug )
+            WriteLogF( _FUNC_, " : player<%u> dialog<%d>\n", player.GetId(), dialogId );
+
+        return ScriptFunc::Global_RunDialogHex( &player, dialogId, player.GetHexX(), player.GetHexY(), false );
     }
 
     return false;

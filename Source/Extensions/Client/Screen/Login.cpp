@@ -138,12 +138,6 @@ bool FOC::Screen::Login::KeyDown( uint8 key, std::string& keyText )
         return true;
     }
 
-    if( GUI->IsKeyPressed( DIK_LMENU ) && GUI->IsKeyPressed( DIK_R ) )
-    {
-        OnButton( ID::ButtonRegister, nullptr );
-        return true;
-    }
-
     if( PGUI::Screen::KeyDown( key, keyText ) )
         return true;
 

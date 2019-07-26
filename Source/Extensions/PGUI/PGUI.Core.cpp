@@ -85,20 +85,20 @@ PGUI::Core::~Core()
     RemoveAllScreens();
 }
 
-int16 PGUI::Core::GetScreenWidth()
+int16 PGUI::Core::GetGameOptScreenWidth()
 {
     return CLAMP( GameOpt.ScreenWidth, SHRT_MIN, SHRT_MAX );
 }
 
-int16 PGUI::Core::GetScreenHeight()
+int16 PGUI::Core::GetGameOptScreenHeight()
 {
     return CLAMP( GameOpt.ScreenHeight, SHRT_MIN, SHRT_MAX );
 }
 
 void PGUI::Core::GetScreenSize( int16& width, int16& height )
 {
-    width = GetScreenWidth();
-    height = GetScreenHeight();
+    width = GetScreenWidth ? GetScreenWidth() : 0;
+    height = GetScreenHeight ? GetScreenHeight() : 0;
 }
 
 bool PGUI::Core::LoadSettings( Ini* ini, const std::string& section )
@@ -141,6 +141,7 @@ bool PGUI::Core::IsScreenOpen( uint id )
 
 //
 
+// create raw Screen
 PGUI::Screen* PGUI::Core::NewScreen( uint id, bool add /* = true */ )
 {
     PGUI::Screen* screen = new PGUI::Screen( this );
@@ -711,7 +712,7 @@ bool PGUI::Core::MouseDown( int click, int x, int y )
 
     if( click < 0  || click > uint8( -1 ) )
     {
-        App.WriteLogF( _FUNC_, " WARNING : ignored click<%d>\n", click );
+        App.WriteLogF( _FUNC_, " WARNING : ignored click<%d> at xy<%d,%d>\n", click, x, y );
         return false;
     }
 

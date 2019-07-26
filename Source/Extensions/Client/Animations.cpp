@@ -7,31 +7,40 @@
 
 using namespace std;
 
+class FOClient
+{
+public:
+    static FOClient* Self;
 
+    void SetAction( uint type_action, uint param0 = 0, uint param1 = 0, uint param2 = 0, uint param3 = 0, uint param4 = 0, uint param5 = 0 );
+};
 FOC::AnimationsManager::AnimationsManager()
 {}
 
 void FOC::AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int action, int actionExt, ItemCl* item )
 {
-    if( cr.IsChosen() && !localCall )
-    {
-        switch( action )
-        {
-            case CRITTER_ACTION_MOVE_ITEM:
-            case CRITTER_ACTION_MOVE_ITEM_SWAP:
-            case CRITTER_ACTION_USE_ITEM:
-            case CRITTER_ACTION_DROP_ITEM:
-            case CRITTER_ACTION_USE_WEAPON:
-            case CRITTER_ACTION_RELOAD_WEAPON:
-            case CRITTER_ACTION_USE_SKILL:
-            case CRITTER_ACTION_PICK_ITEM:
-            case CRITTER_ACTION_PICK_CRITTER:
-            case CRITTER_ACTION_OPERATE_CONTAINER:
-                return;
-            default:
-                break;
-        }
-    }
+    if( cr.IsChosen() && localCall )
+        return;
+    /*
+       {
+       switch( action )
+       {
+        case CRITTER_ACTION_MOVE_ITEM:
+        case CRITTER_ACTION_MOVE_ITEM_SWAP:
+        case CRITTER_ACTION_USE_ITEM:
+        case CRITTER_ACTION_DROP_ITEM:
+        case CRITTER_ACTION_USE_WEAPON:
+        case CRITTER_ACTION_RELOAD_WEAPON:
+        case CRITTER_ACTION_USE_SKILL:
+        case CRITTER_ACTION_PICK_ITEM:
+        case CRITTER_ACTION_PICK_CRITTER:
+        case CRITTER_ACTION_OPERATE_CONTAINER:
+            return;
+        default:
+            break;
+       }
+       }
+     */
 
     const ProtoItem* proto = (item ? item->Proto : cr.ItemSlotMain->Proto);
 
@@ -41,10 +50,10 @@ void FOC::AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int a
         {
             if( cr.Cond == CRITTER_CONDITION_LIFE )
             {
+                cr.ClearAnim();
+
                 uint8 fromSlot = actionExt;
                 uint8 toSlot = item->AccCritter.Slot;
-
-                cr.ClearAnim();
 
                 if( toSlot == SLOT_HAND1 )
                     cr.Animate( 0, ANIM2_SHOW_WEAPON, item );
@@ -81,14 +90,19 @@ void FOC::AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int a
         }
         case CRITTER_ACTION_PICK_ITEM:
         {
-            if( cr.Cond == CRITTER_CONDITION_LIFE && proto )
-            {
-                bool isGround = (proto->Type >= ITEM_TYPE_ARMOR && proto->Type <= ITEM_TYPE_KEY && !item->IsCar() );
-                if( proto->Type == ITEM_TYPE_CONTAINER )
-                    isGround = proto->GroundLevel;
-                cr.ClearAnim();
-                cr.Animate( 0, isGround ? ANIM2_PICKUP : ANIM2_USE, nullptr );
-            }
+            /*
+               if( cr.Cond == CRITTER_CONDITION_LIFE && proto )
+               {
+               bool isGround = (proto->Type >= ITEM_TYPE_ARMOR && proto->Type <= ITEM_TYPE_KEY && !item->IsCar() );
+               if( proto->Type == ITEM_TYPE_CONTAINER )
+               isGround = proto->GroundLevel;
+
+               cr.ClearAnim();
+               cr.Animate( 0, ANIM2_HIDE_WEAPON, cr.ItemSlotMain );
+               cr.Animate( 0, isGround ? ANIM2_PICKUP : ANIM2_USE, nullptr );
+               cr.Animate( 0, ANIM2_SHOW_WEAPON, cr.ItemSlotMain );
+               }
+             */
             break;
         }
         case CRITTER_ACTION_FIDGET:
@@ -101,8 +115,8 @@ void FOC::AnimationsManager::ProcessAction( bool localCall, CritterCl& cr, int a
 
 bool FOC::AnimationsManager::ProcessFallout( uint crType, uint& anim1, uint& anim2, uint& anim1ex, uint& anim2ex, uint& flags )
 {
-    WriteLog( "ProcessFallout(crType=%u, anim1=%u, anim2=%u, anim1ex=%u, anim2ex=%u, flags=%u)\n",
-              crType, anim1, anim2, anim1ex, anim2ex, flags );
+    WriteLogF( _FUNC_, "<-(crType=%u, anim1=%u, anim2=%u, anim1ex=%u, anim2ex=%u, flags=%u)\n",
+               crType, anim1, anim2, anim1ex, anim2ex, flags );
 
     // Still only weapon
     anim1 &= ANIM1_WEAPON_MASK;
@@ -208,7 +222,9 @@ bool FOC::AnimationsManager::ProcessFallout( uint crType, uint& anim1, uint& ani
             anim2 = ANIM2_FALLOUT_STAY;
             break;
         case ANIM2_CLIMBING:
-            return true;
+            anim1 = ANIM1_FALLOUT_UNARMED;
+            anim2 = 5;
+            break;
         case ANIM2_PICKUP:
             anim1 = ANIM1_FALLOUT_UNARMED;
             anim2 = ANIM2_FALLOUT_PICKUP;
@@ -414,6 +430,9 @@ bool FOC::AnimationsManager::ProcessFallout( uint crType, uint& anim1, uint& ani
             WriteLog( "anim2 ??? %u\n", anim2 );
             return false;
     }
+
+    WriteLogF( _FUNC_, "->(crType=%u, anim1=%u, anim2=%u, anim1ex=%u, anim2ex=%u, flags=%u)\n",
+               crType, anim1, anim2, anim1ex, anim2ex, flags );
 
     return true;
 }

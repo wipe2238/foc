@@ -3,6 +3,7 @@
 #include <GameOptions.h>
 #include <HexManager.h>
 #include <Keyboard.h>
+#include <Log.h>
 #include <Random.h>
 #include <SpriteManager.h>
 
@@ -71,6 +72,9 @@ bool FOC::InterfaceManager::ProcessStart()
     UI = new PGUI::Core();
     UI->Debug = true;
 
+    UI->GetScreenWidth = std::bind( &PGUI::Core::GetGameOptScreenWidth );
+    UI->GetScreenHeight = std::bind( &PGUI::Core::GetGameOptScreenHeight );
+
     // UI->EventScreenRemove = std::bind( &InterfaceManager::UI_ScreenAdd, this, placeholders::_1, placeholders::_2 );
     UI->EventScreenRemove = std::bind( &InterfaceManager::UI_ScreenRemove, this, placeholders::_1, placeholders::_2 );
 
@@ -99,6 +103,8 @@ void FOC::InterfaceManager::ProcessLoop()
 
 void FOC::InterfaceManager::ProcessScreenChange( bool show, int screen, int p0, int p1, int p2 )
 {
+    WriteLogF( _FUNC_, " : show<%s>, screen<%d>, params<%d,%d,%d>\n", show ? "true" : "false", screen, p0, p1, p2 );
+
     if( !UI || !UI->IsScreen( screen ) )
     {
         if( show )

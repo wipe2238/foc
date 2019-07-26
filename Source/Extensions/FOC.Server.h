@@ -13,6 +13,9 @@ namespace FOC
 
     class Server : public Extension
     {
+private:
+        std::map<std::string, size_t> FunctionAddressMap;
+
 public:
         Server();
         virtual ~Server();
@@ -22,6 +25,8 @@ public:
         WorldMapManager* WorldMap;
 
         virtual size_t GetFunctionAddress( const std::string& name ) override;
+        std::string    GetFunctionName( const size_t address, bool prefix = true );
+        void           SetFunctionAddress( const std::string& name, const size_t address );
     };
 };
 

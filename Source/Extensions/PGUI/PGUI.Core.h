@@ -1,6 +1,7 @@
 #ifndef __PGUI__
 #define __PGUI__
 
+#include <functional>
 #include <list>
 #include <map>
 #include <set>
@@ -61,9 +62,12 @@ public:
 
         //
 
-        int16 GetScreenWidth();
-        int16 GetScreenHeight();
-        void  GetScreenSize( int16& width, int16& height );
+        static int16 GetGameOptScreenWidth();
+        static int16 GetGameOptScreenHeight();
+
+        std::function<int16()> GetScreenWidth;
+        std::function<int16()> GetScreenHeight;
+        void GetScreenSize( int16& width, int16& height );
 
         bool LoadSettings( Ini* ini, const std::string& section );
 

@@ -182,7 +182,7 @@ void PGUI::Element::SetSize( PGUI::Element* other )
         other->GetSize( width, height );
 
     if( GUI->Debug )
-        App.WriteLogF( _FUNC_, "(other) = %ux%u\n", width, height );
+        App.WriteLogF( _FUNC_, "(%s) = %ux%u\n", other ? "other" : "nullptr", width, height );
 
     SetSize( width, height );
 }
@@ -241,6 +241,7 @@ void PGUI::Element::SetBorderVisible( bool value )
     {
         if( GUI->Debug )
             App.WriteLogF( _FUNC_, "(%s)\n", value ? "true" : "false" );
+
         BorderVisible = value;
         NeedUpdateDecorations = true;
     }

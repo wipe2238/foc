@@ -2,6 +2,7 @@
 #define __FOC__DIALOGS__
 
 #include <Critter.h>
+#include <ProtoMap.h>
 #include <Types.h>
 
 namespace FOC
@@ -13,6 +14,11 @@ public:
 
         DialogsManager();
         ~DialogsManager();
+
+        void Init();
+
+        bool Scenery( Critter& player, MapObject& scenery, int skill, Item* item, int dialogId );
+
     };
 };
 

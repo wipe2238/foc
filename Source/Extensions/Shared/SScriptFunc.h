@@ -1,21 +1,29 @@
 #ifndef __SSCRIPT_FUNC__
 #define __SSCRIPT_FUNC__
 
+#include <Addons/scriptarray.h>
+#include <Addons/scriptstring.h>
+
 #if defined (FOCLASSIC_CLIENT)
-# include <Addons/scriptstring.h>
 #elif defined (FOCLASSIC_SERVER)
-# include <Critter.h>
-# include <Item.h>
 #endif
 
 // TODO band-aid to avoid including main class header
 //      should be extracted to [TARGET]Script.h in engine
 #if !defined (FOCLASSIC_MAPPER)
 # if defined (FOCLASSIC_CLIENT)
+#  define ScriptFunc    FOClient::SScriptFunc
+
 class CritterCl;
 
 class FOClient
 # elif defined (FOCLASSIC_SERVER)
+#  define ScriptFunc    FOServer::SScriptFunc
+
+class Critter;
+class Item;
+class Map;
+
 class FOServer
 # endif
 {
@@ -49,6 +57,17 @@ public:
         static int        Global_GetSpriteHeight( uint spr_id, int spr_index );
         static void       Global_SetZoom( float zoom );
         # elif defined (FOCLASSIC_SERVER)
+        static uint Global_CreateTimeEventEmpty( uint begin_second, ScriptString& script_name, bool save );
+        static uint Global_CreateTimeEventValue( uint begin_second, ScriptString& script_name, uint value, bool save );
+        static uint Global_CreateTimeEventValues( uint begin_second, ScriptString& script_name, ScriptArray& values, bool save );
+        static bool Global_EraseTimeEvent( uint num );
+
+        static bool Global_SetAnyData( ScriptString& name, ScriptArray& data );
+        static bool Global_SetAnyDataSize( ScriptString& name, ScriptArray& data, uint data_size );
+        static bool Global_GetAnyData( ScriptString& name, ScriptArray& data );
+        static bool Global_IsAnyData( ScriptString& name );
+        static void Global_EraseAnyData( ScriptString& name );
+
         static bool Global_RunDialogHex( Critter* player, uint dlg_pack, uint16 hx, uint16 hy, bool ignore_distance );
 
         static int  Cl_GetFog( Critter* cl, uint16 zone_x, uint16 zone_y );
@@ -57,8 +76,13 @@ public:
         static bool Cl_SetKnownLoc( Critter* cl, bool by_id, uint loc_num );
         static void Cl_ShowContainer( Critter* cl, Critter* cr_cont, Item* item_cont, uint8 transfer_type );
 
+        static void Crit_Wait( Critter* cr, uint ms );
+
         static bool Item_LockerOpen( Item* item );
         static bool Item_LockerClose( Item* item );
+
+        static void Map_PlaySound( Map* map, ScriptString& sound_name );
+        static void Map_PlaySoundRadius( Map* map, ScriptString& sound_name, uint16 hx, uint16 hy, uint radius );
         # endif
     };
 };

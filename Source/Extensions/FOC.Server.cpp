@@ -4,17 +4,21 @@
 #include <Item.h>
 #include <Map.h>
 #include <ProtoMap.h>
+#include <Random.h>
 #include <Script.h>
 
 #include "FOC.Server.h"
 
-#include "AngelScript/Buffer.h"
-
 #include "Server/Dialogs.h"
 #include "Server/Lockers.h"
 #include "Server/WorldMap.h"
+
 #include "Shared/ApCost.h"
+#include "Shared/Buffer.h"
+#include "Shared/Buffer.Array.h"
+#include "Shared/Buffer.Test.h"
 #include "Shared/MoveItem.h"
+#include "Shared/TimeCalc.h"
 
 using namespace std;
 
@@ -24,6 +28,12 @@ typedef AIDataPlane NpcPlane;
 #include "Server/Dialogs.h"
 #include "Server/Lockers.h"
 #include "Server/WorldMap.h"
+
+template<typename B>
+bool BufferTest();
+
+template<typename B>
+void BufferTestSpeed();
 
 void InitExtensionsServer()
 {
@@ -39,29 +49,23 @@ static void init()
 {
     WriteLog( "<<<   Initializing   >>>\n" );
 
+    WriteLogF( _FUNC_, " : TimeMultiplier<x%u>\n", GameOpt.TimeMultiplier );
+
     GAME_OPTION( TimeoutTransfer ) = 0;
 
-    // Dialogs
     WriteLog( "Dialogs...\n" );
     FOC::Self()->Dialogs->Debug = true;
+    FOC::Self()->Dialogs->Init();
 
-    // Lockers
+    // additional setup in start()
     WriteLog( "Lockers...\n" );
     FOC::Self()->Lockers->Debug = true;
+    FOC::Self()->Lockers->Init();
 
-    // WorldMap
     WriteLog( "Worldmap...\n" );
-    FOC::Self()->WorldMap->Init();
     FOC::Self()->WorldMap->Debug = true;
     FOC::Self()->WorldMap->BaseSpeed = 10.0f;
-    /*
-       asIScriptEngine* script_engine = FOC::Self()->ASEngine;
-       if( !script_engine )
-       {
-       WriteLog( "\nERROR\nERROR ASEngine nullptr\nERROR\n" );
-       script_engine = Script::GetEngine();
-       }
-     */
+    FOC::Self()->WorldMap->Init();
 
     WriteLog( "SetItemMask...\n" );
     static char mask0[] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0 };
@@ -84,12 +88,31 @@ static bool start()
 {
     WriteLog( "<<<   Starting   >>>\n" );
 
+    WriteLog( "Lockers...\n" );
+    FOC::Self()->Lockers->AutoCloseTime = REAL_SECOND( 30 ); // GameOptions::TimeMultiplier is initialized after init()
+
+    if( !BufferTest<Buffer>() )
+        return false;
+
+    std::string defType = BufferArray::DefaultType;
+    BufferArray::DefaultType = "array<int>";
+    if( !BufferTest<BufferArray>() )
+        return false;
+    BufferArray::DefaultType = defType;
+
+
+    // BufferTestSpeed<Buffer>();
+    // BufferTestSpeed<BufferArray>();
+
+    WriteLog( "<<<   Started   >>>\n" );
     return true;
 }
 
 static void get_start_time( uint16& multiplier, uint16& year, uint16& month, uint16& day, uint16& hour, uint16& minute )
 {
     WriteLog( "<<<   Starting for a first time   >>>\n" );
+
+    multiplier = 1;
 
     // FirstStart = true;
 }
@@ -142,13 +165,15 @@ static bool critter_use_skill( Critter& cr, int skill, Critter* crTarget, Item* 
     WriteLogF( _FUNC_, "( cr=%u, skill=%d, targetCr=%u, targetItem=%u, targetScenery=%u )\n",
                cr.GetId(), skill, crTarget ? crTarget->GetId() : 0, itemTarget ? itemTarget->Id : 0, scenTarget ? scenTarget->UID : 0 );
 
+    cr.ChangeParam( ST_ACTION_POINTS );
+
     switch( skill )
     {
         case SKILL_PICK_ON_GROUND:
         {
             if( itemTarget && (itemTarget->IsDoor() || itemTarget->IsContainer() ) )
             {
-                if( FOC::Self()->Lockers->ProcessUseSkill( cr, skill, itemTarget ) )
+                if( FOC::Self()->Lockers->UseLocker( &cr, itemTarget, skill ) )
                     return true;
             }
             else if( itemTarget )
@@ -289,8 +314,6 @@ static bool check_trap_look( Map& map, Critter& cr, Item& trap )
     return true;
 }
 
-extern bool SceneryDialog( Critter& player, Scenery& scenery, int skill, Item* item, int dialogId );
-
 FOC::Server::Server() : Extension()
 {
     Dialogs = new DialogsManager();
@@ -300,6 +323,7 @@ FOC::Server::Server() : Extension()
 
 FOC::Server::~Server()
 {
+    delete Dialogs;
     delete Lockers;
     delete WorldMap;
 }
@@ -366,9 +390,54 @@ size_t FOC::Server::GetFunctionAddress( const string& name )
     GET_ADDRESS_NSX( critter_check_move_item, MoveItem::Check );
     GET_ADDRESS_NSX( critter_move_item, MoveItem::Move );
 
-    // non-reserved function
+    // non-reserved functions
 
-    GET_ADDRESS( SceneryDialog );
+    auto it = FunctionAddressMap.find( name );
+    if( it != FunctionAddressMap.end() )
+        return it->second;
 
     return 0;
+}
+
+std::string FOC::Server::GetFunctionName( const size_t address, bool prefix /* = true */ )
+{
+    std::string foc = "FOC.extension@";
+
+    for( auto it = FunctionAddressMap.begin(), end = FunctionAddressMap.end(); it != end; ++it )
+    {
+        if( it->second == address )
+        {
+            if( prefix )
+                return foc + it->first;
+            else
+                return it->first;
+        }
+    }
+
+    return std::string();
+}
+
+void FOC::Server::SetFunctionAddress( const std::string& name, const size_t address )
+{
+    if( name.empty() )
+    {
+        WriteLogF( _FUNC_, " ERROR : no function name\n" );
+        return;
+    }
+    else if( !address )
+    {
+        WriteLogF( _FUNC_, " ERROR : no function address\n" );
+        return;
+    }
+
+    for( auto it = FunctionAddressMap.begin(), end = FunctionAddressMap.end(); it != end; ++it )
+    {
+        if( it->first == name )
+            WriteLogF( _FUNC_, "(\"%s\",%u) WARNING : overriding function address\n", name.c_str(), address );
+
+        if( it->second == address )
+            WriteLogF( _FUNC_, "(\"%s\",%u) WARNING : address already set with name<%s>\n", name.c_str(), address, it->first.c_str() );
+    }
+
+    FunctionAddressMap[name] = address;
 }
